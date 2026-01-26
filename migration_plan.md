@@ -205,13 +205,13 @@ v2/                        # Next.js project root
 
 ### Acceptance Criteria
 
-- [ ] `pnpm dev` starts Next.js dev server on `localhost:3000`
+- [x] `pnpm dev` starts Next.js dev server on `localhost:3000`
 - [ ] TypeScript compilation passes with `strict: true`
-- [ ] Tailwind CSS classes render correctly in browser
-- [ ] shadcn/ui CLI (`pnpm dlx shadcn@latest add button`) works without errors
-- [ ] Path imports like `@/components/ui/button` resolve correctly
-- [ ] ESLint runs without configuration errors
-- [ ] Base layout renders with "Hello World" test content
+- [x] Tailwind CSS classes render correctly in browser
+- [x] shadcn/ui CLI (`pnpm dlx shadcn@latest add button`) works without errors
+- [x] Path imports like `@/components/ui/button` resolve correctly
+- [x] ESLint runs without configuration errors
+- [x] Base layout renders with "Hello World" test content
 - [ ] `.env.local.example` file exists with documented variables
 
 ### Deliverables

@@ -6,7 +6,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -47,72 +47,163 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.13 0.028 261.692);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.13 0.028 261.692);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.13 0.028 261.692);
-  --primary: oklch(0.21 0.034 264.665);
-  --primary-foreground: oklch(0.985 0.002 247.839);
-  --secondary: oklch(0.967 0.003 264.542);
-  --secondary-foreground: oklch(0.21 0.034 264.665);
-  --muted: oklch(0.967 0.003 264.542);
-  --muted-foreground: oklch(0.551 0.027 264.364);
-  --accent: oklch(0.967 0.003 264.542);
-  --accent-foreground: oklch(0.21 0.034 264.665);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.928 0.006 264.531);
-  --input: oklch(0.928 0.006 264.531);
-  --ring: oklch(0.707 0.022 261.325);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0.002 247.839);
-  --sidebar-foreground: oklch(0.13 0.028 261.692);
-  --sidebar-primary: oklch(0.21 0.034 264.665);
-  --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-accent: oklch(0.967 0.003 264.542);
-  --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
-  --sidebar-border: oklch(0.928 0.006 264.531);
-  --sidebar-ring: oklch(0.707 0.022 261.325);
+  /* Radius used by shadcn/ui components */
+  --radius: 0.75rem;
+
+  /* Angel Touch brand palette (ported from Vite global.css) */
+  --primary-navy: #1a2332;
+  --primary-navy-light: #2d3b4f;
+  --primary-navy-dark: #0f1419;
+
+  --primary-blue: #2563eb;
+  --primary-blue-dark: #1d4ed8;
+  --primary-blue-light: #dbeafe;
+  --primary-blue-gradient: linear-gradient(
+    135deg,
+    rgba(66, 169, 184, 0.85) 0%,
+    rgba(44, 62, 80, 0.08) 100%
+  );
+  --primary-blue-gradient-soft: linear-gradient(
+    135deg,
+    rgba(37, 99, 235, 0.08) 0%,
+    rgba(29, 78, 216, 0.04) 100%
+  );
+
+  --accent-green: #059669;
+  --accent-green-light: #d1fae5;
+  --accent-green-gradient: linear-gradient(
+    135deg,
+    rgba(5, 150, 105, 0.9) 0%,
+    rgba(4, 120, 87, 0.75) 100%
+  );
+
+  /* legacy alias kept for compatibility with the Vite codebase */
+  --accent-gold: #e7a9b6;
+  --accent-rose: #e7a9b6;
+  --accent-rose-gradient: linear-gradient(
+    135deg,
+    rgba(231, 169, 182, 0.92) 0%,
+    rgba(227, 115, 131, 0.78) 100%
+  );
+  --accent-rose-gradient-deep: linear-gradient(
+    135deg,
+    #e7a9b6 0%,
+    #e37383 55%,
+    #c94c62 100%
+  );
+  --accent-rose-gradient-soft: linear-gradient(
+    135deg,
+    rgba(231, 169, 182, 0.35) 0%,
+    rgba(227, 115, 131, 0.25) 60%,
+    rgba(201, 76, 98, 0.15) 100%
+  );
+
+  /* Background system (brand) */
+  --brand-background: #030314;
+  --brand-background-alt: #e9ecef;
+  --brand-background-section: #dee2e6;
+  --brand-background-overlay: rgba(248, 249, 250, 0.95);
+
+  /* Glass morphism */
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: 1px solid rgba(226, 232, 240, 0.8);
+  --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --glass-backdrop: blur(8px);
+
+  /* Typography scale */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+
+  /* Spacing system */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* Breakpoints (used by legacy CSS during migration) */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  --breakpoint-3xl: 1920px;
+
+  /* shadcn/ui semantic tokens (LIGHT) */
+  --background: #ffffff;
+  --foreground: #0f1419;
+  --card: #ffffff;
+  --card-foreground: #0f1419;
+  --popover: #ffffff;
+  --popover-foreground: #0f1419;
+  --primary: var(--primary-blue);
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: var(--primary-navy);
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: rgba(231, 169, 182, 0.18);
+  --accent-foreground: var(--primary-navy);
+  --destructive: #dc2626;
+  --border: rgba(15, 20, 25, 0.12);
+  --input: rgba(15, 20, 25, 0.12);
+  --ring: rgba(37, 99, 235, 0.35);
+
+  /* Optional chart/sidebar tokens (keep reasonable defaults) */
+  --chart-1: #2563eb;
+  --chart-2: #059669;
+  --chart-3: #e7a9b6;
+  --chart-4: #0c2f52;
+  --chart-5: #42a9b8;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f1419;
+  --sidebar-primary: var(--primary-blue);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(231, 169, 182, 0.18);
+  --sidebar-accent-foreground: var(--primary-navy);
+  --sidebar-border: rgba(15, 20, 25, 0.12);
+  --sidebar-ring: rgba(37, 99, 235, 0.35);
 }
 
 .dark {
-  --background: oklch(0.13 0.028 261.692);
-  --foreground: oklch(0.985 0.002 247.839);
-  --card: oklch(0.21 0.034 264.665);
-  --card-foreground: oklch(0.985 0.002 247.839);
-  --popover: oklch(0.21 0.034 264.665);
-  --popover-foreground: oklch(0.985 0.002 247.839);
-  --primary: oklch(0.928 0.006 264.531);
-  --primary-foreground: oklch(0.21 0.034 264.665);
-  --secondary: oklch(0.278 0.033 256.848);
-  --secondary-foreground: oklch(0.985 0.002 247.839);
-  --muted: oklch(0.278 0.033 256.848);
-  --muted-foreground: oklch(0.707 0.022 261.325);
-  --accent: oklch(0.278 0.033 256.848);
-  --accent-foreground: oklch(0.985 0.002 247.839);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.034 264.665);
-  --sidebar-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-accent: oklch(0.278 0.033 256.848);
-  --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  /* shadcn/ui semantic tokens (DARK) aligned to Angel Touch brand */
+  --background: var(--brand-background);
+  --foreground: #ffffff;
+  --card: rgba(26, 35, 50, 0.95);
+  --card-foreground: #ffffff;
+  --popover: rgba(26, 35, 50, 0.98);
+  --popover-foreground: #ffffff;
+  --primary: var(--primary-blue);
+  --primary-foreground: #ffffff;
+  --secondary: rgba(45, 59, 79, 0.55);
+  --secondary-foreground: #ffffff;
+  --muted: rgba(45, 59, 79, 0.55);
+  --muted-foreground: rgba(255, 255, 255, 0.72);
+  --accent: rgba(231, 169, 182, 0.22);
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.16);
+  --ring: rgba(37, 99, 235, 0.45);
+
+  --sidebar: rgba(26, 35, 50, 0.92);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: var(--primary-blue);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(231, 169, 182, 0.22);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: rgba(37, 99, 235, 0.45);
 }
 
 @layer base {
@@ -121,5 +212,59 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    background-image: radial-gradient(
+        circle at 30% 20%,
+        rgba(231, 169, 182, 0.06),
+        transparent 60%
+      ),
+      radial-gradient(circle at 70% 80%, rgba(227, 115, 131, 0.05), transparent 65%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-nunito), var(--font-inter), system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+  }
+
+  .bg-primary-blue-gradient {
+    background: var(--primary-blue-gradient);
+  }
+
+  .bg-primary-blue-gradient-soft {
+    background: var(--primary-blue-gradient-soft);
+  }
+
+  .bg-accent-rose-gradient {
+    background: var(--accent-rose-gradient);
+  }
+
+  .bg-accent-rose-deep {
+    background: var(--accent-rose-gradient-deep);
+  }
+
+  .bg-accent-rose-soft {
+    background: var(--accent-rose-gradient-soft);
+  }
+
+  .text-gradient-rose-deep {
+    background: var(--accent-rose-gradient-deep);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }
