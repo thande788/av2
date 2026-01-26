@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -209,6 +210,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
@@ -220,6 +222,7 @@
       ),
       radial-gradient(circle at 70% 80%, rgba(227, 115, 131, 0.05), transparent 65%);
     background-attachment: fixed;
+    @apply bg-background text-foreground;
   }
 
   h1,
