@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Nunito } from "next/font/google";
+import { AnimatedThemeToggle } from "@/components/ui/animated-theme-toggle";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 // const inter = Inter({subsets:['latin'],variable:'--font-sans'});
@@ -34,11 +36,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body
-        className={`${inter.variable} ${nunito.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} ${nunito.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider>
+          <div className="min-h-screen">
+            <header className="mx-auto flex w-full max-w-4xl items-center justify-end px-6 py-4">
+              <AnimatedThemeToggle />
+            </header>
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

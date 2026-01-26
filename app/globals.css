@@ -210,7 +210,6 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
@@ -222,7 +221,6 @@
       ),
       radial-gradient(circle at 70% 80%, rgba(227, 115, 131, 0.05), transparent 65%);
     background-attachment: fixed;
-    @apply bg-background text-foreground;
   }
 
   h1,
@@ -236,6 +234,14 @@
 }
 
 @layer utilities {
+  .glass-bg {
+    background: var(--glass-bg);
+  }
+
+  .glass-border {
+    border: var(--glass-border);
+  }
+
   .glass {
     background: var(--glass-bg);
     border: var(--glass-border);

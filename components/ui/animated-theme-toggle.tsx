@@ -1,9 +1,9 @@
 "use client";
  
 import { cn } from "@/lib/utils";
+import * as React from "react";
 import { motion, useMotionValue, useTransform } from "motion/react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { Button } from "./button";
  
 export const AnimatedThemeToggle = ({
@@ -11,22 +11,22 @@ export const AnimatedThemeToggle = ({
 }: {
   className?: string;
 }) => {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
- 
-  // Avoid hydration mismatch
-  useEffect(() => {
+  const { setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
     setMounted(true);
   }, []);
- 
-  const isDark = mounted ? resolvedTheme === "dark" : false;
+
+  const isDark = resolvedTheme === "dark";
  
   const toggleTheme = () => {
     setTheme(isDark ? "light" : "dark");
   };
  
-  // Show a placeholder during SSR to avoid hydration mismatch
-  if (!mounted) {
+  // Show a placeholder during SSR/early hydration to avoid mismatch.
+  // next-themes resolves theme after mount; keep first client render identical to server output.
+  if (!mounted || !resolvedTheme) {
     return (
       <Button className={cn("px-2.5", className)} variant="outline" disabled>
         <div className="h-5 w-5" />

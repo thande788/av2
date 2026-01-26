@@ -38,6 +38,10 @@ This document outlines the migration strategy from the current Vite + React SPA 
 - **Optimized image handling** via Next.js Image component
 - **Improved developer experience** with App Router conventions
 
+### Migration Guidelines
+
+- **Refactoring rule:** During migration, it’s acceptable to refactor legacy implementations (structure, styling approach, component boundaries) to align with Next.js/App Router best practices, accessibility, performance, and maintainability — as long as user-facing behavior and content remain equivalent.
+
 ---
 
 ## Current Architecture Analysis
@@ -206,13 +210,13 @@ v2/                        # Next.js project root
 ### Acceptance Criteria
 
 - [x] `pnpm dev` starts Next.js dev server on `localhost:3000`
-- [ ] TypeScript compilation passes with `strict: true`
+- [x] TypeScript compilation passes with `strict: true`
 - [x] Tailwind CSS classes render correctly in browser
 - [x] shadcn/ui CLI (`pnpm dlx shadcn@latest add button`) works without errors
 - [x] Path imports like `@/components/ui/button` resolve correctly
 - [x] ESLint runs without configuration errors
 - [x] Base layout renders with "Hello World" test content
-- [ ] `.env.local.example` file exists with documented variables
+- [x] `.env.local.example` file exists with documented variables
 
 ### Deliverables
 
@@ -269,14 +273,14 @@ v2/
 
 ### Acceptance Criteria
 
-- [ ] All 35+ CSS custom properties migrated to `globals.css`
-- [ ] `tailwind.config.ts` extends theme with custom colors
-- [ ] Typography classes (`text-xs` through `text-5xl`) match original sizes
-- [ ] Gradient utilities (`bg-accent-rose-gradient`) work correctly
-- [ ] Dark mode toggle changes CSS variables appropriately
-- [ ] Glass morphism effects (`glass-bg`, `glass-border`) render correctly
-- [ ] Responsive breakpoints match original (`xs: 480px`, etc.)
-- [ ] shadcn/ui components inherit custom theme colors
+- [x] All 35+ CSS custom properties migrated to `globals.css`
+- [x] `tailwind.config.ts` extends theme with custom colors
+- [x] Typography classes (`text-xs` through `text-5xl`) match original sizes
+- [x] Gradient utilities (`bg-accent-rose-gradient`) work correctly
+- [x] Dark mode toggle changes CSS variables appropriately
+- [x] Glass morphism effects (`glass-bg`, `glass-border`) render correctly
+- [x] Responsive breakpoints match original (`xs: 480px`, etc.)
+- [x] shadcn/ui components inherit custom theme colors
 
 ### Deliverables
 
