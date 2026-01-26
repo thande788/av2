@@ -384,14 +384,14 @@ v2/                             # Next.js project root
 | ID | Task | Points | Status |
 |----|------|--------|--------|
 | 3.1 | Install remaining shadcn/ui components | 1 | ✅ |
-| 3.2 | Migrate `Navbar` → `navbar.tsx` with Sheet mobile menu | 3 | ⬜ |
+| 3.2 | Migrate `Navbar` → `navbar.tsx` with Sheet mobile menu | 3 | ✅ |
 | 3.3 | Create `SkipLink` accessibility component | 1 | ⬜ |
 | 3.4 | Migrate `Footer` → `footer.tsx` | 2 | ⬜ |
 | 3.5 | Create `ServiceCard` component | 2 | ⬜ |
 | 3.6 | Create `TestimonialCard` component | 2 | ⬜ |
 | 3.7 | Create `CaregiverCard` component | 2 | ⬜ |
 | 3.8 | Migrate FAQ accordion component | 2 | ⬜ |
-| 3.9 | Create `Logo` component with responsive variants | 1 | ⬜ |
+| 3.9 | Create `Logo` component with responsive variants | 1 | ✅ |
 | 3.10 | Create `LoadingSpinner` and `Skeleton` patterns | 1 | ⬜ |
 | 3.11 | Create TypeScript interfaces for all props | 2 | ⬜ |
 | 3.12 | Create accessibility utilities (`lib/a11y.ts`) | 2 | ⬜ |
@@ -448,8 +448,8 @@ export const focusMainContent = () => {
 ### Acceptance Criteria
 
 - [x] All required shadcn/ui base components installed
-- [ ] `Navbar` renders with logo, links, mobile menu, theme toggle
-- [ ] Mobile navigation uses shadcn `Sheet` component
+- [x] `Navbar` renders with logo, links, mobile menu, theme toggle
+- [x] Mobile navigation uses shadcn `Sheet` component
 - [ ] `Footer` renders all links, contact info, social icons
 - [ ] Skip link appears on focus and jumps to main content
 - [ ] `ServiceCard` displays icon, title, description with hover effects
@@ -873,8 +873,8 @@ export function JsonLd({ data }: JsonLdProps) {
 export const organizationSchema: Organization = {
   '@type': 'Organization',
   name: 'Angel Touch Homecare Services',
-  url: 'https://angeltouchhomecare.com',
-  logo: 'https://angeltouchhomecare.com/logo.png',
+  url: 'https://angeltouch.services',
+  logo: 'https://angeltouch.services/logo.png',
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: '+1-XXX-XXX-XXXX',
@@ -889,10 +889,10 @@ export const organizationSchema: Organization = {
 
 export const localBusinessSchema: LocalBusiness = {
   '@type': 'HomeHealthCareService',
-  '@id': 'https://angeltouchhomecare.com/#organization',
+  '@id': 'https://angeltouch.services/#organization',
   name: 'Angel Touch Homecare Services',
   description: 'Compassionate non-medical home care services for seniors',
-  url: 'https://angeltouchhomecare.com',
+  url: 'https://angeltouch.services',
   telephone: '+1-XXX-XXX-XXXX',
   priceRange: '$28-$35/hour',
   address: {
@@ -963,7 +963,7 @@ import { MetadataRoute } from 'next';
 import { jobs } from '@/data/jobs';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://angeltouchhomecare.com';
+  const baseUrl = 'https://angeltouch.services';
   
   const staticPages = [
     '', '/about', '/services', '/caregivers', '/testimonials',
