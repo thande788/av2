@@ -54,7 +54,7 @@ export function Logo({
         <div
           className={cn(
             "flex flex-col leading-tight",
-            "text-primary-foreground drop-shadow-lg",
+            "text-foreground",
             "max-w-[65vw] sm:max-w-none lg:max-w-[280px] xl:max-w-none",
             "whitespace-normal break-words",
             textSizeClasses[size]

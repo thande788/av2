@@ -57,6 +57,8 @@ This document outlines the migration strategy from the current Vite + React SPA 
 
 5. **Backend-ready:** All data structures should be designed with future database integration in mind (Prisma-compatible types, normalized relationships).
 
+6. **Early validation rule:** Wire up components to the live app on a rolling basis to obtain early visual validation. Don't wait until all components are complete—integrate into layouts as soon as they pass lint/type checks.
+
 ---
 
 ## Sprint Planning Overview
@@ -385,8 +387,8 @@ v2/                             # Next.js project root
 |----|------|--------|--------|
 | 3.1 | Install remaining shadcn/ui components | 1 | ✅ |
 | 3.2 | Migrate `Navbar` → `navbar.tsx` with Sheet mobile menu | 3 | ✅ |
-| 3.3 | Create `SkipLink` accessibility component | 1 | ⬜ |
-| 3.4 | Migrate `Footer` → `footer.tsx` | 2 | ⬜ |
+| 3.3 | Create `SkipLink` accessibility component | 1 | ✅ |
+| 3.4 | Migrate `Footer` → `footer.tsx` | 2 | ✅ |
 | 3.5 | Create `ServiceCard` component | 2 | ⬜ |
 | 3.6 | Create `TestimonialCard` component | 2 | ⬜ |
 | 3.7 | Create `CaregiverCard` component | 2 | ⬜ |
@@ -450,8 +452,8 @@ export const focusMainContent = () => {
 - [x] All required shadcn/ui base components installed
 - [x] `Navbar` renders with logo, links, mobile menu, theme toggle
 - [x] Mobile navigation uses shadcn `Sheet` component
-- [ ] `Footer` renders all links, contact info, social icons
-- [ ] Skip link appears on focus and jumps to main content
+- [x] `Footer` renders all links, contact info, social icons
+- [x] Skip link appears on focus and jumps to main content
 - [ ] `ServiceCard` displays icon, title, description with hover effects
 - [ ] `TestimonialCard` shows avatar, name, quote, rating
 - [ ] FAQ accordion expands/collapses with ARIA attributes

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Nunito } from "next/font/google";
-import { AnimatedThemeToggle } from "@/components/ui/animated-theme-toggle";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Navbar, Footer, SkipLink } from "@/components/layout";
 import "./globals.css";
 
 // const inter = Inter({subsets:['latin'],variable:'--font-sans'});
@@ -39,11 +39,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${nunito.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
-          <div className="min-h-screen">
-            <header className="mx-auto flex w-full max-w-4xl items-center justify-end px-6 py-4">
-              <AnimatedThemeToggle />
-            </header>
-            {children}
+          <div className="flex min-h-screen flex-col">
+            <SkipLink />
+            <Navbar />
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+            <Footer />
           </div>
         </ThemeProvider>
       </body>

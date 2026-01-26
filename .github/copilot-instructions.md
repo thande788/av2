@@ -159,6 +159,8 @@ v2/
 
 5. **Accessibility (A11y):** WCAG 2.1 AA compliance minimum. Seniors and users with disabilities are primary users.
 
+6. **Early Validation:** Wire up components to the live app on a rolling basis. Don't wait until all components are complete—integrate into layouts as soon as they pass lint/type checks to obtain early visual feedback.
+
 6. **Type Safety:** Leverage TypeScript strictly. No `any` types without explicit justification.
 
 7. **Server Components Default:** Use React Server Components by default. Add `'use client'` only when client-side interactivity is required.
@@ -295,6 +297,38 @@ export function ContactForm() {
 
 // ❌ Bad: Excessive inline styles, magic values
 <div style={{ marginTop: '23px', backgroundColor: '#1a2332' }}>
+```
+
+### Theme-Aware Colors (Critical)
+
+Always use semantic color tokens that adapt to light/dark mode:
+
+```tsx
+// ✅ CORRECT: Theme-aware semantic tokens
+<p className="text-foreground">Main text</p>
+<p className="text-muted-foreground">Secondary text</p>
+<div className="bg-background">Adapts to theme</div>
+<div className="bg-muted">Secondary surface</div>
+<div className="border-border">Theme-aware border</div>
+
+// ✅ CORRECT: Foreground paired with matching background
+<button className="bg-primary text-primary-foreground">CTA</button>
+<div className="bg-secondary text-secondary-foreground">Badge</div>
+
+// ❌ WRONG: Hardcoded colors in theme-adaptive components
+<p className="text-white">Won't be visible on light bg</p>
+<p className="text-primary-foreground">Wrong without bg-primary</p>
+<div className="bg-white">Won't adapt to dark mode</div>
+
+// ✅ EXCEPTION: Fixed-color sections (comment required)
+// Footer intentionally stays dark in all themes
+<footer className="bg-[#1a2332] text-white">
+```
+
+**Pairing Rule:** `text-*-foreground` tokens MUST be on their matching `bg-*`:
+- `text-primary-foreground` → `bg-primary`
+- `text-secondary-foreground` → `bg-secondary`
+- `text-accent-foreground` → `bg-accent`
 ```
 
 ### Error Handling
