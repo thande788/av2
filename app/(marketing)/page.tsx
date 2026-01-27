@@ -187,7 +187,7 @@ export default function HomePage() {
 								<br />
 								<span className="text-primary">Every Touch</span>
 							</h1>
-							<p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed max-w-2xl">
+							<p className="text-xl md:text-2xl text-foreground mb-8 leading-relaxed max-w-2xl">
 								Providing compassionate, reliable, and personalized in-home care
 								for seniors and individuals with disabilities in Lowell, MA and
 								surrounding communities.
