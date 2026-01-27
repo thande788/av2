@@ -486,7 +486,7 @@ export const focusMainContent = () => {
 | 4.3 | Add `loading.tsx` for each route | 1 | ✅ |
 | 4.4 | Migrate About page | 2 | ✅ |
 | 4.5 | Migrate Services page | 2 | ✅ |
-| 4.6 | Migrate Caregivers page | 2 | ⬜ |
+| 4.6 | Migrate Caregivers page | 2 | ✅ |
 | 4.7 | Migrate Testimonials page | 2 | ✅ |
 | 4.8 | Migrate Contact page with Server Actions | 3 | ⬜ |
 | 4.9 | Migrate FAQs page | 1 | ✅ |
