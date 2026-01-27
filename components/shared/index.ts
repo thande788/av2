@@ -32,3 +32,26 @@ export {
   type AspectRatio,
   type SizePreset,
 } from "./optimized-image";
+
+// Motion components
+export {
+  MotionWrapper,
+  StaggerContainer,
+  StaggerItem,
+  fadeIn,
+  fadeInUp,
+  fadeInDown,
+  fadeInLeft,
+  fadeInRight,
+  scaleIn,
+  staggerContainer,
+  defaultTransition,
+} from "./motion-wrapper";
+
+// Cookie consent
+export {
+  CookieConsent,
+  useCookieConsent,
+  hasAnalyticsConsent,
+  type ConsentLevel,
+} from "./cookie-consent";
