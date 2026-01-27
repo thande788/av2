@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Inter, Nunito } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar, Footer, SkipLink } from "@/components/layout";
+import { LazyChatWidget } from "@/components/shared";
 import { getBrandAccentsAttribute } from "@/data/site-config";
 import { siteMetadata } from "@/lib/seo/site-metadata";
 import "./globals.css";
@@ -56,6 +57,7 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
+          <LazyChatWidget />
         </ThemeProvider>
       </body>
     </html>

@@ -1107,7 +1107,7 @@ export function useViewTransition() {
 
 | ID | Task | Points | Status |
 |----|------|--------|--------|
-| 8.1 | Migrate `ChatWidget` with lazy loading | 3 | ⏭️ Deferred |
+| 8.1 | Migrate `ChatWidget` with lazy loading | 3 | ✅ |
 | 8.2 | Create testimonials grid (replace carousel) | 2 | ✅ |
 | 8.3 | Create `CookieConsent` component | 2 | ✅ |
 | 8.4 | Implement `MotionWrapper` with reduced-motion | 2 | ✅ |
@@ -1159,7 +1159,7 @@ export function MotionWrapper({
 
 ### Acceptance Criteria
 
-- [ ] Chat widget loads after 5s idle or user interaction (deferred)
+- [x] Chat widget loads after 3s idle or user interaction
 - [x] Testimonials display in responsive grid
 - [x] Cookie consent banner appears for new visitors
 - [x] Cookie preferences stored in localStorage

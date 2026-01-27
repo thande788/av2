@@ -55,3 +55,7 @@ export {
   hasAnalyticsConsent,
   type ConsentLevel,
 } from "./cookie-consent";
+
+// Chat widget
+export { ChatWidget } from "./chat-widget";
+export { LazyChatWidget } from "./lazy-chat-widget";
