@@ -482,7 +482,7 @@ export const focusMainContent = () => {
 | ID | Task | Points | Status |
 |----|------|--------|--------|
 | 4.1 | Create `(marketing)` route group with layout | 2 | ✅ |
-| 4.2 | Migrate Home page with hero section | 3 | ⬜ |
+| 4.2 | Migrate Home page with hero section | 3 | ✅ |
 | 4.3 | Add `loading.tsx` for each route | 1 | ✅ |
 | 4.4 | Migrate About page | 2 | ✅ |
 | 4.5 | Migrate Services page | 2 | ✅ |
