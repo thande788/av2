@@ -117,8 +117,9 @@ export function DetailSheet({
       side={side}
       className={cn(
         // Fullscreen on mobile, constrained on larger screens
-        "w-full max-w-full",
-        "sm:w-3/4 sm:max-w-md md:max-w-lg",
+        "w-screen max-w-none",
+        "h-[100dvh]",
+        "sm:w-3/4 sm:max-w-md md:max-w-lg sm:h-full",
         "flex flex-col overflow-hidden",
         className
       )}

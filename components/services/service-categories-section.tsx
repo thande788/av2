@@ -45,7 +45,7 @@ function getServiceCategorySlides(): FeatureSlide[] {
       description: category.description,
       image: `https://images.pexels.com/photos/${imageId}/pexels-photo-${imageId}.jpeg?auto=compress&cs=tinysrgb&w=1600`,
       imageAlt: `${category.name} services`,
-      ctaText: `Tap to Explore ${category.services.length} Services`,
+      ctaText: `Tap to Explore `,
       ctaHref: "#", // Not used since we handle click
       align: "left" as const,
       overlay: "bg-gradient-to-t from-black/85 via-black/55 to-black/35",
