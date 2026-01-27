@@ -39,7 +39,7 @@ export function Footer({
     >
       {/* Decorative top accent bar */}
       <div
-        className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent-rose via-[#F33A6A] to-accent-rose opacity-80"
+        className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-decorative via-accent-rose-deep to-decorative opacity-80"
         aria-hidden="true"
       />
 
@@ -88,9 +88,9 @@ export function Footer({
                     href={link.href}
                     className={cn(
                       "inline-flex items-center gap-1",
-                      "text-white/70 hover:text-accent-rose",
+                      "text-white/70 hover:text-icon",
                       "transition-colors duration-200",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-rose focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-icon focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
                       "rounded-sm"
                     )}
                   >
@@ -123,13 +123,13 @@ export function Footer({
                     href={`tel:${phone.replace(/\D/g, "")}`}
                     className={cn(
                       "inline-flex items-center gap-3",
-                      "text-white/80 hover:text-accent-rose",
+                      "text-white/80 hover:text-icon",
                       "transition-colors whitespace-nowrap",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-rose focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-icon focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
                       "rounded-sm"
                     )}
                   >
-                    <span className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/10 text-accent-rose">
+                    <span className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/10 text-icon">
                       <IconPhone className="size-4" />
                     </span>
                     <span className="leading-none">{phone}</span>
@@ -141,13 +141,13 @@ export function Footer({
                   href={`mailto:${contactInfo.email}`}
                   className={cn(
                     "inline-flex items-center gap-3",
-                    "text-white/80 hover:text-accent-rose",
+                    "text-white/80 hover:text-icon",
                     "transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-rose focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-icon focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
                     "rounded-sm"
                   )}
                 >
-                  <span className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/10 text-accent-rose">
+                  <span className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/10 text-icon">
                     <IconMail className="size-4" />
                   </span>
                   <span>{contactInfo.email}</span>
@@ -181,11 +181,11 @@ export function Footer({
                     aria-label={social.platform}
                     className={cn(
                       "group",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-rose focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-icon focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
                       "rounded-xl"
                     )}
                   >
-                    <span className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-accent-rose group-hover:bg-white/20 transition-colors">
+                    <span className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-icon group-hover:bg-white/20 transition-colors">
                       {social.icon}
                     </span>
                   </a>
@@ -198,9 +198,9 @@ export function Footer({
                   <Link
                     href={link.href}
                     className={cn(
-                      "text-white/60 hover:text-accent-rose",
+                      "text-white/60 hover:text-icon",
                       "transition-colors",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-rose focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-icon focus-visible:ring-offset-2 focus-visible:ring-offset-primary-navy",
                       "rounded-sm"
                     )}
                   >

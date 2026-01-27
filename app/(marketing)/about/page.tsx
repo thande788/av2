@@ -159,7 +159,7 @@ export default function AboutPage() {
 					<div className="lg:col-span-2 grid grid-cols-1 gap-6">
 						<Card className="bg-card/50 border-border/50 backdrop-blur-md p-6 md:p-8">
 							<h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-3 mb-3">
-								<IconTarget className="size-7 text-primary" aria-hidden="true" />
+								<IconTarget className="size-7 text-icon" aria-hidden="true" />
 								Our Mission
 							</h2>
 							<p className="text-muted-foreground leading-relaxed">
@@ -172,7 +172,7 @@ export default function AboutPage() {
 
 						<Card className="bg-card/50 border-border/50 backdrop-blur-md p-6 md:p-8">
 							<h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-3 mb-3">
-								<IconBook className="size-7 text-primary" aria-hidden="true" />
+								<IconBook className="size-7 text-icon" aria-hidden="true" />
 								Our Story
 							</h2>
 							<p className="text-muted-foreground leading-relaxed">

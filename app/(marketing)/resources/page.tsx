@@ -77,7 +77,7 @@ export default function ResourcesPage() {
 							className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-primary/10"
 							aria-hidden="true"
 						>
-							<IconHeartHandshake className="size-8 text-primary" />
+							<IconHeartHandshake className="size-8 text-icon" />
 						</div>
 						<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
 							Helpful <span className="text-primary">Resources</span>

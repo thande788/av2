@@ -119,7 +119,7 @@ export default function ContactPage() {
 						{/* Office Hours */}
 						<Card className="p-6 md:p-8 bg-card/50 border-border/50">
 							<div className="flex items-center gap-3 mb-6">
-								<IconClock className="size-6 text-primary" />
+								<IconClock className="size-6 text-icon" />
 								<h3 className="text-xl font-bold text-foreground">
 									Office Hours
 								</h3>
@@ -148,7 +148,7 @@ export default function ContactPage() {
 						{/* Location */}
 						<Card className="p-6 md:p-8 bg-card/50 border-border/50">
 							<div className="flex items-center gap-3 mb-4">
-								<IconMapPin className="size-6 text-primary" />
+								<IconMapPin className="size-6 text-icon" />
 								<h3 className="text-xl font-bold text-foreground">
 									Service Area
 								</h3>

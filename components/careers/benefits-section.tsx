@@ -80,7 +80,7 @@ export function BenefitsSection() {
                 className="bg-card rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <IconComponent className="h-6 w-6 text-primary" aria-hidden="true" />
+                  <IconComponent className="h-6 w-6 text-icon" aria-hidden="true" />
                 </div>
                 <h3 className="font-semibold mb-2">{benefit.title}</h3>
                 <p className="text-sm text-muted-foreground">{benefit.description}</p>

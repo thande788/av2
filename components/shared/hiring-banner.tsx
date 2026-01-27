@@ -28,8 +28,8 @@ export function HiringBanner() {
     <div
       className={cn(
         "group relative",
-        "bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10",
-        "border border-primary/20 rounded-xl",
+        "bg-gradient-to-r from-decorative/15 via-decorative/8 to-decorative/15",
+        "border border-decorative-border rounded-xl",
         "px-4 py-3 sm:px-6 sm:py-4",
         "flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4",
         "text-sm"
@@ -38,13 +38,13 @@ export function HiringBanner() {
       aria-label="Hiring announcement"
     >
       {/* Decorative sparkle */}
-      <span className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+      <span className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-decorative/15 text-icon">
         <IconSparkles className="size-4" aria-hidden="true" />
       </span>
 
       {/* Message */}
       <p className="text-center sm:text-left text-foreground/90">
-        <span className="font-semibold text-primary">We&apos;re hiring!</span>{" "}
+        <span className="font-semibold text-icon">We&apos;re hiring!</span>{" "}
         <span className="text-muted-foreground">{message.replace("We're hiring! ", "")}</span>
       </p>
 
@@ -53,8 +53,8 @@ export function HiringBanner() {
         href={ctaHref}
         className={cn(
           "inline-flex items-center gap-1.5",
-          "text-primary font-medium",
-          "hover:underline underline-offset-4",
+          "text-icon font-medium",
+          "hover:text-icon-hover hover:underline underline-offset-4",
           "transition-colors",
           "whitespace-nowrap"
         )}
@@ -71,7 +71,7 @@ export function HiringBanner() {
           "absolute right-2 top-1/2 -translate-y-1/2",
           "p-1.5 rounded-lg",
           "text-muted-foreground hover:text-foreground",
-          "hover:bg-primary/10",
+          "hover:bg-decorative/15",
           "transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         )}

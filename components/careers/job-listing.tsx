@@ -112,7 +112,7 @@ export function JobListing({ job }: JobListingProps) {
       {/* Description */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-          <IconHeart className="h-5 w-5 text-primary" aria-hidden="true" />
+          <IconHeart className="h-5 w-5 text-icon" aria-hidden="true" />
           About This Role
         </h2>
         <div className="prose prose-gray dark:prose-invert max-w-none">
@@ -129,7 +129,7 @@ export function JobListing({ job }: JobListingProps) {
       {/* Responsibilities */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-          <IconChecklist className="h-5 w-5 text-primary" aria-hidden="true" />
+          <IconChecklist className="h-5 w-5 text-icon" aria-hidden="true" />
           Key Responsibilities
         </h2>
         <ul className="space-y-3">
@@ -149,7 +149,7 @@ export function JobListing({ job }: JobListingProps) {
       {/* Qualifications */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-          <IconStar className="h-5 w-5 text-primary" aria-hidden="true" />
+          <IconStar className="h-5 w-5 text-icon" aria-hidden="true" />
           Qualifications
         </h2>
 
@@ -191,7 +191,7 @@ export function JobListing({ job }: JobListingProps) {
       {/* Benefits */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
-          <IconHeart className="h-5 w-5 text-primary" aria-hidden="true" />
+          <IconHeart className="h-5 w-5 text-icon" aria-hidden="true" />
           What We Offer
         </h2>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -200,7 +200,7 @@ export function JobListing({ job }: JobListingProps) {
               key={index}
               className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10"
             >
-              <span className="text-primary">★</span>
+              <span className="text-icon">★</span>
               <span className="text-sm">{benefit}</span>
             </div>
           ))}

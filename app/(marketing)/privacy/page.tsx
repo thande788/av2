@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
 							className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-primary/10"
 							aria-hidden="true"
 						>
-							<IconShieldLock className="size-8 text-primary" />
+							<IconShieldLock className="size-8 text-icon" />
 						</div>
 						<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
 							Privacy <span className="text-primary">Policy</span>

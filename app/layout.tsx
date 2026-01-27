@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Inter, Nunito } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar, Footer, SkipLink } from "@/components/layout";
+import { getBrandAccentsAttribute } from "@/data/site-config";
 import "./globals.css";
 
 // const inter = Inter({subsets:['latin'],variable:'--font-sans'});
@@ -35,8 +36,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const brandAccents = getBrandAccentsAttribute();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      {...(brandAccents && { "data-accents": brandAccents })}
+    >
       <body className={`${inter.variable} ${nunito.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           <div className="flex min-h-screen flex-col">

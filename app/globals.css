@@ -45,6 +45,20 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Brand accent semantic tokens (controlled by data-accents attribute) */
+  --color-icon: var(--icon-accent);
+  --color-icon-hover: var(--icon-accent-hover);
+  --color-decorative: var(--decorative-accent);
+  --color-decorative-border: var(--decorative-border);
+  --color-nav-highlight: var(--nav-highlight);
+  --color-nav-highlight-bg: var(--nav-highlight-bg);
+
+  /* Direct brand colors for explicit usage */
+  --color-accent-rose: var(--accent-rose);
+  --color-accent-rose-deep: var(--accent-rose-deep);
+  --color-accent-rose-dark: var(--accent-rose-dark);
+  --color-brand-baby-blue: var(--brand-baby-blue);
 }
 
 :root {
@@ -80,7 +94,28 @@
 
   /* legacy alias kept for compatibility with the Vite codebase */
   --accent-gold: #e7a9b6;
+
+  /*
+   * DECORATIVE ACCENT COLORS
+   * -------------------------
+   * These colors are for decorative use only (icons, borders, gradients).
+   * Do NOT use baby-blue as a background with white/light text (contrast 1.71:1 fails WCAG).
+   * For text on baby-blue, use --primary-navy or darker.
+   */
+
+  /* Baby-blue: soft, caring accent – decorative only */
+  --brand-baby-blue: #89cff0;
+  --brand-baby-blue-muted: rgba(137, 207, 240, 0.5);
+  --brand-baby-blue-gradient: linear-gradient(
+    135deg,
+    rgba(137, 207, 240, 0.85) 0%,
+    rgba(37, 99, 235, 0.6) 100%
+  );
+
+  /* Rose palette: warm accent for highlights & interactions */
   --accent-rose: #e7a9b6;
+  --accent-rose-deep: #e37383;
+  --accent-rose-dark: #c94c62;
   --accent-rose-gradient: linear-gradient(
     135deg,
     rgba(231, 169, 182, 0.92) 0%,
@@ -220,7 +255,6 @@
         transparent 60%
       ),
       radial-gradient(circle at 70% 80%, rgba(227, 115, 131, 0.05), transparent 65%);
-    background-attachment: fixed;
   }
 
   h1,
@@ -233,7 +267,87 @@
   }
 }
 
+/*
+ * ============================================
+ * BRAND ACCENT TOGGLE SYSTEM
+ * ============================================
+ * Controlled by data-accents attribute on <html>
+ * Values: "baby-blue", "rose", "baby-blue rose" (space-separated)
+ * 
+ * When accents are disabled, semantic tokens fall back to neutral colors.
+ * Components use --icon-accent, --decorative-accent, etc. which auto-switch.
+ */
+
+/* Default (neutral) fallbacks when accents are disabled */
+:root {
+  --icon-accent: var(--primary-blue);
+  --icon-accent-hover: var(--primary-blue-dark);
+  --decorative-accent: var(--primary-blue-light);
+  --decorative-border: rgba(37, 99, 235, 0.3);
+  --nav-highlight: var(--primary-blue);
+  --nav-highlight-bg: rgba(37, 99, 235, 0.1);
+}
+
+/* Rose accents enabled */
+html[data-accents~="rose"] {
+  --icon-accent: var(--accent-rose-deep);
+  --icon-accent-hover: var(--accent-rose-dark);
+  --decorative-accent: var(--accent-rose);
+  --decorative-border: rgba(231, 169, 182, 0.4);
+}
+
+/* Baby-blue accents enabled */
+html[data-accents~="baby-blue"] {
+  --nav-highlight: var(--brand-baby-blue);
+  --nav-highlight-bg: rgba(137, 207, 240, 0.15);
+}
+
+/* Both enabled - rose takes precedence for icons, baby-blue for nav */
+html[data-accents~="baby-blue"][data-accents~="rose"] {
+  --icon-accent: var(--accent-rose-deep);
+  --icon-accent-hover: var(--accent-rose-dark);
+  --decorative-accent: var(--accent-rose);
+  --decorative-border: rgba(231, 169, 182, 0.4);
+  --nav-highlight: var(--brand-baby-blue);
+  --nav-highlight-bg: rgba(137, 207, 240, 0.15);
+}
+
+/* Dark mode adjustments for accent system */
+.dark {
+  --decorative-border: rgba(37, 99, 235, 0.25);
+}
+
+.dark[data-accents~="rose"],
+html.dark[data-accents~="rose"] {
+  --decorative-border: rgba(231, 169, 182, 0.3);
+}
+
 @layer utilities {
+  /* Semantic accent utilities that respect the toggle */
+  .text-icon-accent {
+    color: var(--icon-accent);
+  }
+  
+  .text-icon-accent-hover:hover {
+    color: var(--icon-accent-hover);
+  }
+  
+  .border-decorative {
+    border-color: var(--decorative-border);
+  }
+  
+  .bg-decorative {
+    background-color: var(--decorative-accent);
+  }
+  
+  .bg-nav-highlight {
+    background-color: var(--nav-highlight-bg);
+  }
+  
+  .text-nav-highlight {
+    color: var(--nav-highlight);
+  }
+
   .glass-bg {
     background: var(--glass-bg);
   }

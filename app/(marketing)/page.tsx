@@ -10,11 +10,11 @@ import {
 	IconHome,
 	IconPill,
 	IconToolsKitchen2,
-	IconSparkles,
 	IconCar,
 	IconHeart,
 	IconArrowRight,
 } from "@tabler/icons-react";
+import { Bubbles as IconBubbles} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -87,7 +87,7 @@ const services = [
 		description: "Nutritious meals tailored to dietary needs",
 	},
 	{
-		icon: IconSparkles,
+		icon: IconBubbles,
 		title: "Light Housekeeping",
 		description: "Maintaining a clean and safe environment",
 	},
@@ -174,14 +174,16 @@ export default function HomePage() {
 							priority
 							sizes="100vw"
 						/>
-						<div className="absolute inset-0 bg-background/70" />
-						<div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
+						{/* Light mode: minimal overlay to preserve image brightness */}
+						{/* Dark mode: stronger overlay for text contrast */}
+						<div className="absolute inset-0 bg-background/40 dark:bg-background/70" />
+						<div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-transparent dark:from-background/60 dark:via-background/30" />
 					</div>
 
 					<div className="relative z-10 px-6 md:px-10 py-16 md:py-24 lg:py-28">
 						<div className="max-w-3xl">
 							<h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-								Compassion in
+								<span className="text-decorative">Compassion in</span>
 								<br />
 								<span className="text-primary">Every Touch</span>
 							</h1>
@@ -231,7 +233,7 @@ export default function HomePage() {
 							)}
 						>
 							<div
-								className="text-primary mb-3 flex justify-center"
+								className="text-icon mb-3 flex justify-center"
 								aria-hidden="true"
 							>
 								<stat.icon className="size-8 md:size-10" />
@@ -257,7 +259,7 @@ export default function HomePage() {
 					<div className="relative z-10 text-center max-w-4xl mx-auto">
 						<h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
 							Welcome to{" "}
-							<span className="text-primary">Angel Touch Homecare</span>
+							<span className="text-decorative">Angel Touch Homecare</span>
 						</h2>
 						<p className="text-muted-foreground text-base md:text-lg leading-relaxed italic">
 							Our mission is to enhance quality of life through deeply
@@ -293,7 +295,7 @@ export default function HomePage() {
 							)}
 						>
 							<div
-								className="text-primary mb-4 flex justify-center"
+								className="text-icon mb-4 flex justify-center"
 								aria-hidden="true"
 							>
 								<service.icon className="size-12" />

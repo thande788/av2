@@ -50,7 +50,7 @@ export function ServiceItemCard({
     >
       <CardHeader className="pb-2">
         <div className="flex items-center gap-3">
-          <span className="text-primary" aria-hidden="true">
+          <span className="text-icon" aria-hidden="true">
             {getServiceIcon(service.icon, "size-6")}
           </span>
           <CardTitle className="text-base">{service.title}</CardTitle>
