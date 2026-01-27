@@ -64,9 +64,9 @@ function ServiceDetailContent({ category }: { category: ServiceCategory }) {
               <div
                 className={cn(
                   "size-10 shrink-0 rounded-full",
-                  "bg-gradient-to-br from-primary/20 to-primary/10",
+                  "bg-gradient-to-br from-icon/20 to-icon/10",
                   "flex items-center justify-center",
-                  "text-primary"
+                  "text-icon"
                 )}
               >
                 {getServiceIcon(service.icon, "size-5")}

@@ -139,8 +139,8 @@ export default function AboutPage() {
 						<div
 							className={cn(
 								"mx-auto mb-6 flex size-20 items-center justify-center rounded-full",
-								"bg-gradient-to-br from-primary/20 to-primary/10",
-								"text-primary"
+								"bg-gradient-to-br from-decorative/20 to-decorative/10",
+								"text-icon"
 							)}
 							aria-hidden="true"
 						>
@@ -211,7 +211,7 @@ export default function AboutPage() {
 								"transition-all duration-300 hover:-translate-y-1"
 							)}
 						>
-							<div className="mb-4 flex justify-center text-primary" aria-hidden="true">
+							<div className="mb-4 flex justify-center text-icon" aria-hidden="true">
 								<c.icon className="size-12" />
 							</div>
 							<h3 className="text-lg font-semibold text-foreground mb-2">

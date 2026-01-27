@@ -151,7 +151,7 @@ export function ServiceCard({
 
       <CardHeader>
         <div
-          className="mb-2 flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary"
+          className="mb-2 flex size-14 items-center justify-center rounded-xl bg-icon/10 text-icon"
           aria-hidden="true"
         >
           {getServiceIcon(typeof icon === "string" ? icon : "default")}

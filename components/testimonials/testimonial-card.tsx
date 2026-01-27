@@ -94,7 +94,7 @@ export function TestimonialCard({
         <div
           className={cn(
             "mb-4 flex size-10 items-center justify-center rounded-lg",
-            "bg-primary/10 text-primary"
+            "bg-icon/10 text-icon"
           )}
           aria-hidden="true"
         >

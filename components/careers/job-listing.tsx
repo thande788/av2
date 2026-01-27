@@ -135,7 +135,7 @@ export function JobListing({ job }: JobListingProps) {
         <ul className="space-y-3">
           {job.responsibilities.map((responsibility, index) => (
             <li key={index} className="flex items-start gap-3">
-              <span className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium">
+              <span className="flex-shrink-0 h-6 w-6 rounded-full bg-icon/10 text-icon flex items-center justify-center text-sm font-medium">
                 {index + 1}
               </span>
               <span className="text-muted-foreground">{responsibility}</span>

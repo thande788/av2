@@ -103,7 +103,7 @@ export default function ServicesPage() {
                 "transition-all duration-300 hover:-translate-y-1"
               )}
             >
-              <div className="text-primary mb-3 flex justify-center" aria-hidden="true">
+              <div className="text-icon mb-3 flex justify-center" aria-hidden="true">
                 {getServiceIcon(stat.icon, "size-10")}
               </div>
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2">
