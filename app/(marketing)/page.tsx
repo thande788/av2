@@ -18,13 +18,14 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { TestimonialCard } from "@/components/testimonials/testimonial-card";
 import { featuredTestimonials } from "@/data/testimonials";
 import {
 	FeatureCarousel,
 	type FeatureSlide,
 } from "@/components/shared/feature-carousel";
+import { HiringBanner } from "@/components/shared/hiring-banner";
 
 export const metadata: Metadata = {
 	title: "Angel Touch Homecare | Compassionate In-Home Care in Lowell, MA",
@@ -209,6 +210,11 @@ export default function HomePage() {
 						</div>
 					</div>
 				</div>
+			</section>
+
+			{/* Hiring Banner - Toggleable via siteConfig */}
+			<section className="px-4 md:px-8 max-w-7xl mx-auto mb-8">
+				<HiringBanner />
 			</section>
 
 			{/* Statistics Section */}

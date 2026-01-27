@@ -13,6 +13,7 @@ export const footerNavLinks: FooterLink[] = [
   { label: "FAQs", href: "/faqs" },
   { label: "Resources", href: "/resources" },
   { label: "Contact", href: "/contact" },
+  { label: "Careers", href: "/careers" },
   { label: "Client Portal", href: "/client-portal" },
 ];
 

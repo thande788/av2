@@ -567,7 +567,7 @@ export async function submitContactForm(
 
 **Story Points:** 21  
 **Dependencies:** Sprint 3 complete  
-**Status:** ⬜ Not Started  
+**Status:** ✅ Complete  
 **Priority:** 🔴 HIGH
 
 ### Sprint Goals
@@ -581,17 +581,17 @@ export async function submitContactForm(
 
 | ID | Task | Points | Status |
 |----|------|--------|--------|
-| 5.1 | Design Job and Application TypeScript types | 2 | ⬜ |
-| 5.2 | Create job listings data file (`data/jobs.ts`) | 2 | ⬜ |
-| 5.3 | Create `JobCard` component | 2 | ⬜ |
-| 5.4 | Create `JobListing` full-page component | 2 | ⬜ |
-| 5.5 | Create `BenefitsSection` component | 1 | ⬜ |
-| 5.6 | Create Careers landing page | 2 | ⬜ |
-| 5.7 | Create individual job page `[slug]/page.tsx` | 2 | ⬜ |
-| 5.8 | Design ApplicationForm component | 3 | ⬜ |
-| 5.9 | Implement job application Server Action | 3 | ⬜ |
-| 5.10 | Create application confirmation page/modal | 1 | ⬜ |
-| 5.11 | Draft Prisma schema for jobs & applications | 1 | ⬜ |
+| 5.1 | Design Job and Application TypeScript types | 2 | ✅ |
+| 5.2 | Create job listings data file (`data/jobs.ts`) | 2 | ✅ |
+| 5.3 | Create `JobCard` component | 2 | ✅ |
+| 5.4 | Create `JobListing` full-page component | 2 | ✅ |
+| 5.5 | Create `BenefitsSection` component | 1 | ✅ |
+| 5.6 | Create Careers landing page | 2 | ✅ |
+| 5.7 | Create individual job page `[slug]/page.tsx` | 2 | ✅ |
+| 5.8 | Design ApplicationForm component | 3 | ✅ |
+| 5.9 | Implement job application Server Action | 3 | ✅ |
+| 5.10 | Create application confirmation page/modal | 1 | ✅ |
+| 5.11 | Draft Prisma schema for jobs & applications | 1 | ✅ |
 
 ### Data Types (Backend-Compatible)
 
@@ -808,18 +808,18 @@ export const jobs: Job[] = [
 
 ### Acceptance Criteria
 
-- [ ] Job and Application TypeScript types created
-- [ ] Types are Prisma-schema compatible (normalized, proper relations)
-- [ ] Careers landing page displays all active job listings
-- [ ] Individual job pages render at `/careers/[slug]`
-- [ ] `JobCard` shows title, type, location, salary range
-- [ ] `BenefitsSection` highlights employee benefits
-- [ ] Application form validates all required fields
-- [ ] Application form uses Server Action for submission
-- [ ] File upload UI prepared (actual upload deferred to backend phase)
-- [ ] Application confirmation shown after submission
-- [ ] Draft Prisma schema documented for future reference
-- [ ] SEO metadata for careers pages
+- [x] Job and Application TypeScript types created
+- [x] Types are Prisma-schema compatible (normalized, proper relations)
+- [x] Careers landing page displays all active job listings
+- [x] Individual job pages render at `/careers/[slug]`
+- [x] `JobCard` shows title, type, location, salary range
+- [x] `BenefitsSection` highlights employee benefits
+- [x] Application form validates all required fields
+- [x] Application form uses Server Action for submission
+- [x] File upload UI prepared (actual upload deferred to backend phase)
+- [x] Application confirmation shown after submission
+- [x] Draft Prisma schema documented for future reference
+- [x] SEO metadata for careers pages
 
 ---
 

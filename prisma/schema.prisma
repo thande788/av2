@@ -1,0 +1,232 @@
+// This is a DRAFT Prisma schema for future database integration
+// Do not run migrations on this file until backend infrastructure is ready
+//
+// Prerequisites for production:
+// 1. Set up PostgreSQL database (recommended: Neon, Supabase, or PlanetScale)
+// 2. Install: pnpm add prisma @prisma/client
+// 3. Configure DATABASE_URL in .env
+// 4. Run: pnpm prisma generate && pnpm prisma db push
+//
+// @see https://www.prisma.io/docs
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// JOBS & CAREERS
+// =============================================================================
+
+model Job {
+  id                 String        @id @default(cuid())
+  slug               String        @unique
+  title              String
+  department         Department
+  type               JobType
+  location           String
+  salaryMin          Int
+  salaryMax          Int
+  salaryPeriod       SalaryPeriod
+  description        String        @db.Text
+  responsibilities   String[]
+  qualificationsReq  String[]      // Required qualifications
+  qualificationsPref String[]      // Preferred qualifications
+  benefits           String[]
+  isActive           Boolean       @default(true)
+  postedAt           DateTime      @default(now())
+  closesAt           DateTime?
+  
+  // Relations
+  applications       Application[]
+  
+  // Metadata
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([isActive])
+  @@index([department])
+  @@index([postedAt])
+}
+
+model Application {
+  id                String            @id @default(cuid())
+  job               Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId             String
+  status            ApplicationStatus @default(PENDING)
+  
+  // Applicant info
+  firstName         String
+  lastName          String
+  email             String
+  phone             String
+  street            String?
+  city              String?
+  state             String?
+  zip               String?
+  
+  // Experience
+  yearsExperience   Int
+  certifications    String[]
+  
+  // Availability
+  availableStart    DateTime
+  shifts            Shift[]
+  hoursPerWeek      Int
+  
+  // Documents (URLs to cloud storage)
+  resumeUrl         String?
+  coverLetterUrl    String?
+  
+  // Additional
+  additionalInfo    String?           @db.Text
+  
+  // References (stored as JSON for flexibility)
+  references        Json?             // Array of Reference objects
+  
+  // Timestamps
+  submittedAt       DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Internal notes (for HR)
+  internalNotes     String?           @db.Text
+  reviewedBy        String?           // User ID of reviewer
+  reviewedAt        DateTime?
+
+  @@index([jobId])
+  @@index([status])
+  @@index([email])
+  @@index([submittedAt])
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum Department {
+  CAREGIVING
+  ADMINISTRATIVE
+  NURSING
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  PER_DIEM
+}
+
+enum SalaryPeriod {
+  HOURLY
+  ANNUAL
+}
+
+enum ApplicationStatus {
+  PENDING     // Just submitted, not yet reviewed
+  REVIEWING   // Under review by HR
+  INTERVIEW   // Scheduled for interview
+  OFFERED     // Job offer extended
+  REJECTED    // Application rejected
+  HIRED       // Applicant was hired
+  WITHDRAWN   // Applicant withdrew application
+}
+
+enum Shift {
+  MORNING     // 6am - 12pm
+  AFTERNOON   // 12pm - 6pm
+  EVENING     // 6pm - 12am
+  OVERNIGHT   // 12am - 6am
+}
+
+// =============================================================================
+// FUTURE MODELS (Placeholders for Sprint 8+)
+// =============================================================================
+
+// Contact form submissions
+model ContactSubmission {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  message     String   @db.Text
+  source      String?  // Which page the form was submitted from
+  submittedAt DateTime @default(now())
+  isRead      Boolean  @default(false)
+  
+  @@index([isRead])
+  @@index([submittedAt])
+}
+
+// Testimonials (for CMS functionality)
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  role        String?  // "Family Member", "Client", etc.
+  content     String   @db.Text
+  rating      Int?     @default(5) // 1-5 stars
+  imageUrl    String?
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([isPublished])
+}
+
+// Service inquiries
+model ServiceInquiry {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String
+  serviceType  String   // Which service they're interested in
+  careRecipient String? // Who needs care
+  startDate    DateTime?
+  hoursNeeded  Int?
+  message      String?  @db.Text
+  submittedAt  DateTime @default(now())
+  status       InquiryStatus @default(NEW)
+  
+  @@index([status])
+  @@index([submittedAt])
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CONSULTATION_SCHEDULED
+  CONVERTED
+  CLOSED
+}
+
+// =============================================================================
+// NOTES FOR IMPLEMENTATION
+// =============================================================================
+//
+// 1. File Uploads:
+//    - Use cloud storage (AWS S3, Cloudflare R2, or Vercel Blob)
+//    - Store URLs in resumeUrl, coverLetterUrl fields
+//    - Implement signed URLs for security
+//
+// 2. Email Integration:
+//    - Use Resend, SendGrid, or AWS SES for transactional emails
+//    - Send confirmation to applicants on submission
+//    - Send notification to HR team
+//
+// 3. Authentication (Future Sprint):
+//    - Consider NextAuth.js or Clerk for admin portal
+//    - Add User model for HR staff
+//    - Track reviewedBy with User relation
+//
+// 4. Search & Filtering:
+//    - Consider adding full-text search for job listings
+//    - PostgreSQL: Use ts_vector for search
+//    - Alternative: Algolia or Typesense integration
+//
+// 5. Audit Trail:
+//    - Consider adding ApplicationEvent model
+//    - Track status changes, notes, communications
+//
+// =============================================================================
