@@ -547,19 +547,19 @@ export async function submitContactForm(
 
 ### Acceptance Criteria
 
-- [ ] Route group `(marketing)` created with shared layout
-- [ ] All 12 pages render at correct routes
-- [ ] Root layout includes Navbar and Footer via `(marketing)/layout.tsx`
-- [ ] Home page hero section renders with correct styling
-- [ ] Each route has a `loading.tsx` with Skeleton UI
-- [ ] All internal links use Next.js `<Link>` component
-- [ ] Contact form uses Server Actions with progressive enhancement
-- [ ] Contact form has honeypot spam protection
-- [ ] Form shows loading state during submission
-- [ ] Each page has `metadata` export for SEO
-- [ ] No React Router imports remain
+- [x] Route group `(marketing)` created with shared layout
+- [x] All 12 pages render at correct routes
+- [x] Root layout includes Navbar and Footer via `app/layout.tsx`
+- [x] Home page hero section renders with correct styling
+- [x] Each route has a `loading.tsx` with Skeleton UI
+- [x] All internal links use Next.js `<Link>` component
+- [x] Contact form uses Server Actions with progressive enhancement
+- [x] Contact form has honeypot spam protection
+- [x] Form shows loading state during submission
+- [x] Each page has `metadata` export for SEO
+- [x] No React Router imports remain
 - [ ] Console shows no hydration errors
-- [ ] Pages are Server Components where possible
+- [x] Pages are Server Components where possible
 
 ---
 

@@ -46,6 +46,7 @@ export function Logo({
           src="/Angel Touch Logo-09-1.png"
           alt="Angel Touch Homecare Logo"
           fill
+          sizes="(max-width: 640px) 40px, (max-width: 1024px) 48px, 56px"
           className="object-contain"
           priority
         />

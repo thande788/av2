@@ -70,6 +70,18 @@ export function ContactForm() {
 			</h2>
 
 			<form action={formAction} className="space-y-6">
+				{/* Honeypot field - hidden from real users, catches bots */}
+				<div className="absolute -left-[9999px]" aria-hidden="true">
+					<Label htmlFor="website">Website</Label>
+					<Input
+						id="website"
+						name="website"
+						type="text"
+						tabIndex={-1}
+						autoComplete="off"
+					/>
+				</div>
+
 				{/* Name Field */}
 				<div className="space-y-2">
 					<Label htmlFor="name">Full Name *</Label>

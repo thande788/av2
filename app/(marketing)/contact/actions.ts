@@ -4,6 +4,7 @@ import { z } from "zod";
 
 /**
  * Contact form validation schema
+ * Includes honeypot field for spam protection
  */
 export const contactFormSchema = z.object({
 	name: z.string().min(2, "Name must be at least 2 characters"),
@@ -13,6 +14,8 @@ export const contactFormSchema = z.object({
 	urgency: z.string().min(1, "Please select an urgency level"),
 	message: z.string().min(10, "Message must be at least 10 characters"),
 	preferredContact: z.enum(["email", "phone"]),
+	// Honeypot field - should always be empty for real users
+	website: z.string().optional(),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -39,7 +42,20 @@ export async function submitContactForm(
 		urgency: formData.get("urgency"),
 		message: formData.get("message"),
 		preferredContact: formData.get("preferredContact"),
+		// Honeypot field for spam protection
+		website: formData.get("website"),
 	};
+
+	// Honeypot spam check - if filled, silently "succeed" without processing
+	if (rawData.website) {
+		// Simulate delay to avoid detection
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		return {
+			success: true,
+			message:
+				"Thank you for your message! We'll get back to you within 24 hours.",
+		};
+	}
 
 	// Validate
 	const validated = contactFormSchema.safeParse(rawData);
