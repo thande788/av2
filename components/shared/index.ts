@@ -22,3 +22,13 @@ export {
   type SkeletonCaregiverProps,
   type SkeletonServiceProps,
 } from "./skeleton-patterns";
+
+// Optimized image component
+export {
+  OptimizedImage,
+  aspectRatios,
+  sizePresets,
+  generateBlurPlaceholder,
+  type AspectRatio,
+  type SizePreset,
+} from "./optimized-image";

@@ -391,3 +391,63 @@ html.dark[data-accents~="rose"] {
     color: transparent;
   }
 }
+
+/* ========================================
+   View Transitions API Styles
+   ======================================== */
+
+/* Default cross-fade transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* Named transitions for specific elements */
+.view-transition-hero {
+  view-transition-name: hero;
+}
+
+.view-transition-card {
+  view-transition-name: card;
+}
+
+.view-transition-image {
+  view-transition-name: image;
+}
+
+/* Hero element transition - slide up */
+::view-transition-old(hero),
+::view-transition-new(hero) {
+  animation-duration: 300ms;
+}
+
+::view-transition-old(hero) {
+  animation-name: slide-out-up;
+}
+
+::view-transition-new(hero) {
+  animation-name: slide-in-up;
+}
+
+@keyframes slide-out-up {
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
