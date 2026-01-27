@@ -22,7 +22,7 @@ export const siteMetadata = {
   
   // Physical address
   address: {
-    streetAddress: "123 Main Street", // TODO: Update with actual address
+    streetAddress: "Main Street", // TODO: Update with actual address
     addressLocality: "Lowell",
     addressRegion: "MA",
     postalCode: "01852",
