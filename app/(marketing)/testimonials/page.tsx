@@ -36,58 +36,84 @@ export const metadata: Metadata = {
  */
 export default function TestimonialsPage() {
   return (
-    <main
-      className="pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto"
-      aria-label="Client Testimonials"
-    >
+    <main className="min-h-screen" aria-label="Client Testimonials">
       {/* Hero Section */}
-      <section className="text-center mb-16">
-        <Card
-          className={cn(
-            "p-10 md:p-16",
-            "bg-gradient-to-br from-card/85 via-card/70 to-card/85",
-            "border-border/30 shadow-lg backdrop-blur-md"
-          )}
-        >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight">
-            Stories from Our Families
-          </h1>
-
-          {/* Hero Image */}
-          <div className="max-w-md mx-auto mb-8 rounded-3xl overflow-hidden shadow-lg">
+      <section className="px-4 md:px-8 max-w-7xl mx-auto mt-4 mb-14 md:mb-18">
+        <div className="relative rounded-3xl overflow-hidden">
+          <div className="absolute inset-0">
             <Image
-              src="https://images.pexels.com/photos/7551442/pexels-photo-7551442.jpeg?auto=compress&cs=tinysrgb&w=800"
+              src="https://images.pexels.com/photos/5493781/pexels-photo-5493781.jpeg?auto=compress&cs=tinysrgb&w=1600"
               alt="Care and trust between families and caregivers"
-              width={800}
-              height={600}
-              className="w-full h-auto object-cover"
+              fill
+              className="object-cover"
               priority
-              sizes="(min-width: 900px) 500px, 90vw"
+              sizes="100vw"
             />
+            <div className="absolute inset-0 bg-background/70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
           </div>
 
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-base md:text-lg">
-            Hear from the families and clients who have experienced the
-            compassionate care that makes Angel Touch special.
-          </p>
-        </Card>
+          <div className="relative z-10 px-6 md:px-10 py-14 md:py-20">
+            <div className="max-w-3xl">
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+                Stories from Our
+                <br />
+                <span className="text-primary">Families</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+                Hear from the families and clients who have experienced the
+                compassionate care that makes Angel Touch special.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="px-6 text-base sm:px-8 sm:text-lg"
+                >
+                  <Link href="/contact">Get Started</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="px-6 text-base sm:px-8 sm:text-lg"
+                >
+                  <a href="#testimonials">Browse Testimonials</a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Testimonials Grid */}
-      <section className="mb-20" aria-labelledby="testimonials-heading">
+      <section
+        id="testimonials"
+        className="px-4 md:px-8 max-w-7xl mx-auto mb-16 md:mb-20 scroll-mt-24"
+        aria-labelledby="testimonials-heading"
+      >
         <h2 id="testimonials-heading" className="sr-only">
           Client Testimonials
         </h2>
-        <TestimonialCardGrid testimonials={testimonials} />
+
+        <Card className="relative overflow-hidden p-6 sm:p-8 md:p-12 bg-card/50 border-border/50">
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.primary/0.10),transparent_60%)]"
+            aria-hidden="true"
+          />
+          <div className="relative z-10">
+            <TestimonialCardGrid testimonials={testimonials} />
+          </div>
+        </Card>
       </section>
 
-      {/* Call to Action */}
-      <section className="text-center">
+      {/* CTA Section */}
+      <section className="px-4 md:px-8 max-w-7xl mx-auto mb-16">
         <Card
           className={cn(
-            "p-10 md:p-14",
+            "p-8 md:p-12 text-center",
             "bg-gradient-to-r from-primary to-primary/80",
-            "text-primary-foreground border-0 shadow-lg"
+            "text-primary-foreground border-0"
           )}
         >
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
@@ -98,14 +124,19 @@ export default function TestimonialsPage() {
             home care services.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" variant="secondary" className="font-bold">
-              <Link href="/contact">Schedule Your Free Consultation</Link>
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              className="font-bold text-base sm:text-lg"
+            >
+              <Link href="/contact">Schedule Free Consultation</Link>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-sm sm:text-base"
             >
               <a href="tel:978-856-9358">
                 <IconPhone className="mr-2 size-4" />
