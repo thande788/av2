@@ -44,7 +44,7 @@ export default function ServicesPage() {
         <div className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="https://images.pexels.com/photos/7551615/pexels-photo-7551615.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              src="https://images.pexels.com/photos/4021775/pexels-photo-4021775.jpeg?auto=compress&cs=tinysrgb&w=1600"
               alt="Professional homecare services"
               fill
               className="object-cover"

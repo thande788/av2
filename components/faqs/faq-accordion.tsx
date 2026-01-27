@@ -21,7 +21,7 @@ function FAQAccordionItem({ item }: { item: FAQAccordionProps["items"][number] }
     <AccordionItem
       value={item.id}
       className={cn(
-        "rounded-xl border border-border/50",
+        "rounded-xl border-border/50",
         "bg-card/50 backdrop-blur-sm",
         "transition-colors duration-200",
         "data-[state=open]:bg-card data-[state=open]:border-border"
