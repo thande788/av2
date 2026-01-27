@@ -394,9 +394,9 @@ v2/                             # Next.js project root
 | 3.7 | Create `CaregiverCard` component | 2 | ⬜ |
 | 3.8 | Migrate FAQ accordion component | 2 | ⬜ |
 | 3.9 | Create `Logo` component with responsive variants | 1 | ✅ |
-| 3.10 | Create `LoadingSpinner` and `Skeleton` patterns | 1 | ⬜ |
+| 3.10 | Create `LoadingSpinner` and `Skeleton` patterns | 1 | ✅ |
 | 3.11 | Create TypeScript interfaces for all props | 2 | ⬜ |
-| 3.12 | Create accessibility utilities (`lib/a11y.ts`) | 2 | ⬜ |
+| 3.12 | Create accessibility utilities (`lib/a11y.ts`) | 2 | ✅ |
 
 ### shadcn/ui Components Installed
 
