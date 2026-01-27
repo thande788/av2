@@ -389,9 +389,9 @@ v2/                             # Next.js project root
 | 3.2 | Migrate `Navbar` → `navbar.tsx` with Sheet mobile menu | 3 | ✅ |
 | 3.3 | Create `SkipLink` accessibility component | 1 | ✅ |
 | 3.4 | Migrate `Footer` → `footer.tsx` | 2 | ✅ |
-| 3.5 | Create `ServiceCard` component | 2 | ⬜ |
-| 3.6 | Create `TestimonialCard` component | 2 | ⬜ |
-| 3.7 | Create `CaregiverCard` component | 2 | ⬜ |
+| 3.5 | Create `ServiceCard` component | 2 | ✅ |
+| 3.6 | Create `TestimonialCard` component | 2 | ✅ |
+| 3.7 | Create `CaregiverCard` component | 2 | ✅ |
 | 3.8 | Migrate FAQ accordion component | 2 | ⬜ |
 | 3.9 | Create `Logo` component with responsive variants | 1 | ✅ |
 | 3.10 | Create `LoadingSpinner` and `Skeleton` patterns | 1 | ✅ |
@@ -454,11 +454,11 @@ export const focusMainContent = () => {
 - [x] Mobile navigation uses shadcn `Sheet` component
 - [x] `Footer` renders all links, contact info, social icons
 - [x] Skip link appears on focus and jumps to main content
-- [ ] `ServiceCard` displays icon, title, description with hover effects
-- [ ] `TestimonialCard` shows avatar, name, quote, rating
+- [x] `ServiceCard` displays icon, title, description with hover effects
+- [x] `TestimonialCard` shows avatar, name, quote, rating
 - [ ] FAQ accordion expands/collapses with ARIA attributes
-- [ ] All components have TypeScript interfaces defined
-- [ ] No HeadlessUI imports remain in migrated components
+- [x] All components have TypeScript interfaces defined
+- [x] No HeadlessUI imports remain in migrated components
 - [ ] All components pass accessibility audit (axe-core)
 - [ ] `prefers-reduced-motion` respected for animations
 
