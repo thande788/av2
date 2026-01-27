@@ -490,9 +490,9 @@ export const focusMainContent = () => {
 | 4.7 | Migrate Testimonials page | 2 | ✅ |
 | 4.8 | Migrate Contact page with Server Actions | 3 | ⬜ |
 | 4.9 | Migrate FAQs page | 1 | ✅ |
-| 4.10 | Migrate Resources page | 1 | ⬜ |
-| 4.11 | Migrate Privacy Policy page | 0.5 | ⬜ |
-| 4.12 | Migrate Terms of Service page | 0.5 | ⬜ |
+| 4.10 | Migrate Resources page | 1 | ✅ |
+| 4.11 | Migrate Privacy Policy page | 0.5 | ✅ |
+| 4.12 | Migrate Terms of Service page | 0.5 | ✅ |
 | 4.13 | Add metadata exports to all pages | 1 | ✅ |
 
 ### Server Actions Pattern (Contact Form)
