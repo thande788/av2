@@ -16,7 +16,7 @@ import {
   IconStar,
   IconShield,
 } from "@tabler/icons-react";
-import { Brush } from "lucide-react";
+import { Bubbles } from "lucide-react";
 import type { ComponentType } from "react";
 
 /**
@@ -33,7 +33,7 @@ export const serviceIconMap: Record<
   pill: IconPill,
 
   // Household Services
-  broom: Brush,
+  broom: Bubbles,
   kitchen: IconToolsKitchen2,
   package: IconPackage,
 

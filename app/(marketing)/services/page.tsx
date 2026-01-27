@@ -6,30 +6,11 @@ import { IconPhone } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { getServiceIcon } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ServiceItemCardGrid } from "@/components/services/service-card";
+import { Card } from "@/components/ui/card";
 import { PricingCardGrid } from "@/components/services/pricing-card";
-import {
-  serviceCategories,
-  serviceStats,
-  type ServiceCategory,
-} from "@/data/services";
+import { ServiceCategoriesSection } from "@/components/services/service-categories-section";
+import { serviceStats } from "@/data/services";
 import { getActivePricingTiers } from "@/data/pricing";
-
 export const metadata: Metadata = {
   title: "Services",
   description:
@@ -49,138 +30,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-
-
-/**
- * Service detail modal content
- */
-function ServiceDetailContent({ category }: { category: ServiceCategory }) {
-  return (
-    <div className="space-y-6">
-      <ServiceItemCardGrid services={category.services} />
-
-      <div className="text-center pt-4 border-t border-border">
-        <p className="text-muted-foreground mb-4">
-          Ready to get started with {category.name.toLowerCase()}?
-        </p>
-        <Button asChild size="lg">
-          <Link href="/contact">Contact Us Today</Link>
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Service category card with dialog
- */
-function ServiceCategoryCard({ category }: { category: ServiceCategory }) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Card
-          className={cn(
-            "group cursor-pointer h-full",
-            "bg-gradient-to-br from-card/80 to-card/60",
-            "border-border/50 hover:border-primary/30",
-            "transition-all duration-300 hover:-translate-y-2 hover:shadow-lg",
-            "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-          )}
-          tabIndex={0}
-          role="button"
-          aria-label={`View ${category.name} services`}
-        >
-          {/* Category Image */}
-          <div className="relative h-40 overflow-hidden rounded-t-xl">
-            <Image
-              src={`https://images.pexels.com/photos/${
-                category.id === "personal-care"
-                  ? "7551617"
-                  : category.id === "household-services"
-                    ? "4057758"
-                    : "7551442"
-              }/pexels-photo-${
-                category.id === "personal-care"
-                  ? "7551617"
-                  : category.id === "household-services"
-                    ? "4057758"
-                    : "7551442"
-              }.jpeg?auto=compress&cs=tinysrgb&w=800`}
-              alt={`${category.name} services`}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/80" />
-          </div>
-
-          <CardContent className="text-center pt-6 pb-4">
-            {/* Icon */}
-            <div
-              className={cn(
-                "mx-auto mb-4 size-20 rounded-full",
-                "bg-gradient-to-br from-primary to-primary/80",
-                "flex items-center justify-center",
-                "text-primary-foreground shadow-lg",
-                "group-hover:scale-110 transition-transform duration-300"
-              )}
-            >
-              {getServiceIcon(category.icon, "size-10")}
-            </div>
-
-            <CardTitle className="text-xl md:text-2xl mb-3">
-              {category.name}
-            </CardTitle>
-
-            <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/60 rounded-full mx-auto mb-4" />
-
-            <CardDescription className="text-sm md:text-base leading-relaxed mb-4">
-              {category.description}
-            </CardDescription>
-
-            {/* Service count badge */}
-            <Badge variant="secondary" className="mb-4">
-              {category.services.length} Services Available
-            </Badge>
-
-            {/* Click indicator */}
-            <p className="text-primary font-semibold text-sm flex items-center justify-center gap-2 group-hover:gap-3 transition-all">
-              Click to View Services
-              <span className="group-hover:translate-x-1 transition-transform">
-                →
-              </span>
-            </p>
-          </CardContent>
-        </Card>
-      </DialogTrigger>
-
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-4">
-            <div
-              className={cn(
-                "size-16 rounded-full",
-                "bg-gradient-to-br from-primary to-primary/80",
-                "flex items-center justify-center",
-                "text-primary-foreground shadow-lg"
-              )}
-            >
-              {getServiceIcon(category.icon, "size-8")}
-            </div>
-            <div>
-              <DialogTitle className="text-2xl md:text-3xl">
-                {category.name}
-              </DialogTitle>
-              <DialogDescription>{category.description}</DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-        <ServiceDetailContent category={category} />
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 /**
  * Services page
@@ -257,27 +106,8 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Service Categories */}
-      <section
-        id="services"
-        className="px-4 md:px-8 max-w-7xl mx-auto mb-14 md:mb-20 scroll-mt-20"
-      >
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-            Our Service <span className="text-primary">Categories</span>
-          </h2>
-          <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Click on any category to explore our comprehensive services designed
-            to support your independence and well-being.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
-          {serviceCategories.map((category) => (
-            <ServiceCategoryCard key={category.id} category={category} />
-          ))}
-        </div>
-      </section>
+      {/* Service Categories Section - Carousel with DetailSheet */}
+      <ServiceCategoriesSection />
 
       {/* Pricing Section */}
       <section className="px-4 md:px-8 max-w-7xl mx-auto mb-16 md:mb-20">

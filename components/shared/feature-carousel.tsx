@@ -17,9 +17,9 @@ import {
 } from "@/components/ui/carousel";
 
 /**
- * Hero slide data structure
+ * Feature slide data structure
  */
-export interface HeroSlide {
+export interface FeatureSlide {
   /** Unique identifier */
   id: string;
   /** Slide headline */
@@ -44,9 +44,9 @@ export interface HeroSlide {
   overlay?: string;
 }
 
-export interface HeroCarouselProps {
+export interface FeatureCarouselProps {
   /** Array of slide data */
-  slides: HeroSlide[];
+  slides: FeatureSlide[];
   /** Autoplay delay in ms (0 to disable) */
   autoplayDelay?: number;
   /** Stop autoplay on user interaction */
@@ -63,12 +63,14 @@ export interface HeroCarouselProps {
   className?: string;
   /** Callback when slide changes */
   onSlideChange?: (index: number) => void;
+  /** Callback when a slide is clicked - receives slide id */
+  onSlideClick?: (slideId: string) => void;
 }
 
 /**
- * Reusable hero carousel with autoplay, navigation, and dot indicators
+ * Reusable feature carousel with autoplay, navigation, and dot indicators
  */
-export function HeroCarousel({
+export function FeatureCarousel({
   slides,
   autoplayDelay = 5000,
   stopOnInteraction = true,
@@ -78,7 +80,8 @@ export function HeroCarousel({
   aspectRatio = "aspect-[16/9] md:aspect-[21/9]",
   className,
   onSlideChange,
-}: HeroCarouselProps) {
+  onSlideClick,
+}: FeatureCarouselProps) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -139,8 +142,18 @@ export function HeroCarousel({
               <div
                 className={cn(
                   "relative overflow-hidden rounded-2xl md:rounded-3xl",
-                  aspectRatio
+                  aspectRatio,
+                  onSlideClick && "cursor-pointer"
                 )}
+                onClick={() => onSlideClick?.(slide.id)}
+                role={onSlideClick ? "button" : undefined}
+                tabIndex={onSlideClick ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (onSlideClick && (e.key === "Enter" || e.key === " ")) {
+                    e.preventDefault();
+                    onSlideClick(slide.id);
+                  }
+                }}
               >
                 {/* Background Image */}
                 {slide.image && (
@@ -159,7 +172,7 @@ export function HeroCarousel({
                   className={cn(
                     "absolute inset-0",
                     slide.overlay ||
-                      "bg-gradient-to-t from-black/70 via-black/30 to-black/10"
+                      "bg-gradient-to-t from-black/80 via-black/50 to-black/30"
                   )}
                 />
 
@@ -263,7 +276,7 @@ export function HeroCarousel({
 /**
  * Example usage with static data
  */
-export const exampleSlides: HeroSlide[] = [
+export const exampleSlides: FeatureSlide[] = [
   {
     id: "1",
     title: "Compassionate Care at Home",
@@ -298,4 +311,4 @@ export const exampleSlides: HeroSlide[] = [
   },
 ];
 
-export default HeroCarousel;
+export default FeatureCarousel;
