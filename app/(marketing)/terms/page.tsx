@@ -4,11 +4,13 @@ import { IconMail, IconScale } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getCanonicalAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
 	title: "Terms of Service",
 	description:
 		"Terms and conditions for using Angel Touch Homecare Services website and services.",
+	alternates: getCanonicalAlternates("/terms"),
 	openGraph: {
 		title: "Terms of Service | Angel Touch Homecare",
 		description:

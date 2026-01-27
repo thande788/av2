@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { ContactForm } from "./contact-form";
+import { getCanonicalAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
 	title: "Contact Us",
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 		"schedule care assessment",
 		"home care inquiry",
 	],
+	alternates: getCanonicalAlternates("/contact"),
 	openGraph: {
 		title: "Contact Us | Angel Touch Homecare",
 		description:

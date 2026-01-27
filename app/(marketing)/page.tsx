@@ -26,6 +26,8 @@ import {
 	type FeatureSlide,
 } from "@/components/shared/feature-carousel";
 import { HiringBanner } from "@/components/shared/hiring-banner";
+import { JsonLd } from "@/components/seo";
+import { localBusinessSchema, getCanonicalAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
 	title: "Angel Touch Homecare | Compassionate In-Home Care in Lowell, MA",
@@ -39,6 +41,7 @@ export const metadata: Metadata = {
 		"compassionate caregivers",
 		"home health aide",
 	],
+	alternates: getCanonicalAlternates("/"),
 	openGraph: {
 		title: "Angel Touch Homecare | Compassion in Every Touch",
 		description:
@@ -161,8 +164,10 @@ const whyChooseUsSlides: FeatureSlide[] = [
  */
 export default function HomePage() {
 	return (
-		<main className="min-h-screen" aria-label="Angel Touch Homecare">
-			{/* Hero Section */}
+		<>
+			<JsonLd data={localBusinessSchema} />
+			<main className="min-h-screen" aria-label="Angel Touch Homecare">
+				{/* Hero Section */}
 			<section className="px-4 md:px-8 max-w-7xl mx-auto mt-4 mb-14 md:mb-18">
 				<div className="relative rounded-3xl overflow-hidden">
 					<div className="absolute inset-0">
@@ -176,8 +181,8 @@ export default function HomePage() {
 						/>
 						{/* Light mode: minimal overlay to preserve image brightness */}
 						{/* Dark mode: stronger overlay for text contrast */}
-						<div className="absolute inset-0 bg-background/40 dark:bg-background/70" />
-						<div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-transparent dark:from-background/60 dark:via-background/30" />
+						<div className="absolute inset-0 bg-black/30" />
+						<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-transparent/20" />
 					</div>
 
 					<div className="relative z-10 px-6 md:px-10 py-16 md:py-24 lg:py-28">
@@ -187,7 +192,7 @@ export default function HomePage() {
 								<br />
 								<span className="text-primary">Every Touch</span>
 							</h1>
-							<p className="text-xl md:text-2xl text-foreground mb-8 leading-relaxed max-w-2xl">
+							<p className="italic text-xl md:text-2xl text-decorative/70 dark:text-foreground mb-8 leading-relaxed max-w-2xl">
 								Providing compassionate, reliable, and personalized in-home care
 								for seniors and individuals with disabilities in Lowell, MA and
 								surrounding communities.
@@ -204,7 +209,7 @@ export default function HomePage() {
 									asChild
 									size="lg"
 									variant="outline"
-									className="px-6 text-base sm:px-8 sm:text-lg"
+									className="px-6 border-decorative text-decorative/80 sm:px-8 sm:text-lg"
 								>
 									<Link href="/services">View Our Services</Link>
 								</Button>
@@ -409,6 +414,7 @@ export default function HomePage() {
 					</div>
 				</Card>
 			</section>
-		</main>
+			</main>
+		</>
 	);
 }

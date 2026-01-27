@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CaregiverCardGrid } from "@/components/caregivers/caregiver-card";
 import { caregivers } from "@/data/caregivers";
+import { getCanonicalAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
 	title: "Caregivers",
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
 		"senior care professionals",
 		"compassionate caregivers",
 	],
+	alternates: getCanonicalAlternates("/caregivers"),
 	openGraph: {
 		title: "Meet Our Caregivers | Angel Touch Homecare",
 		description:
@@ -49,18 +51,18 @@ export default function CaregiversPage() {
 							priority
 							sizes="100vw"
 						/>
-						<div className="absolute inset-0 bg-background/70" />
-						<div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
+						<div className="absolute inset-0 bg-black/30" />
+           				<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 					</div>
 
 					<div className="relative z-10 px-6 md:px-10 py-14 md:py-20">
 						<div className="max-w-3xl">
-							<h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+							<h1 className="text-4xl md:text-6xl font-bold text-decorative mb-6 leading-tight">
 								Meet Our
 								<br />
 								<span className="text-primary">Compassionate Caregivers</span>
 							</h1>
-							<p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+							<p className="italic text-xl md:text-2xl text-decorative/70 mb-8 leading-relaxed">
 								Our dedicated team of certified professionals brings expertise,
 								warmth, and care to every client&apos;s home.
 							</p>
@@ -76,7 +78,7 @@ export default function CaregiversPage() {
 									asChild
 									size="lg"
 									variant="outline"
-									className="px-6 text-base sm:px-8 sm:text-lg"
+									className="px-6 text-decorative/80 sm:px-8 sm:text-lg"
 								>
 									<a href="#team">Meet the Team</a>
 								</Button>
@@ -105,7 +107,7 @@ export default function CaregiversPage() {
 					</p>
 				</div>
 
-				<Card className="relative overflow-hidden p-6 sm:p-8 md:p-10 bg-card/50 border-border/50">
+				<Card className="relative overflow-hidden p-6 sm:p-8 md:p-10 bg-card/10 border-border/50">
 					<div
 						className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.primary/0.10),transparent_60%)]"
 						aria-hidden="true"

@@ -55,7 +55,7 @@ export function CaregiverCard({
 	return (
 		<Card
 			className={cn(
-				"group relative mx-auto w-full overflow-hidden pt-0",
+				"group relative mx-auto w-full overflow-hidden pt-0 bg-card/45 border-border/50",
 				"transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
 				"focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2",
 				className
@@ -135,7 +135,7 @@ export function CaregiverCard({
 				>
 					{fullName}
 				</CardTitle>
-				<CardDescription className="line-clamp-2 text-sm leading-relaxed">
+				<CardDescription className="line-clamp-2 text-sm text-foreground leading-relaxed">
 					{bio}
 				</CardDescription>
 			</CardHeader>

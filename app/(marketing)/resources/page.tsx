@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getCanonicalAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
 	title: "Resources",
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 		"Alzheimer's support",
 		"aging resources",
 	],
+	alternates: getCanonicalAlternates("/resources"),
 	openGraph: {
 		title: "Helpful Resources | Angel Touch Homecare",
 		description:

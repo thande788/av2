@@ -3,6 +3,7 @@ import { Geist_Mono, Inter, Nunito } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar, Footer, SkipLink } from "@/components/layout";
 import { getBrandAccentsAttribute } from "@/data/site-config";
+import { siteMetadata } from "@/lib/seo/site-metadata";
 import "./globals.css";
 
 // const inter = Inter({subsets:['latin'],variable:'--font-sans'});
@@ -23,6 +24,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteMetadata.url),
   title: {
     default: "Angel Touch Homecare Services",
     template: "%s | Angel Touch Homecare",

@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getCanonicalAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
 	title: "About",
@@ -29,6 +30,7 @@ export const metadata: Metadata = {
 		"licensed insured home care",
 		"HIPAA compliant home care",
 	],
+	alternates: getCanonicalAlternates("/about"),
 	openGraph: {
 		title: "About Angel Touch Homecare",
 		description:
@@ -85,18 +87,18 @@ export default function AboutPage() {
 							priority
 							sizes="100vw"
 						/>
-						<div className="absolute inset-0 bg-background/70" />
-						<div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
+						<div className="absolute inset-0 bg-black/40" />
+						<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-transparent" />
 					</div>
 
 					<div className="relative z-10 px-6 md:px-10 py-14 md:py-20">
 						<div className="max-w-3xl">
-							<h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+							<h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 leading-tight">
 								About Angel Touch
 								<br />
-								<span className="text-primary">Homecare</span>
+								<span className="text-decorative">Homecare</span>
 							</h1>
-							<p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+							<p className="italic text-xl md:text-2xl text-decorative/70 mb-8 leading-relaxed">
 								Founded on compassion, built on expertise, and dedicated to
 								enhancing lives through deeply personalized in-home care.
 							</p>
@@ -112,7 +114,7 @@ export default function AboutPage() {
 									asChild
 									size="lg"
 									variant="outline"
-									className="px-6 text-base sm:px-8 sm:text-lg"
+									className="px-6 text-decorative/80 sm:px-8 sm:text-lg"
 								>
 									<a href="#about">Learn More</a>
 								</Button>

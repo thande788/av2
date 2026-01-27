@@ -5,6 +5,12 @@ import { JobCard } from "@/components/careers/job-card";
 import { BenefitsSection } from "@/components/careers/benefits-section";
 import { getActiveJobs, getActiveDepartments, formatDepartment } from "@/data/jobs";
 import { Button } from "@/components/ui/button";
+import { JsonLdGraph } from "@/components/seo";
+import { createJobPostingSchema, organizationSchema, getCanonicalAlternates } from "@/lib/seo";
+
+// Generate job posting schemas for all active positions
+const activeJobs = getActiveJobs();
+const jobSchemas = activeJobs.map((job) => createJobPostingSchema(job));
 
 export const metadata: Metadata = {
   title: "Careers | Join Our Team | Angel Touch Homecare Services",
@@ -18,6 +24,7 @@ export const metadata: Metadata = {
     "Angel Touch Homecare careers",
     "healthcare jobs Lowell",
   ],
+  alternates: getCanonicalAlternates("/careers"),
   openGraph: {
     title: "Careers at Angel Touch Homecare Services",
     description:
@@ -27,12 +34,14 @@ export const metadata: Metadata = {
 };
 
 export default function CareersPage() {
-  const activeJobs = getActiveJobs();
+  const jobs = getActiveJobs();
   const departments = getActiveDepartments();
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
+    <>
+      <JsonLdGraph schemas={[organizationSchema, ...jobSchemas]} />
+      <div className="min-h-screen">
+        {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/10 via-background to-background py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -112,23 +121,23 @@ export default function CareersPage() {
           {departments.length > 1 && (
             <div className="flex flex-wrap gap-2 justify-center mb-8">
               <span className="px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium">
-                All Positions ({activeJobs.length})
+                All Positions ({jobs.length})
               </span>
               {departments.map((dept) => (
                 <span
                   key={dept}
                   className="px-4 py-2 bg-muted rounded-full text-sm font-medium text-muted-foreground"
                 >
-                  {formatDepartment(dept)} ({activeJobs.filter(j => j.department === dept).length})
+                  {formatDepartment(dept)} ({jobs.filter(j => j.department === dept).length})
                 </span>
               ))}
             </div>
           )}
 
           {/* Job Cards Grid */}
-          {activeJobs.length > 0 ? (
+          {jobs.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {activeJobs.map((job) => (
+              {jobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
             </div>
@@ -185,6 +194,7 @@ export default function CareersPage() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

@@ -81,7 +81,7 @@ export function TestimonialCard({
   return (
     <Card
       className={cn(
-        "group h-full transition-all duration-300",
+        "group h-full transition-all duration-300 bg-card/45 border-border/50",
         "hover:shadow-lg hover:-translate-y-1",
         size === "compact" && "py-4",
         className

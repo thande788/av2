@@ -9,8 +9,22 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PricingCardGrid } from "@/components/services/pricing-card";
 import { ServiceCategoriesSection } from "@/components/services/service-categories-section";
-import { serviceStats } from "@/data/services";
+import { serviceStats, serviceCategories } from "@/data/services";
 import { getActivePricingTiers } from "@/data/pricing";
+import { JsonLdGraph } from "@/components/seo";
+import { createServiceSchema, localBusinessSchema, getCanonicalAlternates } from "@/lib/seo";
+
+// Generate service schemas from data
+const serviceSchemas = serviceCategories.flatMap((category) =>
+  category.services.map((service) =>
+    createServiceSchema({
+      name: service.title,
+      description: service.description,
+      category: category.name,
+    })
+  )
+);
+
 export const metadata: Metadata = {
   title: "Services",
   description:
@@ -23,6 +37,7 @@ export const metadata: Metadata = {
     "medication reminders",
     "transportation services elderly",
   ],
+  alternates: getCanonicalAlternates("/services"),
   openGraph: {
     title: "Our Care Services | Angel Touch Homecare",
     description:
@@ -38,8 +53,10 @@ export default function ServicesPage() {
   const pricingTiers = getActivePricingTiers();
 
   return (
-    <main className="min-h-screen">
-      {/* Hero Section */}
+    <>
+      <JsonLdGraph schemas={[localBusinessSchema, ...serviceSchemas]} />
+      <main className="min-h-screen">
+        {/* Hero Section */}
       <section className="px-4 md:px-8 max-w-7xl mx-auto mt-4 mb-14 md:mb-18">
         <div className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0">
@@ -51,19 +68,20 @@ export default function ServicesPage() {
               priority
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-background/70" />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
+            {/* <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/55 to-black/35" /> */}
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-transparent/20" />
           </div>
 
           <div className="relative z-10 px-6 md:px-10 py-14 md:py-20">
             <div className="max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+              <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 leading-tight">
                 Our{" "}
-                <span className="text-primary">Comprehensive</span>
+                <span className="text-decorative">Comprehensive</span>
                 <br />
                 Care Services
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+              <p className="italic text-xl md:text-2xl text-decorative/70 mb-8 leading-relaxed">
                 Professional, compassionate homecare tailored to your unique
                 needs. Licensed, insured, and committed to your comfort and
                 independence.
@@ -80,7 +98,7 @@ export default function ServicesPage() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="px-6 text-base sm:px-8 sm:text-lg"
+                  className="px-6 text-decorative/80 sm:px-8 sm:text-lg"
                 >
                   <a href="#services">View Services</a>
                 </Button>
@@ -207,6 +225,7 @@ export default function ServicesPage() {
           </div>
         </Card>
       </section>
-    </main>
+      </main>
+    </>
   );
 }

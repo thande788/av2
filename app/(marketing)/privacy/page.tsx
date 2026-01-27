@@ -4,11 +4,13 @@ import { IconMail, IconShieldLock } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getCanonicalAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
 	title: "Privacy Policy",
 	description:
 		"Learn how Angel Touch Homecare Services collects, uses, and protects your personal information.",
+	alternates: getCanonicalAlternates("/privacy"),
 	openGraph: {
 		title: "Privacy Policy | Angel Touch Homecare",
 		description:

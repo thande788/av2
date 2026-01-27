@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -27,6 +28,7 @@
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "schema-dts": "^1.1.5",
     "shadcn": "^3.7.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.6"

@@ -8,6 +8,25 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TestimonialCardGrid } from "@/components/testimonials/testimonial-card";
 import { testimonials } from "@/data/testimonials";
+import { JsonLdGraph } from "@/components/seo";
+import {
+  createReviewSchema,
+  createAggregateRatingSchema,
+  getCanonicalAlternates,
+  type TestimonialInput,
+} from "@/lib/seo";
+
+// Convert testimonials to schema format and generate review schemas
+const testimonialInputs: TestimonialInput[] = testimonials.map((t) => ({
+  id: t.id,
+  content: t.text,
+  author: t.name,
+  rating: t.rating,
+  relationship: t.relation,
+}));
+
+const reviewSchemas = testimonialInputs.map((t) => createReviewSchema(t));
+const aggregateRatingSchema = createAggregateRatingSchema(testimonialInputs);
 
 export const metadata: Metadata = {
   title: "Testimonials",
@@ -20,6 +39,7 @@ export const metadata: Metadata = {
     "home care Lowell reviews",
     "family caregiver testimonials",
   ],
+  alternates: getCanonicalAlternates("/testimonials"),
   openGraph: {
     title: "Client Testimonials | Angel Touch Homecare",
     description:
@@ -36,8 +56,10 @@ export const metadata: Metadata = {
  */
 export default function TestimonialsPage() {
   return (
-    <main className="min-h-screen" aria-label="Client Testimonials">
-      {/* Hero Section */}
+    <>
+      <JsonLdGraph schemas={[aggregateRatingSchema, ...reviewSchemas]} />
+      <main className="min-h-screen" aria-label="Client Testimonials">
+        {/* Hero Section */}
       <section className="px-4 md:px-8 max-w-7xl mx-auto mt-4 mb-14 md:mb-18">
         <div className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0">
@@ -49,18 +71,18 @@ export default function TestimonialsPage() {
               priority
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-background/70" />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
           </div>
 
           <div className="relative z-10 px-6 md:px-10 py-14 md:py-20">
             <div className="max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+              <h1 className="text-4xl md:text-6xl font-bold text-decorative mb-6 leading-tight">
                 Stories from Our
                 <br />
                 <span className="text-primary">Families</span>
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+              <p className="italic text-xl md:text-2xl text-decorative/70 mb-8 leading-relaxed">
                 Hear from the families and clients who have experienced the
                 compassionate care that makes Angel Touch special.
               </p>
@@ -76,7 +98,7 @@ export default function TestimonialsPage() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="px-6 text-base sm:px-8 sm:text-lg"
+                  className="px-6 text-decorative/80 sm:px-8 sm:text-lg"
                 >
                   <a href="#testimonials">Browse Testimonials</a>
                 </Button>
@@ -146,6 +168,7 @@ export default function TestimonialsPage() {
           </div>
         </Card>
       </section>
-    </main>
+      </main>
+    </>
   );
 }

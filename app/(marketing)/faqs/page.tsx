@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FAQSection } from "@/components/faqs";
 import { faqs } from "@/data/faqs";
+import { JsonLd } from "@/components/seo";
+import { createFAQPageSchema, getCanonicalAlternates } from "@/lib/seo";
+
+const faqSchema = createFAQPageSchema(faqs);
 
 export const metadata: Metadata = {
   title: "FAQs",
@@ -20,6 +24,7 @@ export const metadata: Metadata = {
     "homecare payment options",
     "HIPAA compliant home care",
   ],
+  alternates: getCanonicalAlternates("/faqs"),
   openGraph: {
     title: "Frequently Asked Questions | Angel Touch Homecare",
     description:
@@ -36,8 +41,10 @@ export const metadata: Metadata = {
  */
 export default function FAQsPage() {
   return (
-    <main className="min-h-screen" aria-label="Frequently Asked Questions">
-      {/* Hero Section */}
+    <>
+      <JsonLd data={faqSchema} />
+      <main className="min-h-screen" aria-label="Frequently Asked Questions">
+        {/* Hero Section */}
       <section className="px-4 md:px-8 max-w-7xl mx-auto mt-4 mb-14 md:mb-18">
         <div className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0">
@@ -49,18 +56,18 @@ export default function FAQsPage() {
               priority
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-background/70" />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/30 to-transparent" />
           </div>
 
           <div className="relative z-10 px-6 md:px-10 py-14 md:py-20">
             <div className="max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+              <h1 className="text-4xl md:text-6xl font-bold text-decorative mb-6 leading-tight">
                 Frequently Asked
                 <br />
                 <span className="text-primary">Questions</span>
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+              <p className="italic text-xl md:text-2xl text-decorative/70 mb-8 leading-relaxed">
                 Clear answers about our home care services, caregivers, and
                 getting started.
               </p>
@@ -76,7 +83,7 @@ export default function FAQsPage() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="px-6 text-base sm:px-8 sm:text-lg"
+                  className="px-6 text-decorative/80 sm:px-8 sm:text-lg"
                 >
                   <a href="#faqs">Browse FAQs</a>
                 </Button>
@@ -146,6 +153,7 @@ export default function FAQsPage() {
           </div>
         </Card>
       </section>
-    </main>
+      </main>
+    </>
   );
 }
