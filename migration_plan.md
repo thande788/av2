@@ -372,7 +372,7 @@ v2/                             # Next.js project root
 
 **Story Points:** 21  
 **Dependencies:** Sprint 2 complete  
-**Status:** 🔄 In Progress
+**Status:** ✅ Complete
 
 ### Sprint Goals
 - Install all required shadcn/ui primitives
@@ -392,10 +392,10 @@ v2/                             # Next.js project root
 | 3.5 | Create `ServiceCard` component | 2 | ✅ |
 | 3.6 | Create `TestimonialCard` component | 2 | ✅ |
 | 3.7 | Create `CaregiverCard` component | 2 | ✅ |
-| 3.8 | Migrate FAQ accordion component | 2 | ⬜ |
+| 3.8 | Migrate FAQ accordion component | 2 | ✅ |
 | 3.9 | Create `Logo` component with responsive variants | 1 | ✅ |
 | 3.10 | Create `LoadingSpinner` and `Skeleton` patterns | 1 | ✅ |
-| 3.11 | Create TypeScript interfaces for all props | 2 | ⬜ |
+| 3.11 | Create TypeScript interfaces for all props | 2 | ✅ |
 | 3.12 | Create accessibility utilities (`lib/a11y.ts`) | 2 | ✅ |
 
 ### shadcn/ui Components Installed
@@ -456,7 +456,7 @@ export const focusMainContent = () => {
 - [x] Skip link appears on focus and jumps to main content
 - [x] `ServiceCard` displays icon, title, description with hover effects
 - [x] `TestimonialCard` shows avatar, name, quote, rating
-- [ ] FAQ accordion expands/collapses with ARIA attributes
+- [x] FAQ accordion expands/collapses with ARIA attributes
 - [x] All components have TypeScript interfaces defined
 - [x] No HeadlessUI imports remain in migrated components
 - [ ] All components pass accessibility audit (axe-core)
