@@ -40,45 +40,51 @@ export default function ServicesPage() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative rounded-3xl overflow-hidden mx-4 md:mx-8 mt-4 mb-14 md:mb-18">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.pexels.com/photos/7551615/pexels-photo-7551615.jpeg?auto=compress&cs=tinysrgb&w=1600"
-            alt="Professional homecare services"
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-background/70" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
-        </div>
+      <section className="px-4 md:px-8 max-w-7xl mx-auto mt-4 mb-14 md:mb-18">
+        <div className="relative rounded-3xl overflow-hidden">
+          <div className="absolute inset-0">
+            <Image
+              src="https://images.pexels.com/photos/7551615/pexels-photo-7551615.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              alt="Professional homecare services"
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-background/70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-transparent" />
+          </div>
 
-        <div className="relative z-10 px-6 md:px-10 py-14 md:py-20">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Our{" "}
-              <span className="text-primary">Comprehensive</span>
-              <br />
-              Care Services
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-              Professional, compassionate homecare tailored to your unique
-              needs. Licensed, insured, and committed to your comfort and
-              independence.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="px-6 text-base sm:px-8 sm:text-lg">
-                <Link href="/contact">Get Started</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="px-6 text-base sm:px-8 sm:text-lg"
-              >
-                <a href="#services">View Services</a>
-              </Button>
+          <div className="relative z-10 px-6 md:px-10 py-14 md:py-20">
+            <div className="max-w-3xl">
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+                Our{" "}
+                <span className="text-primary">Comprehensive</span>
+                <br />
+                Care Services
+              </h1>
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+                Professional, compassionate homecare tailored to your unique
+                needs. Licensed, insured, and committed to your comfort and
+                independence.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="px-6 text-base sm:px-8 sm:text-lg"
+                >
+                  <Link href="/contact">Get Started</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="px-6 text-base sm:px-8 sm:text-lg"
+                >
+                  <a href="#services">View Services</a>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

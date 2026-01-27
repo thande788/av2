@@ -55,6 +55,10 @@ export interface FeatureCarouselProps {
   loop?: boolean;
   /** Show navigation arrows */
   showArrows?: boolean;
+  /** When autoplayDelay is 0, still render arrows (default true) */
+  showArrowsWhenAutoplayOff?: boolean;
+  /** Extra class name applied to both arrow buttons */
+  arrowsClassName?: string;
   /** Show dot indicators */
   showDots?: boolean;
   /** Aspect ratio class */
@@ -76,6 +80,8 @@ export function FeatureCarousel({
   stopOnInteraction = true,
   loop = true,
   showArrows = true,
+  showArrowsWhenAutoplayOff = true,
+  arrowsClassName,
   showDots = true,
   aspectRatio = "aspect-[16/9] md:aspect-[21/9]",
   className,
@@ -224,21 +230,24 @@ export function FeatureCarousel({
           ))}
         </CarouselContent>
 
-        {/* Navigation Arrows - always show when autoplay is off, otherwise respect showArrows */}
-        {(showArrows || autoplayDelay === 0) && slides.length > 1 && (
+        {/* Navigation Arrows */}
+        {((showArrows && slides.length > 1) ||
+          (showArrowsWhenAutoplayOff && autoplayDelay === 0 && slides.length > 1)) && (
           <>
             <CarouselPrevious
               className={cn(
                 "left-4 md:left-6",
                 "bg-white/20 hover:bg-white/40 border-white/30",
-                "text-white backdrop-blur-sm"
+                "text-white backdrop-blur-sm",
+                arrowsClassName
               )}
             />
             <CarouselNext
               className={cn(
                 "right-4 md:right-6",
                 "bg-white/20 hover:bg-white/40 border-white/30",
-                "text-white backdrop-blur-sm"
+                "text-white backdrop-blur-sm",
+                arrowsClassName
               )}
             />
           </>

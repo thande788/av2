@@ -45,8 +45,6 @@ function getServiceCategorySlides(): FeatureSlide[] {
       description: category.description,
       image: `https://images.pexels.com/photos/${imageId}/pexels-photo-${imageId}.jpeg?auto=compress&cs=tinysrgb&w=1600`,
       imageAlt: `${category.name} services`,
-      ctaText: `Tap to Explore `,
-      ctaHref: "#", // Not used since we handle click
       align: "left" as const,
       overlay: "bg-gradient-to-t from-black/85 via-black/55 to-black/35",
     };
@@ -156,8 +154,7 @@ export function ServiceCategoriesSection() {
 
   return (
     <section
-      id="services"
-      className="px-4 md:px-8 max-w-7xl mx-auto mb-14 md:mb-20 scroll-mt-20"
+      className="px-4 md:px-8 max-w-7xl mx-auto mb-14 md:mb-20"
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -173,6 +170,9 @@ export function ServiceCategoriesSection() {
         slides={slides}
         autoplayDelay={SERVICE_CAROUSEL_AUTOPLAY}
         showDots
+        showArrows
+        showArrowsWhenAutoplayOff={false}
+        arrowsClassName="hidden md:flex"
         aspectRatio="aspect-[16/9] md:aspect-[21/9]"
         onSlideClick={handleSlideClick}
       />
