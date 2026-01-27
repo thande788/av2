@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { PricingTier } from "@/data/pricing";
 
 export interface PricingCardProps {
@@ -34,30 +33,39 @@ export function PricingCard({
 }: PricingCardProps) {
   const ctaText = tier.ctaText ?? "Get Started";
   const ctaHref = tier.ctaHref ?? "/contact";
+  const periodLabels: Record<PricingTier["period"], string> = {
+    hour: "hr",
+    day: "day",
+    week: "wk",
+    month: "mo",
+  };
 
   return (
     <Card
       className={cn(
         "relative h-full",
         "transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
-        tier.isPopular && "border-primary ring-2 ring-primary/20",
+        tier.isPopular &&
+          "border-primary/70 ring-2 ring-primary/25 shadow-lg shadow-primary/10 md:-mt-3 md:scale-[1.03]",
         className
       )}
     >
       {tier.isPopular && (
-        <Badge
-          className="absolute -top-3 left-1/2 -translate-x-1/2"
-          variant="default"
-        >
-          Most Popular
-        </Badge>
+        <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 overflow-hidden">
+          <div className="absolute right-[-48px] top-[14px] w-[180px] rotate-45 bg-emerald-500 px-2 py-1 text-center text-[11px] font-semibold tracking-wide text-white shadow-md">
+             Popular
+          </div>
+        </div>
       )}
 
       <CardHeader className="text-center pb-4">
         <CardTitle className="text-xl">{tier.title}</CardTitle>
         <div className="mt-4">
+          <div className="text-xs font-medium tracking-wide text-muted-foreground">
+            Starting at
+          </div>
           <span className="text-4xl font-bold text-primary">${tier.price}</span>
-          <span className="text-muted-foreground">/{tier.period}</span>
+          <span className="text-muted-foreground">/{periodLabels[tier.period]}</span>
         </div>
         <CardDescription className="mt-2">{tier.description}</CardDescription>
       </CardHeader>
