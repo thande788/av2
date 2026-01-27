@@ -10,8 +10,8 @@ export interface Service {
   title: string;
   /** Short description */
   description: string;
-  /** Icon component or emoji */
-  icon?: ReactNode;
+  /** Icon name from serviceIconMap, or ReactNode for custom */
+  icon?: string | ReactNode;
   /** Optional image URL */
   image?: string;
   /** Image alt text */

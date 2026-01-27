@@ -4,6 +4,7 @@ import {
   IconFileDescription,
   IconUsers,
   IconMessage,
+  IconQuestionMark,
   IconWorld,
 } from "@tabler/icons-react";
 import type { NavLink } from "@/types/navigation";
@@ -41,6 +42,12 @@ export const navLinks: NavLink[] = [
     label: "Testimonials",
     icon: <IconMessage className="size-5" />,
     description: "Read what families say about us",
+  },
+  {
+    href: "/faqs",
+    label: "FAQs",
+    icon: <IconQuestionMark className="size-5" />,
+    description: "Frequently asked questions",
   },
   {
     href: "/client-portal",
