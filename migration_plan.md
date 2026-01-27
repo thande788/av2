@@ -468,7 +468,7 @@ export const focusMainContent = () => {
 
 **Story Points:** 21  
 **Dependencies:** Sprint 3 complete  
-**Status:** ⬜ Not Started
+**Status:** 🟡 In Progress
 
 ### Sprint Goals
 - Set up route groups `(marketing)` structure
@@ -481,19 +481,19 @@ export const focusMainContent = () => {
 
 | ID | Task | Points | Status |
 |----|------|--------|--------|
-| 4.1 | Create `(marketing)` route group with layout | 2 | ⬜ |
+| 4.1 | Create `(marketing)` route group with layout | 2 | ✅ |
 | 4.2 | Migrate Home page with hero section | 3 | ⬜ |
-| 4.3 | Add `loading.tsx` for each route | 1 | ⬜ |
-| 4.4 | Migrate About page | 2 | ⬜ |
-| 4.5 | Migrate Services page | 2 | ⬜ |
+| 4.3 | Add `loading.tsx` for each route | 1 | ✅ |
+| 4.4 | Migrate About page | 2 | ✅ |
+| 4.5 | Migrate Services page | 2 | ✅ |
 | 4.6 | Migrate Caregivers page | 2 | ⬜ |
-| 4.7 | Migrate Testimonials page | 2 | ⬜ |
+| 4.7 | Migrate Testimonials page | 2 | ✅ |
 | 4.8 | Migrate Contact page with Server Actions | 3 | ⬜ |
-| 4.9 | Migrate FAQs page | 1 | ⬜ |
+| 4.9 | Migrate FAQs page | 1 | ✅ |
 | 4.10 | Migrate Resources page | 1 | ⬜ |
 | 4.11 | Migrate Privacy Policy page | 0.5 | ⬜ |
 | 4.12 | Migrate Terms of Service page | 0.5 | ⬜ |
-| 4.13 | Add metadata exports to all pages | 1 | ⬜ |
+| 4.13 | Add metadata exports to all pages | 1 | ✅ |
 
 ### Server Actions Pattern (Contact Form)
 
