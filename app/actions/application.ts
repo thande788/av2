@@ -41,6 +41,7 @@ const applicationSchema = z.object({
   shifts: z.array(z.enum(["morning", "afternoon", "evening", "overnight"])).min(1, "Select at least one shift"),
   hoursPerWeek: z.coerce.number().min(1).max(60).default(20),
   additionalInfo: z.string().max(2000).optional(),
+  resumeUrl: z.string().url().optional().or(z.literal("")),
 });
 
 // Rate limiting
@@ -120,6 +121,7 @@ export async function submitApplication(
       shifts,
       hoursPerWeek: formData.get("hoursPerWeek"),
       additionalInfo: formData.get("additionalInfo") || undefined,
+      resumeUrl: formData.get("resumeUrl") || "",
     };
 
     // Validate
@@ -175,7 +177,7 @@ export async function submitApplication(
         availableStart: new Date(result.data.startDate),
         shifts: dbShifts,
         hoursPerWeek: result.data.hoursPerWeek,
-        resumeUrl: null,
+        resumeUrl: result.data.resumeUrl || null,
         coverLetterUrl: null,
         additionalInfo: result.data.additionalInfo ?? null,
       },

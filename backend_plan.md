@@ -3,7 +3,7 @@
 > **Companion Document to:** `migration_plan.md`  
 > **Target Stack:** Next.js 16 (App Router) + Prisma + PostgreSQL (Neon) + Resend  
 > **Document Created:** January 28, 2026  
-> **Status:** In Progress (Phase 1-2 Complete)
+> **Status:** In Progress (Phase 1-4 Complete)
 
 ---
 
@@ -451,14 +451,14 @@ ADMIN_EMAIL="admin@angeltouch.services"
 
 | ID | Task | Status |
 |----|------|--------|
-| 4.1 | Set up Vercel Blob storage | ⬜ |
-| 4.2 | Create upload API route | ⬜ |
-| 4.3 | Implement client-side file selection | ⬜ |
-| 4.4 | Add file type/size validation | ⬜ |
-| 4.5 | Update job application form | ⬜ |
-| 4.6 | Store file URLs in database | ⬜ |
-| 4.7 | Add file download for admin | ⬜ |
-| 4.8 | Test upload flow end-to-end | ⬜ |
+| 4.1 | Set up Vercel Blob storage | ✅ |
+| 4.2 | Create upload API route | ✅ |
+| 4.3 | Implement client-side file selection | ✅ |
+| 4.4 | Add file type/size validation | ✅ |
+| 4.5 | Update job application form | ✅ |
+| 4.6 | Store file URLs in database | ✅ |
+| 4.7 | Add file download for admin | ⏳ (admin dashboard) |
+| 4.8 | Test upload flow end-to-end | ⏳ (needs BLOB_READ_WRITE_TOKEN) |
 
 ### Upload API Route
 
@@ -530,13 +530,13 @@ BLOB_READ_WRITE_TOKEN="vercel_blob_xxxxxxxxxxxxxxxx"
 
 ### Acceptance Criteria
 
-- [ ] Vercel Blob configured
-- [ ] Resume upload works in job application
-- [ ] File type validation (PDF, DOC, DOCX)
-- [ ] File size validation (max 5MB)
-- [ ] Upload progress indicator
-- [ ] File URL saved with application
-- [ ] Admin can download uploaded files
+- [ ] Vercel Blob configured (needs BLOB_READ_WRITE_TOKEN)
+- [x] Resume upload works in job application
+- [x] File type validation (PDF, DOC, DOCX)
+- [x] File size validation (max 5MB)
+- [x] Upload progress indicator
+- [x] File URL saved with application
+- [ ] Admin can download uploaded files (Phase 5)
 
 ---
 

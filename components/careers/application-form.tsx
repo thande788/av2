@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { FileUpload } from "@/components/shared/file-upload";
 import { submitApplication, type ApplicationFormState } from "@/app/actions/application";
 import type { Job } from "@/types/job";
 import type { Shift } from "@/types/application";
@@ -326,14 +327,17 @@ export function ApplicationForm({ job }: ApplicationFormProps) {
         </div>
       </section>
 
-      {/* File Upload Notice */}
-      <div className="bg-muted/50 rounded-lg p-4 border border-dashed">
-        <p className="text-sm text-muted-foreground">
-          <strong>Note:</strong> Resume and document uploads will be available soon. 
-          For now, please mention relevant certifications and experience in the additional information field above, 
-          or bring copies to your interview.
-        </p>
-      </div>
+      <Separator />
+
+      {/* Resume Upload */}
+      <section>
+        <h3 className="text-lg font-semibold mb-4">Resume <span className="text-muted-foreground font-normal text-sm">(Recommended)</span></h3>
+        <FileUpload
+          type="resume"
+          name="resumeUrl"
+          error={state.errors?.resumeUrl?.[0]}
+        />
+      </section>
 
       {/* Submit Button */}
       <div className="flex flex-col sm:flex-row gap-4 pt-4">

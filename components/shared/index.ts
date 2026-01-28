@@ -59,3 +59,6 @@ export {
 // Chat widget
 export { ChatWidget } from "./chat-widget";
 export { LazyChatWidget } from "./lazy-chat-widget";
+
+// File upload
+export { FileUpload } from "./file-upload";
