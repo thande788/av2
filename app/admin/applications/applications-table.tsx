@@ -1,0 +1,86 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { DataTable, type Column } from '@/components/admin/data-table';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import type { Application, Job, ApplicationStatus } from '@prisma/client';
+
+type ApplicationWithJob = Application & {
+  job: Pick<Job, 'title' | 'department'>;
+};
+
+const statusColors: Record<ApplicationStatus, string> = {
+  PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  REVIEWING: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  INTERVIEW: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+  OFFERED: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  REJECTED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  HIRED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
+  WITHDRAWN: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+};
+
+const columns: Column<ApplicationWithJob>[] = [
+  {
+    key: 'name',
+    header: 'Applicant',
+    render: (app) => (
+      <div>
+        <p className="font-medium">{app.firstName} {app.lastName}</p>
+        <p className="text-sm text-muted-foreground">{app.email}</p>
+      </div>
+    ),
+  },
+  {
+    key: 'job.title',
+    header: 'Position',
+    render: (app) => (
+      <div>
+        <p>{app.job.title}</p>
+        <p className="text-sm text-muted-foreground capitalize">
+          {app.job.department.toLowerCase().replace('_', ' ')}
+        </p>
+      </div>
+    ),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    sortable: true,
+    render: (app) => (
+      <Badge className={statusColors[app.status]} variant="secondary">
+        {app.status}
+      </Badge>
+    ),
+  },
+  {
+    key: 'yearsExperience',
+    header: 'Experience',
+    sortable: true,
+    render: (app) => `${app.yearsExperience} years`,
+  },
+  {
+    key: 'submittedAt',
+    header: 'Submitted',
+    sortable: true,
+    render: (app) => format(app.submittedAt, 'MMM d, yyyy'),
+  },
+];
+
+export function ApplicationsTable({
+  applications,
+}: {
+  applications: ApplicationWithJob[];
+}) {
+  const router = useRouter();
+
+  return (
+    <DataTable
+      data={applications}
+      columns={columns}
+      searchKeys={['firstName', 'lastName', 'email']}
+      onRowClick={(app) => router.push(`/admin/applications/${app.id}`)}
+      emptyMessage="No applications found."
+    />
+  );
+}

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Inter, Nunito } from "next/font/google";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Navbar, Footer, SkipLink } from "@/app/layout";
+import { Navbar, Footer, SkipLink } from "@/components/layout";
 import { LazyChatWidget } from "@/components/shared";
 import { getBrandAccentsAttribute } from "@/data/site-config";
 import { siteMetadata } from "@/lib/seo/site-metadata";
