@@ -17,10 +17,10 @@ export default function ClientPortalPage() {
           src="/illustrations/boy-with-key.png"
           alt=""
           fill
-          className="object-contain object-right-bottom opacity-20 scale-125 translate-x-1/4 translate-y-1/4"
+          className="object-cover opacity-15"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/60" />
       </div>
       
       {/* Background illustration - Dark mode */}
@@ -29,10 +29,10 @@ export default function ClientPortalPage() {
           src="/illustrations/boy-with-key-dark.png"
           alt=""
           fill
-          className="object-contain object-right-bottom opacity-30 scale-125 translate-x-1/4 translate-y-1/4"
+          className="object-cover opacity-20"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/70" />
       </div>
 
       {/* Content */}
