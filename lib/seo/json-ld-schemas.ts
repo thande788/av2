@@ -10,14 +10,12 @@
 
 import type {
   Organization,
-  LocalBusiness,
   MedicalBusiness,
   Service,
   FAQPage,
   JobPosting,
   Review,
   WithContext,
-  Thing,
 } from "schema-dts";
 import { siteMetadata } from "./site-metadata";
 import type { Job } from "@/types/job";

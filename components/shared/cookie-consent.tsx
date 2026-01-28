@@ -51,10 +51,11 @@ export function CookieConsent({ className, onConsent }: CookieConsentProps) {
         const prefs: CookiePreferences = JSON.parse(stored);
         // Show again if version changed
         if (prefs.version !== CONSENT_VERSION) {
-          setIsVisible(true);
+          // Use setTimeout to avoid synchronous setState in effect
+          setTimeout(() => setIsVisible(true), 0);
         }
       } catch {
-        setIsVisible(true);
+        setTimeout(() => setIsVisible(true), 0);
       }
     } else {
       // Delay showing banner for better UX
@@ -84,7 +85,6 @@ export function CookieConsent({ className, onConsent }: CookieConsentProps) {
 
   const handleAcceptAll = () => saveConsent("all");
   const handleAcceptEssential = () => saveConsent("essential");
-  const handleAcceptAnalytics = () => saveConsent("analytics");
 
   if (!isVisible) return null;
 
@@ -226,9 +226,10 @@ export function useCookieConsent(): ConsentLevel | null {
     if (stored) {
       try {
         const prefs: CookiePreferences = JSON.parse(stored);
-        setConsent(prefs.level);
+        // Use setTimeout to avoid synchronous setState in effect
+        setTimeout(() => setConsent(prefs.level), 0);
       } catch {
-        setConsent(null);
+        // Invalid stored value, leave as null
       }
     }
 

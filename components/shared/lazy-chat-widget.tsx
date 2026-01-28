@@ -38,7 +38,6 @@ export function LazyChatWidget({
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
     let hasTriggered = false;
 
     const triggerLoad = () => {
@@ -49,7 +48,7 @@ export function LazyChatWidget({
     };
 
     // Load after delay
-    timer = setTimeout(triggerLoad, loadDelay);
+    const timer = setTimeout(triggerLoad, loadDelay);
 
     // Or load on user interaction
     const events = ["scroll", "click", "touchstart", "mousemove"];

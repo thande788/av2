@@ -27,13 +27,14 @@ const QUERY = "(prefers-reduced-motion: reduce)";
  */
 export function useReducedMotion(): boolean {
   // Default to reduced motion on server (safer default)
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    // Initialize with correct value on client, default true on server
+    if (typeof window === "undefined") return true;
+    return window.matchMedia(QUERY).matches;
+  });
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(QUERY);
-    
-    // Set initial value
-    setPrefersReducedMotion(mediaQuery.matches);
 
     // Listen for changes
     const handleChange = (event: MediaQueryListEvent) => {

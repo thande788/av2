@@ -131,19 +131,6 @@ const ThreadSuggestions: FC = () => {
   );
 };
 
-// ThreadSuggestionItem removed - using inline ThreadPrimitive.Suggestion instead
-const _ThreadSuggestionItemPlaceholder: FC = () => {
-  return (
-    <div className="aui-thread-welcome-suggestion-display fade-in slide-in-from-bottom-2 animate-in fill-mode-both duration-200">
-      <Button
-        variant="ghost"
-        className="aui-thread-welcome-suggestion h-auto w-full flex-wrap items-start justify-start gap-1 rounded-2xl border px-4 py-3 text-left text-sm transition-colors hover:bg-muted"
-      >
-        Suggestion placeholder
-      </Button>
-    </div>
-  );
-};
 
 const Composer: FC = () => {
   return (

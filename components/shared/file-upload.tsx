@@ -53,7 +53,6 @@ export function FileUpload({
     file,
     upload,
     removeFile,
-    reset,
   } = useFileUpload({
     uploadType: type,
     onSuccess: onUpload,

@@ -21,7 +21,6 @@
 import { motion, type MotionProps, type Variants } from "motion/react";
 import { forwardRef, type ReactNode } from "react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
-import { cn } from "@/lib/utils";
 
 // Common animation presets
 export const fadeIn: Variants = {

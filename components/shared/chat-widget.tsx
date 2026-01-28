@@ -9,7 +9,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, Suspense, lazy } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   IconMessageCircle,
@@ -17,7 +17,6 @@ import {
   IconPhone,
   IconMail,
   IconCalendar,
-  IconMapPin,
   IconClock,
   IconChevronRight,
   IconSend,
@@ -63,7 +62,7 @@ const quickActions: QuickAction[] = [
     id: "email",
     icon: <IconMail className="size-5" />,
     label: "Send Email",
-    description: "We'll respond within 24 hours",
+    description: "We&apos;ll respond within 24 hours",
     href: `mailto:${siteMetadata.email}`,
   },
   {
@@ -126,7 +125,7 @@ function ChatWidgetContent({
             </Avatar>
             <div>
               <h3 className="font-semibold">Angel Touch Support</h3>
-              <p className="text-xs text-primary-foreground/80">We're here to help</p>
+              <p className="text-xs text-primary-foreground/80">We&apos;re here to help</p>
             </div>
           </div>
           <Button
@@ -305,7 +304,7 @@ function ChatButton({
 export function ChatWidget({
   showDelay = 5000,
   position = "bottom-right",
-  greeting = "Hi there! 👋 How can we help you today? Whether you need information about our care services or want to schedule a consultation, we're here for you.",
+  greeting = "Hi there! 👋 How can we help you today? Whether you need information about our care services or want to schedule a consultation, we&apos;re here for you.",
   immediate = false,
 }: ChatWidgetProps) {
   const [isVisible, setIsVisible] = useState(immediate);
@@ -314,12 +313,8 @@ export function ChatWidget({
 
   // Show widget after delay or user interaction
   useEffect(() => {
-    if (immediate) {
-      setIsVisible(true);
-      return;
-    }
+    if (immediate) return;
 
-    let timer: NodeJS.Timeout;
     let hasInteracted = false;
 
     const handleInteraction = () => {
@@ -330,7 +325,7 @@ export function ChatWidget({
     };
 
     // Show after delay
-    timer = setTimeout(() => setIsVisible(true), showDelay);
+    const timer = setTimeout(() => setIsVisible(true), showDelay);
 
     // Or show on scroll/click
     window.addEventListener("scroll", handleInteraction, { once: true, passive: true });
