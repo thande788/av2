@@ -78,7 +78,7 @@ export default function CaregiversPage() {
 									asChild
 									size="lg"
 									variant="outline"
-									className="px-6 text-decorative/80 sm:px-8 sm:text-lg"
+									className="px-6 text-base sm:px-8 sm:text-lg"
 								>
 									<a href="#team">Meet the Team</a>
 								</Button>

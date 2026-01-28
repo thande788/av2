@@ -209,7 +209,7 @@ export default function HomePage() {
 									asChild
 									size="lg"
 									variant="outline"
-									className="px-6 border-decorative text-decorative/80 sm:px-8 sm:text-lg"
+									className="px-6 border-decorative text-base sm:px-8 sm:text-lg"
 								>
 									<Link href="/services">View Our Services</Link>
 								</Button>
