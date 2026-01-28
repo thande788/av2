@@ -159,8 +159,8 @@ DATABASE_URL_UNPOOLED="postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neo
 
 ### Acceptance Criteria
 
-- [ ] Neon database created and accessible
-- [ ] Prisma client generates without errors
+- [x] Neon database created and accessible
+- [x] Prisma client generates without errors
 - [ ] Can connect and query from local dev
 - [ ] Schema matches existing TypeScript types
 - [ ] Migration runs successfully

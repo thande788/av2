@@ -1,21 +1,13 @@
-// This is a DRAFT Prisma schema for future database integration
-// Do not run migrations on this file until backend infrastructure is ready
-//
-// Prerequisites for production:
-// 1. Set up PostgreSQL database (recommended: Neon, Supabase, or PlanetScale)
-// 2. Install: pnpm add prisma @prisma/client
-// 3. Configure DATABASE_URL in .env
-// 4. Run: pnpm prisma generate && pnpm prisma db push
-//
+// Angel Touch Homecare - Prisma Schema
 // @see https://www.prisma.io/docs
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // =============================================================================
@@ -151,6 +143,9 @@ model ContactSubmission {
   name        String
   email       String
   phone       String?
+  service     String?  // Service of interest
+  urgency     String?  // Urgency level
+  preferredContact String? // email or phone
   message     String   @db.Text
   source      String?  // Which page the form was submitted from
   submittedAt DateTime @default(now())

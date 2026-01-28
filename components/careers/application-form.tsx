@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { submitApplication, type ApplicationFormState } from "@/app/(marketing)/careers/[slug]/apply/actions";
+import { submitApplication, type ApplicationFormState } from "@/app/actions/application";
 import type { Job } from "@/types/job";
 import type { Shift } from "@/types/application";
 

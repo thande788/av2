@@ -19,7 +19,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
 	submitContactForm,
 	type ContactFormState,
-} from "@/app/(marketing)/contact/actions";
+} from "@/app/actions/contact";
 
 const serviceOptions = [
 	{ value: "personal-care", label: "Personal Care Assistance" },
