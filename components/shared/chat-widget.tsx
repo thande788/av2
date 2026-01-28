@@ -62,7 +62,7 @@ const quickActions: QuickAction[] = [
     id: "email",
     icon: <IconMail className="size-5" />,
     label: "Send Email",
-    description: "We&apos;ll respond within 24 hours",
+    description: "We'll respond within 24 hours",
     href: `mailto:${siteMetadata.email}`,
   },
   {
