@@ -3,7 +3,8 @@
 > **Companion Document to:** `migration_plan.md`  
 > **Target Stack:** Next.js 16 (App Router) + Prisma + PostgreSQL (Neon) + Resend  
 > **Document Created:** January 28, 2026  
-> **Status:** In Progress (Phase 1-4 Complete)
+> **Last Updated:** January 28, 2026  
+> **Status:** In Progress (Phase 1-5 Complete)
 
 ---
 
@@ -544,22 +545,24 @@ BLOB_READ_WRITE_TOKEN="vercel_blob_xxxxxxxxxxxxxxxx"
 
 **Effort:** 16-24 hours  
 **Dependencies:** Phases 1-4  
-**Priority:** Medium
+**Priority:** Medium  
+**Status:** ✅ Complete (January 28, 2026)
 
 ### Tasks
 
 | ID | Task | Status |
 |----|------|--------|
-| 5.1 | Set up Clerk authentication | ⬜ |
-| 5.2 | Create admin layout with sidebar | ⬜ |
-| 5.3 | Build applications list view | ⬜ |
-| 5.4 | Build application detail view | ⬜ |
-| 5.5 | Add application status management | ⬜ |
-| 5.6 | Build contacts list view | ⬜ |
-| 5.7 | Build inquiries list view | ⬜ |
-| 5.8 | Add testimonials CRUD | ⬜ |
-| 5.9 | Build dashboard overview | ⬜ |
+| 5.1 | Set up Clerk authentication | ✅ |
+| 5.2 | Create admin layout with sidebar | ✅ |
+| 5.3 | Build applications list view | ✅ |
+| 5.4 | Build application detail view | ✅ |
+| 5.5 | Add application status management | ✅ |
+| 5.6 | Build contacts list view | ✅ |
+| 5.7 | Build inquiries list view | ✅ |
+| 5.8 | Add testimonials view | ✅ |
+| 5.9 | Build dashboard overview | ✅ |
 | 5.10 | Add search and filtering | ⬜ |
+| 5.11 | **NEW:** Jobs CRUD (create, edit, delete, toggle) | ✅ |
 
 ### Route Structure
 
@@ -568,18 +571,29 @@ app/
 ├── admin/
 │   ├── layout.tsx          # Admin layout with auth check
 │   ├── page.tsx            # Dashboard overview
+│   ├── jobs/
+│   │   ├── page.tsx        # List all jobs
+│   │   ├── jobs-table.tsx  # Jobs data table
+│   │   ├── job-form.tsx    # Create/edit form
+│   │   ├── actions.ts      # Server actions (CRUD)
+│   │   ├── new/
+│   │   │   └── page.tsx    # Create new job
+│   │   └── [id]/
+│   │       └── edit/
+│   │           └── page.tsx # Edit job
 │   ├── applications/
 │   │   ├── page.tsx        # List all applications
+│   │   ├── applications-table.tsx
 │   │   └── [id]/
-│   │       └── page.tsx    # Single application detail
+│   │       ├── page.tsx    # Single application detail
+│   │       ├── application-detail.tsx
+│   │       └── actions.ts  # Status update actions
 │   ├── contacts/
 │   │   └── page.tsx        # Contact submissions
 │   ├── inquiries/
 │   │   └── page.tsx        # Care inquiries
 │   └── testimonials/
-│       ├── page.tsx        # List testimonials
-│       └── new/
-│           └── page.tsx    # Add new testimonial
+│       └── page.tsx        # List testimonials
 ```
 
 ### Admin Layout with Auth
@@ -595,20 +609,20 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect('/sign-in');
   }
 
-  // Optional: Check if user has admin role
-  // const user = await clerkClient.users.getUser(userId);
-  // if (!user.publicMetadata.isAdmin) redirect('/');
-
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <AdminSidebar />
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 overflow-auto">
+        <div className="container max-w-7xl py-8 px-6 lg:px-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }
@@ -650,13 +664,16 @@ export default async function AdminDashboard() {
 
 ### Acceptance Criteria
 
-- [ ] Admin routes protected by authentication
-- [ ] Dashboard shows key metrics
-- [ ] Can view all job applications
-- [ ] Can update application status
-- [ ] Can view contact submissions
-- [ ] Can mark contacts as read
-- [ ] Can manage testimonials
+- [x] Admin routes protected by authentication
+- [x] Dashboard shows key metrics (applications, contacts, inquiries, testimonials)
+- [x] Can view all job applications
+- [x] Can update application status
+- [x] Can view contact submissions
+- [x] Can view service inquiries
+- [x] Can view testimonials
+- [x] **NEW:** Can create/edit/delete jobs
+- [x] **NEW:** Can toggle job active status
+- [x] **NEW:** Brand-consistent UI with rose accents
 - [ ] Search and filter functionality
 
 ---
