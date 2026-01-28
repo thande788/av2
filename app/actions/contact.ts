@@ -8,6 +8,12 @@
 "use server";
 
 import { db } from "@/lib/db";
+import {
+  sendEmail,
+  notifyAdmin,
+  contactConfirmationTemplate,
+  formatContactForAdmin,
+} from "@/lib/email";
 import { headers } from "next/headers";
 import { z } from "zod";
 
@@ -115,11 +121,19 @@ export async function submitContactForm(
       },
     });
 
-    // TODO: Send confirmation email (Phase 3)
-    // await sendContactConfirmationEmail(result.data.email, result.data.name);
+    // Send confirmation email to user (don't await to avoid blocking)
+    sendEmail({
+      to: result.data.email,
+      subject: "Thank you for contacting Angel Touch Homecare",
+      html: contactConfirmationTemplate(result.data.name),
+      replyTo: "info@angeltouch.services",
+    }).catch((err) => console.error("Failed to send confirmation email:", err));
 
-    // TODO: Send admin notification (Phase 3)
-    // await sendAdminNotification('contact', result.data);
+    // Send admin notification
+    notifyAdmin(
+      "Contact Form Submission",
+      formatContactForAdmin(result.data)
+    ).catch((err) => console.error("Failed to send admin notification:", err));
 
     return {
       success: true,

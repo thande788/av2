@@ -7,6 +7,12 @@
 "use server";
 
 import { db } from "@/lib/db";
+import {
+  sendEmail,
+  notifyAdmin,
+  careInquiryConfirmationTemplate,
+  formatInquiryForAdmin,
+} from "@/lib/email";
 import { headers } from "next/headers";
 import { z } from "zod";
 
@@ -101,8 +107,27 @@ export async function submitCareInquiry(
       },
     });
 
-    // TODO: Send confirmation email (Phase 3)
-    // TODO: Send admin notification (Phase 3)
+    // Send confirmation email to user
+    sendEmail({
+      to: result.data.email,
+      subject: "Your Care Inquiry - Angel Touch Homecare",
+      html: careInquiryConfirmationTemplate(result.data.name, result.data.serviceType),
+      replyTo: "care@angeltouch.services",
+    }).catch((err) => console.error("Failed to send inquiry confirmation:", err));
+
+    // Send admin notification
+    notifyAdmin(
+      "New Care Inquiry",
+      formatInquiryForAdmin({
+        name: result.data.name,
+        email: result.data.email,
+        phone: result.data.phone,
+        serviceType: result.data.serviceType,
+        hoursPerWeek: result.data.hoursNeeded?.toString() ?? null,
+        startTimeline: result.data.startDate?.toLocaleDateString() ?? null,
+        message: result.data.message ?? null,
+      })
+    ).catch((err) => console.error("Failed to send admin notification:", err));
 
     return {
       success: true,

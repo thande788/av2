@@ -9,6 +9,12 @@
 
 import { db } from "@/lib/db";
 import { getJobBySlug } from "@/data/jobs";
+import {
+  sendEmail,
+  notifyAdmin,
+  applicationConfirmationTemplate,
+  formatApplicationForAdmin,
+} from "@/lib/email";
 import { headers } from "next/headers";
 import { z } from "zod";
 
@@ -175,8 +181,27 @@ export async function submitApplication(
       },
     });
 
-    // TODO: Send confirmation email (Phase 3)
-    // TODO: Send admin notification (Phase 3)
+    // Send confirmation email to applicant
+    sendEmail({
+      to: result.data.email,
+      subject: `Application Received: ${job.title} - Angel Touch Homecare`,
+      html: applicationConfirmationTemplate(result.data.firstName, job.title),
+      replyTo: "careers@angeltouch.services",
+    }).catch((err) => console.error("Failed to send application confirmation:", err));
+
+    // Send admin notification
+    notifyAdmin(
+      "New Job Application",
+      formatApplicationForAdmin({
+        firstName: result.data.firstName,
+        lastName: result.data.lastName,
+        email: result.data.email,
+        phone: result.data.phone,
+        jobTitle: job.title,
+        yearsExperience: result.data.yearsOfExperience,
+        shifts: result.data.shifts,
+      })
+    ).catch((err) => console.error("Failed to send admin notification:", err));
 
     return {
       success: true,
