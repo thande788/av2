@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Bell, Calendar, MessageSquare, Shield } from 'lucide-react';
+import { Bell, Calendar, MessageSquare, Shield, ArrowRight } from 'lucide-react';
 
 export const metadata = {
   title: 'Client Portal | Angel Touch Homecare',
@@ -10,92 +10,95 @@ export const metadata = {
 
 export default function ClientPortalPage() {
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-16">
-      {/* Decorative background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-rose/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+    <div className="relative min-h-[90vh] flex items-center overflow-hidden">
+      {/* Background illustration - Light mode */}
+      <div className="absolute inset-0 dark:hidden">
+        <Image
+          src="/illustrations/boy-with-key.png"
+          alt=""
+          fill
+          className="object-contain object-right-bottom opacity-20 scale-125 translate-x-1/4 translate-y-1/4"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/60" />
+      </div>
+      
+      {/* Background illustration - Dark mode */}
+      <div className="absolute inset-0 hidden dark:block">
+        <Image
+          src="/illustrations/boy-with-key-dark.png"
+          alt=""
+          fill
+          className="object-contain object-right-bottom opacity-30 scale-125 translate-x-1/4 translate-y-1/4"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/70" />
       </div>
 
-      <div className="relative z-10 max-w-2xl mx-auto text-center space-y-8">
-        {/* Illustration */}
-        <div className="relative mx-auto w-64 h-64 md:w-80 md:h-80">
-          {/* Light mode image */}
-          <Image
-            src="/illustrations/boy-with-key.png"
-            alt="Person holding a key - Client Portal coming soon"
-            fill
-            className="object-contain drop-shadow-lg dark:hidden"
-            priority
-          />
-          {/* Dark mode image */}
-          <Image
-            src="/illustrations/boy-with-key-dark.png"
-            alt="Person holding a key - Client Portal coming soon"
-            fill
-            className="object-contain drop-shadow-lg hidden dark:block"
-            priority
-          />
-        </div>
-
-        {/* Content */}
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-rose/15 text-accent-rose-deep text-sm font-medium">
+      {/* Content */}
+      <div className="relative z-10 container max-w-6xl mx-auto px-4 py-16">
+        <div className="max-w-2xl space-y-8">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
             <Shield className="size-4" />
-            Secure Portal
+            Secure Client Portal
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Client Portal
-            <span className="block text-2xl md:text-3xl font-normal text-muted-foreground mt-2">
-              Coming Soon
-            </span>
-          </h1>
-          
-          <p className="text-lg text-muted-foreground max-w-md mx-auto">
-            We're building a secure space for you and your family to stay connected with your care team.
+          {/* Heading */}
+          <div className="space-y-4">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
+              Your Care,
+              <br />
+              <span className="bg-gradient-to-r from-primary via-accent-rose-deep to-accent-rose bg-clip-text text-transparent">
+                One Click Away
+              </span>
+            </h1>
+            
+            <p className="text-xl text-muted-foreground max-w-lg">
+              We're building a secure portal where you can manage schedules, 
+              communicate with caregivers, and stay connected with your loved one's care.
+            </p>
+          </div>
+
+          {/* Features */}
+          <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur border border-border/50 text-sm">
+              <Calendar className="size-4 text-primary" />
+              View Schedule
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur border border-border/50 text-sm">
+              <MessageSquare className="size-4 text-primary" />
+              Message Caregivers
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur border border-border/50 text-sm">
+              <Bell className="size-4 text-primary" />
+              Real-time Updates
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <Link href="/contact">
+              <Button size="lg" className="gap-2 w-full sm:w-auto">
+                Get Notified at Launch
+                <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+            <Link href="/services">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto bg-card/50 backdrop-blur">
+                Explore Services
+              </Button>
+            </Link>
+          </div>
+
+          {/* Contact note */}
+          <p className="text-sm text-muted-foreground pt-4 border-t border-border/50">
+            Need assistance now? Call us at{' '}
+            <a href="tel:+1234567890" className="text-primary font-medium hover:underline">
+              (123) 456-7890
+            </a>
           </p>
         </div>
-
-        {/* Features preview */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50">
-            <Calendar className="size-8 text-primary" />
-            <span className="text-sm font-medium">View Schedule</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50">
-            <MessageSquare className="size-8 text-primary" />
-            <span className="text-sm font-medium">Message Caregivers</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card/50 border border-border/50">
-            <Bell className="size-8 text-primary" />
-            <span className="text-sm font-medium">Care Updates</span>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <Link href="/">
-            <Button variant="outline" className="gap-2">
-              <ArrowLeft className="size-4" />
-              Back to Home
-            </Button>
-          </Link>
-          <Link href="/contact">
-            <Button className="gap-2">
-              Contact Us for Updates
-            </Button>
-          </Link>
-        </div>
-
-        {/* Note */}
-        <p className="text-sm text-muted-foreground pt-8">
-          Existing clients: Please contact us at{' '}
-          <a href="tel:+1234567890" className="text-primary hover:underline">
-            (123) 456-7890
-          </a>{' '}
-          for care coordination.
-        </p>
       </div>
     </div>
   );
