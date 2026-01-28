@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@clerk/themes/shadcn.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -327,23 +328,23 @@ html.dark[data-accents~="rose"] {
   .text-icon-accent {
     color: var(--icon-accent);
   }
-  
+
   .text-icon-accent-hover:hover {
     color: var(--icon-accent-hover);
   }
-  
+
   .border-decorative {
     border-color: var(--decorative-border);
   }
-  
+
   .bg-decorative {
     background-color: var(--decorative-accent);
   }
-  
+
   .bg-nav-highlight {
     background-color: var(--nav-highlight-bg);
   }
-  
+
   .text-nav-highlight {
     color: var(--nav-highlight);
   }
