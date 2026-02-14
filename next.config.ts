@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
    * Required for Prisma on Next.js 16 + Turbopack + Vercel
    * Prevents Prisma runtime from being bundled incorrectly.
    */
-  serverExternalPackages: ["@prisma/client", "prisma"],
+  serverExternalPackages: ["@prisma/client", "@prisma/client-runtime-utils", "prisma"],
 
   images: {
     remotePatterns: [
