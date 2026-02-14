@@ -6,6 +6,12 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  /**
+   * Required for Prisma on Next.js 16 + Turbopack + Vercel
+   * Prevents Prisma runtime from being bundled incorrectly.
+   */
+  serverExternalPackages: ["@prisma/client", "prisma"],
+
   images: {
     remotePatterns: [
       {
@@ -19,21 +25,24 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    // Modern formats for better compression
+
+    // modern compression formats
     formats: ["image/avif", "image/webp"],
-    // Device sizes for responsive images
+
+    // responsive breakpoints
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    // Image sizes for layout="responsive" and layout="fill"
+
+    // fixed image variants
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // Minimize layout shift
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+
+    // cache images for 30 days
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 
-  // HTTP Headers for caching and security
   async headers() {
     return [
       {
-        // Static assets (fonts, images in public/)
+        // Public static assets
         source: "/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif|woff|woff2)",
         headers: [
           {
@@ -43,7 +52,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Next.js static chunks
+        // Next.js build assets
         source: "/_next/static/:path*",
         headers: [
           {
@@ -53,21 +62,12 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Security headers for all routes
+        // Global security headers
         source: "/:path*",
         headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "origin-when-cross-origin",
-          },
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "origin-when-cross-origin" },
         ],
       },
     ];
