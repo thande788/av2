@@ -723,6 +723,7 @@ Vercel Environment Variables (Production)
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob | Yes |
 | `CLERK_SECRET_KEY` | Clerk | For Admin |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk | For Admin |
+| `CLERK_WEBHOOK_SECRET` | Clerk | For User Sync |
 | `ADMIN_EMAIL` | - | Yes |
 
 ### Database Migrations Workflow
