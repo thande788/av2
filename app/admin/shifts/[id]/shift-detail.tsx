@@ -10,6 +10,7 @@ import {
   IconClock,
   IconLoader2,
   IconMapPin,
+  IconMessageForward,
   IconUser,
   IconUsers,
   IconX,
@@ -53,6 +54,7 @@ import {
   cancelShift,
   completeShift,
 } from '@/app/actions/shifts';
+import { sendShiftNotification } from '@/app/actions/sms-notifications';
 
 type ShiftWithRelations = CareShift & {
   client: Client & {
@@ -97,12 +99,29 @@ const bookingStatusColors: Record<BookingStatus, string> = {
 export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isNotifying, setIsNotifying] = React.useState(false);
+  const [notificationResult, setNotificationResult] = React.useState<{
+    sent: number;
+    failed: number;
+  } | null>(null);
   const [selectedWorkerId, setSelectedWorkerId] = React.useState<string>('');
 
   const confirmedBooking = shift.bookings.find((b) => b.status === 'CONFIRMED');
   const pendingBookings = shift.bookings.filter((b) => b.status === 'PENDING');
   const isOpen = shift.status === 'OPEN' || shift.status === 'PENDING_BOOK';
   const isBooked = shift.status === 'BOOKED' || shift.status === 'IN_PROGRESS';
+
+  const handleSendNotification = async () => {
+    setIsNotifying(true);
+    setNotificationResult(null);
+    const result = await sendShiftNotification(shift.id);
+    setNotificationResult({
+      sent: result.totalSent,
+      failed: result.totalFailed,
+    });
+    setIsNotifying(false);
+    router.refresh();
+  };
 
   const handleSendRequest = async () => {
     if (!selectedWorkerId) return;
@@ -178,6 +197,22 @@ export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          {isOpen && (
+            <Button
+              variant="outline"
+              onClick={handleSendNotification}
+              disabled={isNotifying}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              {isNotifying ? (
+                <IconLoader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <IconMessageForward className="mr-2 size-4" />
+              )}
+              Notify Workers
+            </Button>
+          )}
+
           {isBooked && (
             <Button onClick={handleCompleteShift} disabled={isLoading}>
               {isLoading ? (
@@ -221,6 +256,35 @@ export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
       </div>
 
       <Separator />
+
+      {/* Notification Result Banner */}
+      {notificationResult && (
+        <div
+          className={cn(
+            'rounded-lg border p-4',
+            notificationResult.failed > 0
+              ? 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/30'
+              : 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/30'
+          )}
+        >
+          <p className="text-sm">
+            <span className="font-medium">
+              SMS notifications sent:{' '}
+            </span>
+            <span className="text-emerald-700 dark:text-emerald-400">
+              {notificationResult.sent} successful
+            </span>
+            {notificationResult.failed > 0 && (
+              <>
+                {', '}
+                <span className="text-red-700 dark:text-red-400">
+                  {notificationResult.failed} failed
+                </span>
+              </>
+            )}
+          </p>
+        </div>
+      )}
 
       {/* Content Grid */}
       <div className="grid gap-6 md:grid-cols-2">

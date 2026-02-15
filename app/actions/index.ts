@@ -48,3 +48,25 @@ export {
   approveTimesheet,
   rejectTimesheet,
 } from "./timesheets";
+
+// Worker registration actions
+export {
+  registerWorker,
+  linkClerkToWorker,
+  type WorkerRegistrationState,
+} from "./worker-registration";
+
+// SMS notification actions
+export {
+  sendShiftNotification,
+  sendShiftConfirmation,
+  sendShiftCancellation,
+  sendShiftNotificationToWorkers,
+  type NotificationResult,
+} from "./sms-notifications";
+
+// Shift booking actions (from SMS links)
+export {
+  bookShiftFromLink,
+  cancelShiftBooking,
+} from "./shift-booking";

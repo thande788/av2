@@ -38,6 +38,10 @@ type ClerkWebhookEvent = {
       role?: string;
       status?: string;
     };
+    unsafe_metadata?: {
+      role?: string;
+      [key: string]: unknown;
+    };
     private_metadata?: Record<string, unknown>;
     created_at: number;
     updated_at: number;
@@ -153,7 +157,9 @@ export async function POST(req: Request) {
   const phone = getPrimaryPhone(data);
   const firstName = data.first_name ?? '';
   const lastName = data.last_name ?? '';
-  const role = mapRole(data.public_metadata?.role);
+  // Check both public_metadata and unsafe_metadata for role (signup sets unsafe_metadata)
+  const roleString = data.public_metadata?.role || data.unsafe_metadata?.role;
+  const role = mapRole(roleString);
   const status = mapStatus(data.public_metadata?.status);
 
   console.log(`[Clerk Webhook] Received ${type} for user ${clerkId}`);

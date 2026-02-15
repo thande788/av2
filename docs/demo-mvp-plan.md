@@ -2,7 +2,7 @@
 
 > **Document Created:** February 15, 2026  
 > **Target Stack:** Next.js 16 (App Router) + Prisma + PostgreSQL + Clerk + Twilio  
-> **Status:** In Progress (Phase 1 ✅, Phase 2 ~95%)  
+> **Status:** In Progress (Phase 1 ✅, Phase 2 ✅ Complete)  
 > **Related:** [portal_plan.md](./portal_plan.md), [admin-enhancements.md](./admin-enhancements.md)
 
 ---
@@ -112,6 +112,27 @@
 | Component | Location | Notes |
 |-----------|----------|-------|
 | Profile page | `app/employee/profile/page.tsx` | Personal info, skills, availability, docs |
+
+**Phase 2.1: Worker Registration Flow (Public)** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Worker signup page | `app/signup/worker/page.tsx` | Benefits panel + registration form |
+| Multi-step form | `components/signup/worker-registration-form.tsx` | 4-step: Personal → Skills → Availability → Address |
+| Registration action | `app/actions/worker-registration.ts` | Creates PortalUser + Worker records |
+| Validation schema | `lib/validation/worker-registration.ts` | Zod schemas for each step |
+
+**Phase 2.5: Twilio SMS Integration** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Twilio client | `lib/twilio.ts` | SMS sending with fallback for dev |
+| SMS templates | `lib/twilio.ts` | Notification, confirmation, reminder, cancellation |
+| SMS notification action | `app/actions/sms-notifications.ts` | `sendShiftNotification()`, bulk sending |
+| Shift detail notify button | `app/admin/shifts/[id]/shift-detail.tsx` | "Notify Workers" button with results banner |
+| Booking link page | `app/book/[shiftId]/page.tsx` | Public route for SMS booking links |
+| Booking card component | `app/book/[shiftId]/book-shift-card.tsx` | Shift details + book button |
+| Booking action | `app/actions/shift-booking.ts` | `bookShiftFromLink()` with auth checks |
 
 ---
 
@@ -464,9 +485,9 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 
 | ID | Task | Hours | Status |
 |----|------|-------|--------|
-| W.1 | Worker signup page UI | 2 | ⬜ |
-| W.2 | Multi-step registration form | 3 | ⬜ |
-| W.3 | Server action: createWorkerProfile | 2 | ⬜ |
+| W.1 | Worker signup page UI | 2 | ✅ |
+| W.2 | Multi-step registration form | 3 | ✅ |
+| W.3 | Server action: createWorkerProfile | 2 | ✅ |
 | W.4 | Admin pending workers queue | 2 | ✅ |
 | W.5 | Admin worker detail view | 2 | ✅ |
 | W.6 | Approve/reject actions | 1 | ✅ |
@@ -490,8 +511,8 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 |----|------|-------|--------|
 | S.1 | Shift creation form | 3 | ✅ |
 | S.2 | Worker matching query | 2 | ✅ |
-| S.3 | Twilio SMS integration | 2 | ⬜ |
-| S.4 | Booking link handler | 1 | ⬜ |
+| S.3 | Twilio SMS integration | 2 | ✅ |
+| S.4 | Booking link handler | 1 | ✅ |
 | S.5 | Shift detail page (employee) | 2 | ✅ |
 | S.6 | Booking with locking | 3 | ✅ |
 | S.7 | Admin shift list view | 2 | ✅ |
@@ -781,7 +802,7 @@ function calculateMatchScore(worker: Worker, client: Client, shift: Shift): Matc
 
 - [ ] Walk-through script prepared
 - [ ] Sample SMS notifications ready
-- [ ] Backup plan if Twilio fails (console log fallback)
+- [x] Backup plan if Twilio fails (console log fallback)
 - [ ] Screen recording setup
 
 ### Post-Demo
@@ -814,13 +835,13 @@ function calculateMatchScore(worker: Worker, client: Client, shift: Shift): Matc
 - [ ] Clerk webhook updates
 - [x] Base layouts
 
-#### Sprint 1 (Core Demo) — 1 week ~70% COMPLETE
+#### Sprint 1 (Core Demo) — 1 week ✅ COMPLETE
 
-- [ ] Worker registration flow (public signup)
+- [x] Worker registration flow (public signup)
 - [x] Shift creation & booking (admin + employee)
-- [ ] SMS notifications (Twilio)
+- [x] SMS notifications (Twilio)
 - [x] Employee portal dashboard
-- [ ] Admin dashboard widgets
+- [x] Admin dashboard widgets
 
 #### Sprint 1.5 (Extended Demo) — 1 week
 

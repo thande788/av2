@@ -118,7 +118,7 @@ export function AdminSidebar() {
       <div className="flex h-14 items-center justify-between px-4">
         {!collapsed && (
           <Link href="/admin" className="font-semibold text-lg text-primary">
-            Angel Touch
+            HermesCare 
           </Link>
         )}
         <Button
