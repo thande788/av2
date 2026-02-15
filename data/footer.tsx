@@ -21,8 +21,8 @@ export const footerNavLinks: FooterLink[] = [
  * Legal/policy links for the footer
  */
 export const policyLinks: FooterLink[] = [
-  { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Terms of Service", href: "/terms-of-service" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
 ];
 
 /**
