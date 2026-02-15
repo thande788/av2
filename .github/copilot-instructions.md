@@ -644,6 +644,27 @@ __tests__/
 
 ## Quick Reference
 
+## Operational Learnings
+
+### Prisma + Next.js (Vercel / Serverless)
+
+- **Symptom:** `Cannot find module '@prisma/client-runtime-utils'` at runtime (often in Vercel SSR logs), coming from `node_modules/.prisma/client/runtime/client.js`.
+- **Why it happens:** Prisma v7 splits some runtime helpers into `@prisma/client-runtime-utils`. In some build/deploy setups (esp. with bundling/tracing), transitive deps can be omitted from the deployed server output.
+- **Fix:**
+  - Add `@prisma/client-runtime-utils` as a **direct** dependency.
+  - Ensure Next.js treats Prisma packages as **server externals** (e.g. in `next.config.ts` via `serverExternalPackages`). Include `@prisma/client-runtime-utils` alongside `@prisma/client`.
+  - Keep `prisma generate` in `postinstall` and/or before `next build` so the generated client is always present.
+
+### pnpm Workspace
+
+- pnpm requires `pnpm-workspace.yaml` to contain a `packages:` field. If it’s missing/empty, pnpm commands may fail with: `ERROR packages field missing or empty`.
+- For a single-package repo, `packages: ["."]` is sufficient.
+
+### Clerk Keys & Build Stability
+
+- Missing or invalid Clerk keys can fail prerendering (e.g. `/_not-found`) during `next build`.
+- CI/Vercel must have valid `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` set for production builds.
+
 ### Common Commands
 
 ```bash
@@ -676,4 +697,4 @@ git add -A && git commit -m "type(scope): message"
 
 ---
 
-*Last updated: January 27, 2026*
+*Last updated: February 15, 2026*
