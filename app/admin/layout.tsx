@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/sidebar';
+import { DemoBanner } from '@/components/demo/demo-banner';
 
 export const metadata = {
   title: 'Admin Dashboard | Angel Touch Homecare',
@@ -30,6 +31,7 @@ export default async function AdminLayout({
           {children}
         </div>
       </main>
+      <DemoBanner />
     </div>
   );
 }

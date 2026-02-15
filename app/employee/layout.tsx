@@ -25,17 +25,13 @@ export default function EmployeeLayout({
 
   return (
     <div className="flex min-h-screen bg-background">
-      {isDemoEnabled() && (
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <DemoBanner />
-        </div>
-      )}
       <EmployeeSidebar />
       <main className="flex-1 overflow-auto">
-        <div className={`container max-w-7xl py-8 px-6 lg:px-8 ${isDemoEnabled() ? 'mt-10' : ''}`}>
+        <div className="container max-w-7xl py-8 px-6 lg:px-8">
           {children}
         </div>
       </main>
+      <DemoBanner />
     </div>
   );
 }

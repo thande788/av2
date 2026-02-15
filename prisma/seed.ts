@@ -25,6 +25,9 @@ import {
   ClientType,
   ServiceLevel,
   ShiftStatus,
+  // Compliance enums
+  DocType,
+  DocStatus,
 } from '@prisma/client';
 import { config } from 'dotenv';
 import { resolve } from 'path';
@@ -816,6 +819,281 @@ const portalWorkers = [
   },
 ];
 
+// Compliance Documents demo data - indexed by worker position
+const complianceDocsData: Array<{
+  workerIndex: number;
+  docs: Array<{
+    type: DocType;
+    name: string;
+    fileName: string;
+    issuedDate: Date;
+    expiresAt?: Date;
+    status: DocStatus;
+  }>;
+}> = [
+  // Maria Santos (index 0) - COMPLIANT - all docs approved
+  {
+    workerIndex: 0,
+    docs: [
+      {
+        type: DocType.DRIVERS_LICENSE,
+        name: 'Massachusetts Driver\'s License',
+        fileName: 'maria_santos_drivers_license.pdf',
+        issuedDate: new Date('2024-01-15'),
+        expiresAt: new Date('2029-01-15'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.CPR_CERTIFICATION,
+        name: 'CPR/First Aid Certification',
+        fileName: 'maria_santos_cpr_cert.pdf',
+        issuedDate: new Date('2025-06-01'),
+        expiresAt: new Date('2027-06-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.HHA_CERTIFICATION,
+        name: 'Home Health Aide Certification',
+        fileName: 'maria_santos_hha_cert.pdf',
+        issuedDate: new Date('2023-09-15'),
+        expiresAt: new Date('2028-09-15'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.BACKGROUND_CHECK,
+        name: 'CORI Background Check',
+        fileName: 'maria_santos_cori.pdf',
+        issuedDate: new Date('2024-06-01'),
+        expiresAt: new Date('2025-06-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.TB_TEST,
+        name: 'TB Test Results',
+        fileName: 'maria_santos_tb_test.pdf',
+        issuedDate: new Date('2025-01-10'),
+        expiresAt: new Date('2026-01-10'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.PHYSICAL_EXAM,
+        name: 'Annual Physical Exam',
+        fileName: 'maria_santos_physical.pdf',
+        issuedDate: new Date('2025-02-01'),
+        expiresAt: new Date('2026-02-01'),
+        status: DocStatus.APPROVED,
+      },
+    ],
+  },
+  // James Wilson (index 1) - COMPLIANT - all docs approved
+  {
+    workerIndex: 1,
+    docs: [
+      {
+        type: DocType.DRIVERS_LICENSE,
+        name: 'Massachusetts Driver\'s License',
+        fileName: 'james_wilson_drivers_license.pdf',
+        issuedDate: new Date('2022-08-20'),
+        expiresAt: new Date('2027-08-20'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.CPR_CERTIFICATION,
+        name: 'CPR/First Aid Certification',
+        fileName: 'james_wilson_cpr_cert.pdf',
+        issuedDate: new Date('2025-01-15'),
+        expiresAt: new Date('2027-01-15'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.HHA_CERTIFICATION,
+        name: 'Home Health Aide Certification',
+        fileName: 'james_wilson_hha_cert.pdf',
+        issuedDate: new Date('2024-12-01'),
+        expiresAt: new Date('2029-12-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.BACKGROUND_CHECK,
+        name: 'CORI Background Check',
+        fileName: 'james_wilson_cori.pdf',
+        issuedDate: new Date('2025-01-05'),
+        expiresAt: new Date('2026-01-05'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.TB_TEST,
+        name: 'TB Test Results',
+        fileName: 'james_wilson_tb_test.pdf',
+        issuedDate: new Date('2025-01-20'),
+        expiresAt: new Date('2026-01-20'),
+        status: DocStatus.APPROVED,
+      },
+    ],
+  },
+  // Anna Petrova (index 2) - COMPLIANT with some expiring soon
+  {
+    workerIndex: 2,
+    docs: [
+      {
+        type: DocType.DRIVERS_LICENSE,
+        name: 'Massachusetts Driver\'s License',
+        fileName: 'anna_petrova_drivers_license.pdf',
+        issuedDate: new Date('2021-03-10'),
+        expiresAt: new Date('2026-03-10'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.CPR_CERTIFICATION,
+        name: 'CPR/First Aid Certification',
+        fileName: 'anna_petrova_cpr_cert.pdf',
+        issuedDate: new Date('2024-02-28'),
+        // Expiring within 30 days!
+        expiresAt: new Date('2026-03-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.CNA_LICENSE,
+        name: 'CNA License',
+        fileName: 'anna_petrova_cna_license.pdf',
+        issuedDate: new Date('2023-09-01'),
+        expiresAt: new Date('2027-09-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.BACKGROUND_CHECK,
+        name: 'CORI Background Check',
+        fileName: 'anna_petrova_cori.pdf',
+        issuedDate: new Date('2023-09-01'),
+        expiresAt: new Date('2024-09-01'),
+        status: DocStatus.EXPIRED, // Expired!
+      },
+      {
+        type: DocType.TB_TEST,
+        name: 'TB Test Results',
+        fileName: 'anna_petrova_tb_test.pdf',
+        issuedDate: new Date('2025-02-01'),
+        expiresAt: new Date('2026-02-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.PHYSICAL_EXAM,
+        name: 'Annual Physical Exam',
+        fileName: 'anna_petrova_physical.pdf',
+        issuedDate: new Date('2024-11-15'),
+        expiresAt: new Date('2025-11-15'),
+        status: DocStatus.APPROVED,
+      },
+    ],
+  },
+  // Sarah Johnson (index 3) - COMPLIANT, new hire
+  {
+    workerIndex: 3,
+    docs: [
+      {
+        type: DocType.DRIVERS_LICENSE,
+        name: 'Massachusetts Driver\'s License',
+        fileName: 'sarah_johnson_drivers_license.pdf',
+        issuedDate: new Date('2023-05-01'),
+        expiresAt: new Date('2028-05-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.CPR_CERTIFICATION,
+        name: 'CPR/First Aid Certification',
+        fileName: 'sarah_johnson_cpr_cert.pdf',
+        issuedDate: new Date('2026-01-20'),
+        expiresAt: new Date('2028-01-20'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.BACKGROUND_CHECK,
+        name: 'CORI Background Check',
+        fileName: 'sarah_johnson_cori.pdf',
+        issuedDate: new Date('2026-01-25'),
+        expiresAt: new Date('2027-01-25'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.TB_TEST,
+        name: 'TB Test Results',
+        fileName: 'sarah_johnson_tb_test.pdf',
+        issuedDate: new Date('2026-01-28'),
+        expiresAt: new Date('2027-01-28'),
+        status: DocStatus.APPROVED,
+      },
+    ],
+  },
+  // Carlos Rodriguez (index 4) - INCOMPLETE (pending worker)
+  {
+    workerIndex: 4,
+    docs: [
+      {
+        type: DocType.DRIVERS_LICENSE,
+        name: 'Massachusetts Driver\'s License',
+        fileName: 'carlos_rodriguez_drivers_license.pdf',
+        issuedDate: new Date('2024-07-15'),
+        expiresAt: new Date('2029-07-15'),
+        status: DocStatus.PENDING_REVIEW,
+      },
+      {
+        type: DocType.CPR_CERTIFICATION,
+        name: 'CPR/First Aid Certification',
+        fileName: 'carlos_rodriguez_cpr_cert.pdf',
+        issuedDate: new Date('2026-02-10'),
+        expiresAt: new Date('2028-02-10'),
+        status: DocStatus.PENDING_REVIEW,
+      },
+    ],
+  },
+  // Emily Chen (index 5) - PENDING (some docs pending review)
+  {
+    workerIndex: 5,
+    docs: [
+      {
+        type: DocType.DRIVERS_LICENSE,
+        name: 'Massachusetts Driver\'s License',
+        fileName: 'emily_chen_drivers_license.pdf',
+        issuedDate: new Date('2023-11-20'),
+        expiresAt: new Date('2028-11-20'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.CPR_CERTIFICATION,
+        name: 'CPR/First Aid Certification',
+        fileName: 'emily_chen_cpr_cert.pdf',
+        issuedDate: new Date('2026-02-01'),
+        expiresAt: new Date('2028-02-01'),
+        status: DocStatus.PENDING_REVIEW,
+      },
+      {
+        type: DocType.HHA_CERTIFICATION,
+        name: 'Home Health Aide Certification',
+        fileName: 'emily_chen_hha_cert.pdf',
+        issuedDate: new Date('2024-06-15'),
+        expiresAt: new Date('2029-06-15'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.BACKGROUND_CHECK,
+        name: 'CORI Background Check',
+        fileName: 'emily_chen_cori.pdf',
+        issuedDate: new Date('2026-02-12'),
+        expiresAt: new Date('2027-02-12'),
+        status: DocStatus.PENDING_REVIEW,
+      },
+      {
+        type: DocType.TB_TEST,
+        name: 'TB Test Results',
+        fileName: 'emily_chen_tb_test.pdf',
+        issuedDate: new Date('2026-02-14'),
+        expiresAt: new Date('2027-02-14'),
+        status: DocStatus.REJECTED,
+      },
+    ],
+  },
+];
+
 const portalClients = [
   {
     clerkId: 'demo_client_1',
@@ -1155,6 +1433,47 @@ async function main() {
   }
   console.log(`   Total: ${portalWorkers.length} workers\n`);
 
+  // Create compliance documents for workers
+  console.log('📋 Seeding compliance documents...');
+  let totalDocs = 0;
+  let pendingDocs = 0;
+  let expiringDocs = 0;
+
+  for (const docSet of complianceDocsData) {
+    const worker = createdWorkers[docSet.workerIndex];
+    if (!worker) continue;
+
+    for (const docData of docSet.docs) {
+      await prisma.complianceDoc.create({
+        data: {
+          workerId: worker.id,
+          type: docData.type,
+          name: docData.name,
+          fileUrl: `https://demo.angeltouchhome.care/docs/${docData.fileName}`,
+          fileName: docData.fileName,
+          issuedDate: docData.issuedDate,
+          expiresAt: docData.expiresAt,
+          status: docData.status,
+          verifiedBy: docData.status === DocStatus.APPROVED || docData.status === DocStatus.REJECTED ? 'demo_admin' : null,
+          verifiedAt: docData.status === DocStatus.APPROVED || docData.status === DocStatus.REJECTED ? new Date() : null,
+          rejectionNote: docData.status === DocStatus.REJECTED ? 'Document image is blurry. Please resubmit a clearer copy.' : null,
+        },
+      });
+
+      totalDocs++;
+      if (docData.status === DocStatus.PENDING_REVIEW) pendingDocs++;
+      if (
+        docData.status === DocStatus.APPROVED &&
+        docData.expiresAt &&
+        docData.expiresAt <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      ) {
+        expiringDocs++;
+      }
+    }
+    console.log(`   ✓ Created ${docSet.docs.length} docs for worker ${docSet.workerIndex + 1}`);
+  }
+  console.log(`   Total: ${totalDocs} compliance docs (${pendingDocs} pending, ${expiringDocs} expiring soon)\n`);
+
   // Create clients
   console.log('🏠 Seeding portal clients...');
   for (const clientData of portalClients) {
@@ -1260,6 +1579,7 @@ async function main() {
   console.log(`   • ${testimonials.length} testimonials`);
   console.log(`   • ${serviceInquiries.length} service inquiries`);
   console.log(`   • ${portalWorkers.length} portal workers`);
+  console.log(`   • ${complianceDocsData.reduce((acc, d) => acc + d.docs.length, 0)} compliance documents`);
   console.log(`   • ${portalClients.length} portal clients`);
   console.log(`   • ${demoShifts.length} care shifts`);
   console.log('═══════════════════════════════════════════\n');

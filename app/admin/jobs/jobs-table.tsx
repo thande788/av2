@@ -132,7 +132,7 @@ export function JobsTable({ jobs }: JobsTableProps) {
                 </td>
                 <td className="py-4 px-6">
                   <Link
-                    href={`/admin/applications?job=${job.id}`}
+                    href={`/admin/jobs/${job.id}/applications`}
                     className="inline-flex items-center gap-1.5 text-sm hover:text-primary transition-colors"
                   >
                     <Users className="size-4" />
