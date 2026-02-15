@@ -12,8 +12,11 @@ import {
   IconX,
   IconSend,
   IconFileText,
+  IconPlus,
+  IconEdit,
 } from '@tabler/icons-react';
-import { format, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Timesheets',
@@ -167,9 +170,20 @@ export default async function EmployeeTimesheetsPage() {
                       {currentTimesheet.entries.length} entries
                     </p>
                   </div>
-                  <Button variant="outline" disabled>
-                    View Details
-                  </Button>
+                  {currentTimesheet.status === 'DRAFT' || currentTimesheet.status === 'REJECTED' ? (
+                    <Button variant="outline" asChild>
+                      <Link href={`/employee/timesheets/${currentTimesheet.id}/edit`}>
+                        <IconEdit className="size-4 mr-2" />
+                        Edit Timesheet
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button variant="outline" asChild>
+                      <Link href={`/employee/timesheets/${currentTimesheet.id}`}>
+                        View Details
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               );
             }
@@ -179,8 +193,11 @@ export default async function EmployeeTimesheetsPage() {
                 <p className="text-muted-foreground">
                   No timesheet started for this week yet.
                 </p>
-                <Button disabled>
-                  Start Timesheet
+                <Button asChild>
+                  <Link href="/employee/timesheets/new">
+                    <IconPlus className="size-4 mr-2" />
+                    Start Timesheet
+                  </Link>
                 </Button>
               </div>
             );
@@ -291,9 +308,20 @@ function TimesheetCard({ timesheet }: TimesheetCardProps) {
           </div>
         )}
       </div>
-      <Button variant="outline" size="sm" disabled>
-        View
-      </Button>
+      {timesheet.status === 'DRAFT' || timesheet.status === 'REJECTED' ? (
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/employee/timesheets/${timesheet.id}/edit`}>
+            <IconEdit className="size-4 mr-1" />
+            Edit
+          </Link>
+        </Button>
+      ) : (
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/employee/timesheets/${timesheet.id}`}>
+            View
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }

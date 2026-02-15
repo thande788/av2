@@ -19,6 +19,7 @@ import {
   Calendar,
   ClipboardCheck,
   LogOut,
+  DollarSign,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -61,6 +62,12 @@ const navItems: NavItem[] = [
     title: 'Timesheets',
     href: '/admin/timesheets',
     icon: ClipboardCheck,
+    demoOnly: true,
+  },
+  {
+    title: 'Payroll',
+    href: '/admin/payroll',
+    icon: DollarSign,
     demoOnly: true,
   },
   {

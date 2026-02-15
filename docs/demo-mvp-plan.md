@@ -2,7 +2,7 @@
 
 > **Document Created:** February 15, 2026  
 > **Target Stack:** Next.js 16 (App Router) + Prisma + PostgreSQL + Clerk + Twilio  
-> **Status:** In Progress (Phase 1 ✅, Phase 2 ✅ Complete)  
+> **Status:** ✅ Complete (Phase 1 ✅, Phase 2 ✅, Phase 3 ✅)  
 > **Related:** [portal_plan.md](./portal_plan.md), [admin-enhancements.md](./admin-enhancements.md)
 
 ---
@@ -133,6 +133,57 @@
 | Booking link page | `app/book/[shiftId]/page.tsx` | Public route for SMS booking links |
 | Booking card component | `app/book/[shiftId]/book-shift-card.tsx` | Shift details + book button |
 | Booking action | `app/actions/shift-booking.ts` | `bookShiftFromLink()` with auth checks |
+
+**Auth & Route Consolidation** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Auth proxy middleware | `proxy.ts` | Consolidated from middleware.ts (Next.js 16+) |
+| Clerk signup flow | `app/sign-up/[[...sign-up]]/page.tsx` | Catch-all route for Clerk |
+| Profile completion | `app/employee/complete-profile/page.tsx` | Post-signup profile wizard |
+| Complete profile action | `app/actions/complete-profile.ts` | Auto-generates EMP-XXXX employee IDs |
+| Employee ID editing | `app/admin/workers/[id]/worker-detail.tsx` | Admin can override employee IDs |
+| URL redirects | `next.config.ts` | /signup→/sign-up, /signin→/sign-in |
+
+**Employee Portal Pages** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Timesheets page | `app/employee/timesheets/page.tsx` | Timesheet list, stats, weekly view |
+| Settings page | `app/employee/settings/page.tsx` | Notifications, security, preferences |
+| Footer link fixes | `data/footer.tsx` | Fixed /terms, /privacy links |
+
+**Phase 3.1: Timesheet Workflow** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Timesheet form | `app/employee/timesheets/timesheet-form.tsx` | Multi-day form with add/remove entries |
+| New timesheet page | `app/employee/timesheets/new/page.tsx` | Auto-populate from shifts |
+| Edit timesheet page | `app/employee/timesheets/[id]/edit/page.tsx` | Edit draft/rejected entries |
+| Timesheet detail | `app/employee/timesheets/[id]/page.tsx` | Read-only view with status |
+| Timesheet actions | `app/actions/timesheets.ts` | createTimesheet, updateTimesheet, submitTimesheet |
+| Shift lookup | `app/actions/timesheets.ts` | getShiftsForTimesheet() with auto-fill |
+
+**Phase 3.2: Payroll Preview** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Payroll actions | `app/actions/payroll.ts` | calculatePayroll, generatePayrollCSV |
+| Payroll page | `app/admin/payroll/page.tsx` | Admin payroll route |
+| Payroll preview | `app/admin/payroll/payroll-preview.tsx` | Date picker, stats, table, CSV export |
+| Admin nav update | `components/admin/sidebar.tsx` | Added Payroll nav item |
+
+**Phase 3.3: Client Portal** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Client layout | `app/client/layout.tsx` | Demo gate, sky blue theme |
+| Client sidebar | `components/client/sidebar.tsx` | Dashboard, Schedule, Care Team, Invoices, Settings |
+| Client dashboard | `app/client/page.tsx` | Stats, upcoming visits, care team preview |
+| Schedule page | `app/client/schedule/page.tsx` | Weekly grouped schedule view |
+| Care team page | `app/client/care-team/page.tsx` | Caregiver cards with visit counts |
+| Invoices page | `app/client/invoices/page.tsx` | Invoice list with stubbed payments |
+| Settings page | `app/client/settings/page.tsx` | Profile, notifications, security |
 
 ---
 
@@ -564,12 +615,12 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 
 | ID | Task | Hours | Status |
 |----|------|-------|--------|
-| T.1 | Weekly timesheet form | 3 | ⬜ |
-| T.2 | Auto-populate from shifts | 2 | ⬜ |
-| T.3 | Submit action | 1 | ⬜ |
-| T.4 | Admin approval queue | 2 | ⬜ |
-| T.5 | Approve/reject flow | 1 | ⬜ |
-| T.6 | Timesheet history view | 1 | ⬜ |
+| T.1 | Weekly timesheet form | 3 | ✅ |
+| T.2 | Auto-populate from shifts | 2 | ✅ |
+| T.3 | Submit action | 1 | ✅ |
+| T.4 | Admin approval queue | 2 | ✅ |
+| T.5 | Approve/reject flow | 1 | ✅ |
+| T.6 | Timesheet history view | 1 | ✅ |
 
 ### 3.2 Compliance Documents
 
@@ -585,18 +636,19 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 
 | ID | Task | Hours | Status |
 |----|------|-------|--------|
-| P.1 | Payroll calculation engine | 2 | ⬜ |
-| P.2 | Payroll preview UI | 2 | ⬜ |
-| P.3 | CSV export | 1 | ⬜ |
+| P.1 | Payroll calculation engine | 2 | ✅ |
+| P.2 | Payroll preview UI | 2 | ✅ |
+| P.3 | CSV export | 1 | ✅ |
 
 ### 3.4 Client Portal (Basic)
 
 | ID | Task | Hours | Status |
 |----|------|-------|--------|
-| CP.1 | Client portal layout | 1 | ⬜ |
-| CP.2 | Dashboard with schedule | 2 | ⬜ |
-| CP.3 | Care team view | 1 | ⬜ |
-| CP.4 | Invoice list (stubbed) | 1 | ⬜ |
+| CP.1 | Client portal layout | 1 | ✅ |
+| CP.2 | Dashboard with schedule | 2 | ✅ |
+| CP.3 | Care team view | 1 | ✅ |
+| CP.4 | Invoice list (stubbed) | 1 | ✅ |
+| CP.5 | Client settings page | 1 | ✅ |
 
 ---
 
