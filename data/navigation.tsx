@@ -50,10 +50,10 @@ export const navLinks: NavLink[] = [
     description: "Frequently asked questions",
   },
   {
-    href: "/client-portal",
-    label: "Client Portal",
+    href: "/portals",
+    label: "Portals",
     icon: <IconWorld className="size-5" />,
-    description: "Access your client account",
+    description: "Access client or employee portal",
   },
 ];
 
