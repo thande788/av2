@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { getCurrentWorkerWithProfile } from '@/lib/auth';
 
 export const metadata = {
   title: 'My Profile',
@@ -30,42 +31,11 @@ const complianceStatusColors: Record<string, string> = {
 };
 
 export default async function EmployeeProfilePage() {
-  // In real app, get worker ID from auth session
-  // For demo, we'll use the first active worker
-  const worker = await db.worker.findFirst({
-    where: {
-      user: {
-        status: 'ACTIVE',
-      },
-    },
-    include: {
-      user: true,
-      complianceDocs: {
-        where: {
-          status: 'APPROVED',
-        },
-        orderBy: {
-          expiresAt: 'asc',
-        },
-      },
-      availabilities: {
-        orderBy: {
-          dayOfWeek: 'asc',
-        },
-      },
-    },
-  });
+  // Get the current authenticated worker
+  const worker = await getCurrentWorkerWithProfile();
 
   if (!worker) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Profile Found</h2>
-        <p className="text-muted-foreground">
-          Please contact your administrator.
-        </p>
-      </div>
-    );
+    redirect('/employee/complete-profile');
   }
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

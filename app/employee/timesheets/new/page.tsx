@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import { startOfWeek, format, parseISO } from 'date-fns';
+import { getCurrentWorker } from '@/lib/auth';
 import { TimesheetForm } from '../timesheet-form';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -18,18 +19,11 @@ interface NewTimesheetPageProps {
 export default async function NewTimesheetPage({ searchParams }: NewTimesheetPageProps) {
   const params = await searchParams;
   
-  // In real app, get worker ID from auth session
-  // For demo, we'll use the first active worker
-  const demoWorker = await db.worker.findFirst({
-    where: {
-      user: {
-        status: 'ACTIVE',
-      },
-    },
-  });
+  // Get the current authenticated worker
+  const worker = await getCurrentWorker();
 
-  if (!demoWorker) {
-    redirect('/employee/timesheets');
+  if (!worker) {
+    redirect('/employee/complete-profile');
   }
 
   // Get week starting date (default to current week's Monday)
@@ -50,7 +44,7 @@ export default async function NewTimesheetPage({ searchParams }: NewTimesheetPag
   const existingTimesheet = await db.timesheet.findUnique({
     where: {
       workerId_weekStarting: {
-        workerId: demoWorker.id,
+        workerId: worker.id,
         weekStarting,
       },
     },
@@ -76,7 +70,7 @@ export default async function NewTimesheetPage({ searchParams }: NewTimesheetPag
       </div>
 
       <TimesheetForm 
-        workerId={demoWorker.id} 
+        workerId={worker.id} 
         weekStarting={weekStartingStr} 
       />
     </div>

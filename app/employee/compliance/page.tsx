@@ -6,8 +6,9 @@
 
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import { db } from '@/lib/db';
+import { redirect } from 'next/navigation';
 import { serialize } from '@/lib/utils';
+import { getCurrentWorkerWithCompliance } from '@/lib/auth';
 import { ComplianceDocumentsList } from './compliance-documents-list';
 import { UploadDocumentDialog } from './upload-document-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,26 +18,8 @@ export const metadata: Metadata = {
   description: 'View and upload your compliance documents',
 };
 
-// For demo, we use a hardcoded worker ID
-// In production, this would come from the authenticated user's session
-const DEMO_WORKER_ID = 'demo-worker-1';
-
 async function getWorkerWithDocs() {
-  // In production: get worker ID from Clerk session
-  // const { userId } = auth();
-  // const worker = await db.worker.findFirst({ where: { user: { clerkId: userId } } });
-
-  // For demo, find the first worker
-  const worker = await db.worker.findFirst({
-    include: {
-      user: true,
-      complianceDocs: {
-        orderBy: { createdAt: 'desc' },
-      },
-    },
-  });
-
-  return worker;
+  return getCurrentWorkerWithCompliance();
 }
 
 function CompliancePageSkeleton() {
@@ -59,11 +42,7 @@ async function ComplianceContent() {
   const worker = await getWorkerWithDocs();
 
   if (!worker) {
-    return (
-      <div className="rounded-xl border border-border/50 bg-card p-8 text-center">
-        <p className="text-muted-foreground">Worker profile not found.</p>
-      </div>
-    );
+    redirect('/employee/complete-profile');
   }
 
   // Serialize Prisma objects to plain objects for client components

@@ -1,9 +1,10 @@
-import { db } from '@/lib/db';
+import { redirect } from 'next/navigation';
 import { serialize } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShiftRequestsList } from './shift-requests-list';
 import { UpcomingShiftsList } from './upcoming-shifts-list';
 import { IconCalendar, IconClock, IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { getCurrentWorkerWithBookings } from '@/lib/auth';
 
 export const metadata = {
   title: 'My Shifts',
@@ -11,51 +12,18 @@ export const metadata = {
 };
 
 export default async function EmployeeShiftsPage() {
-  // In real app, get worker ID from auth session
-  // For demo, we'll use the first active worker
-  const demoWorker = await db.worker.findFirst({
-    where: {
-      user: {
-        status: 'ACTIVE',
-      },
-    },
-    include: {
-      shiftBookings: {
-        include: {
-          shift: {
-            include: {
-              client: {
-                include: {
-                  user: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          shift: {
-            date: 'asc',
-          },
-        },
-      },
-    },
-  });
+  // Get the current authenticated worker
+  const worker = await getCurrentWorkerWithBookings();
 
-  if (!demoWorker) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Worker Data</h2>
-        <p className="text-muted-foreground">Run the seed script to create demo workers.</p>
-      </div>
-    );
+  if (!worker) {
+    redirect('/employee/complete-profile');
   }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   // Serialize Prisma objects to plain objects for client components
-  const serializedBookings = serialize(demoWorker.shiftBookings);
+  const serializedBookings = serialize(worker.shiftBookings);
 
   const pendingBookings = serializedBookings.filter(
     (b) => b.status === 'PENDING'

@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { format } from 'date-fns';
+import { getClerkUserId } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,12 @@ const statusLabels: Record<string, string> = {
 
 export default async function TimesheetDetailPage({ params }: TimesheetDetailPageProps) {
   const { id } = await params;
+  
+  // Get current user's clerk ID
+  const clerkId = await getClerkUserId();
+  if (!clerkId) {
+    redirect('/sign-in');
+  }
 
   const timesheet = await db.timesheet.findUnique({
     where: { id },
@@ -57,6 +64,11 @@ export default async function TimesheetDetailPage({ params }: TimesheetDetailPag
 
   if (!timesheet) {
     notFound();
+  }
+
+  // Verify ownership - only allow viewing your own timesheet
+  if (timesheet.worker.user.clerkId !== clerkId) {
+    redirect('/employee/timesheets');
   }
 
   // Group entries by day

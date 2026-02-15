@@ -245,10 +245,40 @@ export async function checkWorkerProfileStatus(): Promise<{
     return { hasAccount: false, hasWorkerProfile: false };
   }
 
-  const portalUser = await db.portalUser.findUnique({
+  // First try to find existing PortalUser
+  let portalUser = await db.portalUser.findUnique({
     where: { clerkId: clerkUserId },
     include: { worker: true },
   });
+
+  // If no PortalUser exists, create one on-demand
+  // This handles cases where the Clerk webhook hasn't fired (local dev, etc.)
+  if (!portalUser) {
+    // Import currentUser to get user details
+    const { currentUser } = await import('@clerk/nextjs/server');
+    const user = await currentUser();
+    
+    if (user) {
+      const primaryEmail = user.emailAddresses.find(
+        e => e.id === user.primaryEmailAddressId
+      )?.emailAddress || user.emailAddresses[0]?.emailAddress;
+
+      if (primaryEmail) {
+        const created = await db.portalUser.create({
+          data: {
+            clerkId: clerkUserId,
+            email: primaryEmail,
+            firstName: user.firstName || 'New',
+            lastName: user.lastName || 'User',
+            role: 'CAREGIVER', // Default role for self-signup
+            status: 'ACTIVE',
+          },
+          include: { worker: true },
+        });
+        portalUser = created;
+      }
+    }
+  }
 
   return {
     hasAccount: !!portalUser,

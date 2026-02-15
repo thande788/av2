@@ -1,4 +1,5 @@
-import { db } from '@/lib/db';
+import { redirect } from 'next/navigation';
+import { getCurrentWorker } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,6 @@ import {
   IconMail,
   IconDeviceMobile,
   IconLock,
-  IconAlertCircle,
   IconPalette,
   IconLanguage,
   IconShieldCheck,
@@ -21,29 +21,11 @@ export const metadata = {
 };
 
 export default async function EmployeeSettingsPage() {
-  // In real app, get worker ID from auth session
-  // For demo, we'll use the first active worker
-  const worker = await db.worker.findFirst({
-    where: {
-      user: {
-        status: 'ACTIVE',
-      },
-    },
-    include: {
-      user: true,
-    },
-  });
+  // Get the current authenticated worker
+  const worker = await getCurrentWorker();
 
   if (!worker) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Account Found</h2>
-        <p className="text-muted-foreground">
-          Please contact your administrator.
-        </p>
-      </div>
-    );
+    redirect('/employee/complete-profile');
   }
 
   return (

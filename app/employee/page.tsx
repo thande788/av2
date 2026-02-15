@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -10,6 +10,7 @@ import {
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { EmployeeStatCard } from '@/components/employee/stat-card';
+import { getCurrentWorkerWithBookings } from '@/lib/auth';
 
 export const metadata = {
   title: 'Dashboard',
@@ -17,64 +18,31 @@ export const metadata = {
 };
 
 export default async function EmployeeDashboardPage() {
-  // In real app, get worker ID from auth session
-  // For demo, we'll use the first active worker
-  const demoWorker = await db.worker.findFirst({
-    where: {
-      user: {
-        status: 'ACTIVE',
-      },
-    },
-    include: {
-      user: true,
-      shiftBookings: {
-        include: {
-          shift: {
-            include: {
-              client: {
-                include: {
-                  user: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          shift: {
-            date: 'asc',
-          },
-        },
-      },
-    },
-  });
+  // Get the current authenticated worker
+  const worker = await getCurrentWorkerWithBookings();
 
-  if (!demoWorker) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Worker Data</h2>
-        <p className="text-muted-foreground">Run the seed script to create demo workers.</p>
-      </div>
-    );
+  if (!worker) {
+    // No worker record found - redirect to complete profile
+    redirect('/employee/complete-profile');
   }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   // Filter upcoming shifts
-  const upcomingShifts = demoWorker.shiftBookings.filter(
+  const upcomingShifts = worker.shiftBookings.filter(
     (b) =>
       (b.status === 'CONFIRMED' || b.status === 'ACCEPTED') &&
       new Date(b.shift.date) >= today
   );
 
   // Filter pending requests
-  const pendingRequests = demoWorker.shiftBookings.filter(
+  const pendingRequests = worker.shiftBookings.filter(
     (b) => b.status === 'PENDING'
   );
 
   // Calculate stats
-  const completedShifts = demoWorker.shiftBookings.filter(
+  const completedShifts = worker.shiftBookings.filter(
     (b) => b.status === 'COMPLETED'
   );
 
@@ -93,7 +61,7 @@ export default async function EmployeeDashboardPage() {
       {/* Welcome */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">
-          Welcome back, {demoWorker.user.firstName}!
+          Welcome back, {worker.user.firstName}!
         </h1>
         <p className="text-muted-foreground">Here&apos;s your overview for today</p>
       </div>

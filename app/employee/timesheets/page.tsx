@@ -1,11 +1,11 @@
-import { db } from '@/lib/db';
+import { redirect } from 'next/navigation';
 import { serialize } from '@/lib/utils';
+import { getCurrentWorkerWithTimesheets } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  IconAlertCircle,
   IconClock,
   IconCalendarWeek,
   IconCheck,
@@ -40,37 +40,11 @@ const statusLabels: Record<string, string> = {
 };
 
 export default async function EmployeeTimesheetsPage() {
-  // In real app, get worker ID from auth session
-  // For demo, we'll use the first active worker
-  const demoWorker = await db.worker.findFirst({
-    where: {
-      user: {
-        status: 'ACTIVE',
-      },
-    },
-    include: {
-      timesheets: {
-        include: {
-          entries: true,
-        },
-        orderBy: {
-          weekStarting: 'desc',
-        },
-        take: 12, // Last 12 weeks
-      },
-    },
-  });
+  // Get the current authenticated worker with their timesheets
+  const worker = await getCurrentWorkerWithTimesheets();
 
-  if (!demoWorker) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Worker Data</h2>
-        <p className="text-muted-foreground">
-          Please contact your administrator.
-        </p>
-      </div>
-    );
+  if (!worker) {
+    redirect('/employee/complete-profile');
   }
 
   // Get the current week's Monday
@@ -78,7 +52,7 @@ export default async function EmployeeTimesheetsPage() {
   const thisWeekStart = startOfWeek(today, { weekStartsOn: 1 });
 
   // Serialize Prisma objects to plain objects
-  const timesheets = serialize(demoWorker.timesheets);
+  const timesheets = serialize(worker.timesheets);
 
   const draftTimesheets = timesheets.filter((t) => t.status === 'DRAFT');
   const submittedTimesheets = timesheets.filter((t) => t.status === 'SUBMITTED');

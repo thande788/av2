@@ -1539,6 +1539,20 @@ async function main() {
   await prisma.portalUser.deleteMany();
   console.log('   ✓ Cleared existing portal data');
 
+  // Create admin user first (for testing admin portal)
+  console.log('🔐 Creating admin user...');
+  await prisma.portalUser.create({
+    data: {
+      clerkId: 'admin-demo-user',
+      email: 'admin@angeltouchhome.care',
+      firstName: 'Admin',
+      lastName: 'User',
+      role: UserRole.ADMIN,
+      status: UserStatus.ACTIVE,
+    },
+  });
+  console.log('   ✓ Created admin user: Admin User (ADMIN role)\n');
+
   const createdWorkers: Array<{ id: string; userId: string }> = [];
   const createdClients: Array<{ id: string; userId: string }> = [];
 

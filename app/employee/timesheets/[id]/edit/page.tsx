@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { redirect, notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { serialize } from '@/lib/utils';
+import { getClerkUserId } from '@/lib/auth';
 import { TimesheetForm } from '../../timesheet-form';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -18,11 +19,21 @@ interface EditTimesheetPageProps {
 
 export default async function EditTimesheetPage({ params }: EditTimesheetPageProps) {
   const { id } = await params;
+  
+  // Get current user's clerk ID
+  const clerkId = await getClerkUserId();
+  if (!clerkId) {
+    redirect('/sign-in');
+  }
 
   const timesheet = await db.timesheet.findUnique({
     where: { id },
     include: {
-      worker: true,
+      worker: {
+        include: {
+          user: true,
+        },
+      },
       entries: {
         orderBy: { date: 'asc' },
       },
@@ -31,6 +42,11 @@ export default async function EditTimesheetPage({ params }: EditTimesheetPagePro
 
   if (!timesheet) {
     notFound();
+  }
+
+  // Verify ownership - only allow editing your own timesheet
+  if (timesheet.worker.user.clerkId !== clerkId) {
+    redirect('/employee/timesheets');
   }
 
   // Check if timesheet can be edited

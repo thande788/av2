@@ -11,10 +11,36 @@
  *
  * @see {@link https://clerk.com/docs/nextjs/middleware Clerk Next.js middleware docs}
  */
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher, clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
 import { isDemoGatedRoute, isDemoEnabled } from '@/lib/feature-flags';
+
+/**
+ * Get user role from Clerk metadata
+ * Checks sessionClaims first, then fetches from Clerk API as fallback
+ */
+async function getUserRole(userId: string, sessionClaims: { metadata?: { role?: string } } | null): Promise<string | undefined> {
+  // First check Clerk session claims (fastest)
+  const clerkRole = (sessionClaims?.metadata as { role?: string })?.role;
+  if (clerkRole) {
+    return clerkRole;
+  }
+
+  // Fallback: check publicMetadata directly from Clerk user
+  try {
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const metadataRole = (user.publicMetadata as { role?: string })?.role;
+    if (metadataRole) {
+      return metadataRole;
+    }
+  } catch {
+    // Clerk API call failed
+  }
+
+  return undefined;
+}
 
 /**
  * Route matchers for different access levels
@@ -61,8 +87,8 @@ export default clerkMiddleware(async (auth, req) => {
 
   // If user is signed in and tries to access auth routes, redirect to dashboard
   if (userId && isAuthRoute(req)) {
-    // Get role from session claims (set by Clerk)
-    const role = (sessionClaims?.metadata as { role?: string })?.role;
+    // Get role from Clerk metadata
+    const role = await getUserRole(userId, sessionClaims as { metadata?: { role?: string } } | null);
     
     // Redirect based on role
     let redirectUrl = '/employee'; // Default for caregivers
@@ -87,7 +113,7 @@ export default clerkMiddleware(async (auth, req) => {
     }
     
     // Check for admin/manager role
-    const role = (sessionClaims?.metadata as { role?: string })?.role;
+    const role = await getUserRole(userId, sessionClaims as { metadata?: { role?: string } } | null);
     if (role !== 'admin' && role !== 'manager') {
       // Not authorized - redirect to employee portal or home
       return NextResponse.redirect(new URL('/employee', req.url));
