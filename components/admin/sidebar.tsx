@@ -57,12 +57,12 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        'sticky top-0 h-screen bg-card border-r border-border/50 flex flex-col transition-all duration-300',
+        'sticky top-0 h-screen bg-card border-r border-border flex flex-col transition-all duration-300',
         collapsed ? 'w-[72px]' : 'w-64'
       )}
     >
       {/* Header */}
-      <div className="flex h-16 items-center justify-between border-b border-border/50 px-4">
+      <div className="flex h-14 items-center justify-between px-4">
         {!collapsed && (
           <Link href="/admin" className="font-semibold text-lg bg-gradient-to-r from-primary to-accent-rose-deep bg-clip-text text-transparent">
             Admin
@@ -105,7 +105,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-border/50 p-3">
+      <div className="p-3 mt-auto">
         <Link
           href="/"
           className={cn(

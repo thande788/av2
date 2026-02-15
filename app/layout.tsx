@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Inter, Nunito } from "next/font/google";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Navbar, Footer, SkipLink } from "@/components/layout";
+import { SkipLink } from "@/components/layout";
 import { LazyChatWidget } from "@/components/shared";
 import { getBrandAccentsAttribute } from "@/data/site-config";
 import { siteMetadata } from "@/lib/seo/site-metadata";
@@ -53,11 +53,7 @@ export default function RootLayout({
           <ThemeProvider>
           <div className="flex min-h-screen flex-col">
             <SkipLink />
-            <Navbar />
-            <main id="main-content" className="flex-1">
-              {children}
-            </main>
-            <Footer />
+            {children}
           </div>
             <LazyChatWidget />
           </ThemeProvider>
