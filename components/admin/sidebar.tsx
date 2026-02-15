@@ -57,22 +57,22 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        'sticky top-0 h-screen bg-card border-r border-border flex flex-col transition-all duration-300',
+        'sticky top-0 h-screen bg-primary/5 border-r border-primary/40 flex flex-col transition-all duration-300',
         collapsed ? 'w-[72px]' : 'w-64'
       )}
     >
       {/* Header */}
       <div className="flex h-14 items-center justify-between px-4">
         {!collapsed && (
-          <Link href="/admin" className="font-semibold text-lg bg-gradient-to-r from-primary to-accent-rose-deep bg-clip-text text-transparent">
-            Admin
+          <Link href="/admin" className="font-semibold text-lg text-primary">
+            Angel Touch
           </Link>
         )}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
-          className={cn('hover:bg-accent/50', collapsed && 'mx-auto')}
+          className={cn('hover:bg-primary/10', collapsed && 'mx-auto')}
         >
           {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
         </Button>
@@ -91,8 +91,8 @@ export function AdminSidebar() {
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
                 isActive
-                  ? 'bg-primary/10 text-primary border border-primary/20'
-                  : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
+                  ? 'bg-primary/15 text-primary border border-primary/30'
+                  : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground',
                 collapsed && 'justify-center px-2'
               )}
               title={collapsed ? item.title : undefined}
@@ -110,7 +110,7 @@ export function AdminSidebar() {
           href="/"
           className={cn(
             'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-            'hover:bg-accent/50 text-muted-foreground hover:text-foreground',
+            'hover:bg-primary/10 text-muted-foreground hover:text-foreground',
             collapsed && 'justify-center px-2'
           )}
           title={collapsed ? 'Back to Site' : undefined}

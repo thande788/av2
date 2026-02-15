@@ -23,13 +23,10 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div
-      className={cn(
-        'relative overflow-hidden rounded-xl border border-border/50 bg-card p-6 transition-all hover:border-border hover:shadow-sm',
-        highlight && 'border-primary/30 bg-primary/5 hover:border-primary/50'
-      )}
+      className="relative overflow-hidden rounded-xl border border-primary/40 bg-primary/5 p-6 transition-all hover:shadow-md hover:bg-primary/10"
     >
       {/* Subtle gradient accent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent-rose/5 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
       
       <div className="relative flex items-start justify-between">
         <div className="space-y-2">
@@ -50,8 +47,8 @@ export function StatCard({
           )}
         </div>
         {Icon && (
-          <div className="rounded-lg bg-accent-rose/10 p-2.5">
-            <Icon className="size-5 text-accent-rose-deep" />
+          <div className="rounded-lg bg-primary/10 p-2.5">
+            <Icon className="size-5 text-primary" />
           </div>
         )}
       </div>

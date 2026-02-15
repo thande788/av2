@@ -41,12 +41,18 @@ export default async function AdminDashboard() {
     }),
   ]);
 
+  // Get greeting based on time of day
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {greeting}! <span className="text-2xl">👋</span>
+        </h1>
         <p className="text-muted-foreground">
-          Overview of your Angel Touch Homecare admin panel
+          Here&apos;s what&apos;s happening at Angel Touch Homecare today
         </p>
       </div>
 
@@ -98,8 +104,8 @@ export default async function AdminDashboard() {
       {/* Recent Activity */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Applications */}
-        <div className="rounded-xl border border-border/50 bg-card overflow-hidden">
-          <div className="flex items-center justify-between p-6 pb-4 border-b border-border/30">
+        <div className="rounded-xl border border-primary/40 bg-primary/5 overflow-hidden">
+          <div className="flex items-center justify-between p-6 pb-4 border-b border-primary/20">
             <h2 className="text-lg font-semibold">Recent Applications</h2>
             <Link
               href="/admin/applications"
@@ -153,8 +159,8 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Recent Contacts */}
-        <div className="rounded-xl border border-border/50 bg-card overflow-hidden">
-          <div className="flex items-center justify-between p-6 pb-4 border-b border-border/30">
+        <div className="rounded-xl border border-primary/40 bg-primary/5 overflow-hidden">
+          <div className="flex items-center justify-between p-6 pb-4 border-b border-primary/20">
             <h2 className="text-lg font-semibold">Recent Messages</h2>
             <Link
               href="/admin/contacts"
