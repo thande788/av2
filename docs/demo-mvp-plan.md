@@ -414,7 +414,7 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 | F.3 | Create feature flags module | 1 | ✅ |
 | F.4 | Extend middleware for demo routes | 1 | ✅ |
 | F.5 | Create demo data seed script | 2 | ✅ |
-| F.6 | Set up Clerk webhook for user sync | 2 | ⬜ |
+| F.6 | Set up Clerk webhook for user sync | 2 | ✅ |
 | F.7 | Create base portal layouts | 2 | ✅ |
 | F.8 | Add demo banner component | 0.5 | ✅ |
 
