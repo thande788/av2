@@ -27,6 +27,7 @@ const columns: Column<WorkerWithUser>[] = [
   {
     key: 'name',
     header: 'Worker',
+    mobileTitle: true,
     render: (worker) => (
       <div>
         <p className="font-medium">
@@ -39,6 +40,7 @@ const columns: Column<WorkerWithUser>[] = [
   {
     key: 'employeeId',
     header: 'Employee ID',
+    hideOnMobile: true,
     render: (worker) => (
       <span className="font-mono text-sm">
         {worker.employeeId || '—'}
@@ -48,6 +50,7 @@ const columns: Column<WorkerWithUser>[] = [
   {
     key: 'skills',
     header: 'Skills',
+    hideOnMobile: true,
     render: (worker) => (
       <div className="flex flex-wrap gap-1 max-w-xs">
         {worker.skills.slice(0, 3).map((skill) => (

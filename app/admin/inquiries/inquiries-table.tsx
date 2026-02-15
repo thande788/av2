@@ -51,6 +51,7 @@ const columns: Column<ServiceInquiry>[] = [
   {
     key: 'name',
     header: 'Name',
+    mobileTitle: true,
     render: (inquiry) => (
       <div className="flex items-center gap-2">
         {inquiry.status === 'NEW' && (
@@ -72,10 +73,12 @@ const columns: Column<ServiceInquiry>[] = [
   {
     key: 'phone',
     header: 'Phone',
+    hideOnMobile: true,
   },
   {
     key: 'hoursNeeded',
     header: 'Hours/Week',
+    hideOnMobile: true,
     render: (inquiry) => (inquiry.hoursNeeded ? `${inquiry.hoursNeeded} hrs` : '-'),
   },
   {

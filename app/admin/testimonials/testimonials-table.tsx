@@ -57,6 +57,7 @@ export function TestimonialsTable({
     {
       key: 'name',
       header: 'Name',
+      mobileTitle: true,
       render: (t) => (
         <div>
           <p className="font-medium">{t.name}</p>
@@ -68,6 +69,7 @@ export function TestimonialsTable({
       key: 'content',
       header: 'Testimonial',
       className: 'max-w-md',
+      hideOnMobile: true,
       render: (t) => (
         <p className="truncate text-muted-foreground">{t.content}</p>
       ),
@@ -102,6 +104,7 @@ export function TestimonialsTable({
       key: 'createdAt',
       header: 'Created',
       sortable: true,
+      hideOnMobile: true,
       render: (t) => format(t.createdAt, 'MMM d, yyyy'),
     },
     {

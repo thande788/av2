@@ -38,6 +38,7 @@ const columns: Column<ShiftWithRelations>[] = [
     key: 'date',
     header: 'Date & Time',
     sortable: true,
+    mobileTitle: true,
     render: (shift) => (
       <div>
         <p className="font-medium">
@@ -68,6 +69,7 @@ const columns: Column<ShiftWithRelations>[] = [
   {
     key: 'worker',
     header: 'Assigned Worker',
+    hideOnMobile: true,
     render: (shift) => {
       const confirmedBooking = shift.bookings.find((b) => b.status === 'CONFIRMED');
       if (confirmedBooking) {
@@ -83,6 +85,7 @@ const columns: Column<ShiftWithRelations>[] = [
   {
     key: 'duration',
     header: 'Hours',
+    hideOnMobile: true,
     render: (shift) => (
       <span>{Number(shift.duration).toFixed(1)} hrs</span>
     ),
@@ -90,6 +93,7 @@ const columns: Column<ShiftWithRelations>[] = [
   {
     key: 'clientRate',
     header: 'Rate',
+    hideOnMobile: true,
     render: (shift) => (
       <span>${Number(shift.clientRate).toFixed(2)}/hr</span>
     ),

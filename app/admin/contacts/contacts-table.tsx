@@ -19,6 +19,7 @@ const columns: Column<ContactSubmission>[] = [
   {
     key: 'name',
     header: 'Name',
+    mobileTitle: true,
     render: (contact) => (
       <div className="flex items-center gap-2">
         {!contact.isRead && (
@@ -33,6 +34,7 @@ const columns: Column<ContactSubmission>[] = [
   {
     key: 'email',
     header: 'Email',
+    hideOnMobile: true,
   },
   {
     key: 'service',
@@ -43,6 +45,7 @@ const columns: Column<ContactSubmission>[] = [
     key: 'message',
     header: 'Message',
     className: 'max-w-xs',
+    hideOnMobile: true,
     render: (contact) => (
       <p className="truncate text-muted-foreground">{contact.message}</p>
     ),

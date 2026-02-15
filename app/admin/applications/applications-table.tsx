@@ -24,6 +24,7 @@ const columns: Column<ApplicationWithJob>[] = [
   {
     key: 'name',
     header: 'Applicant',
+    mobileTitle: true,
     render: (app) => (
       <div>
         <p className="font-medium">{app.firstName} {app.lastName}</p>
@@ -57,12 +58,14 @@ const columns: Column<ApplicationWithJob>[] = [
     key: 'yearsExperience',
     header: 'Experience',
     sortable: true,
+    hideOnMobile: true,
     render: (app) => `${app.yearsExperience} years`,
   },
   {
     key: 'submittedAt',
     header: 'Submitted',
     sortable: true,
+    hideOnMobile: true,
     render: (app) => format(app.submittedAt, 'MMM d, yyyy'),
   },
 ];

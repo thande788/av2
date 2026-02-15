@@ -5,7 +5,7 @@
  *
  * This proxy:
  * 1. Protects /admin routes, requiring authentication
- * 2. Gates demo routes (/employee, /client, /admin/shifts, etc.) behind DEMO_MODE env var
+ * 2. Gates demo routes (/employee, /client, /admin/shifts, etc.) behind NEXT_PUBLIC_DEMO_MODE env var
  *
  * @see {@link https://clerk.com/docs/nextjs/middleware Clerk Next.js middleware docs}
  */

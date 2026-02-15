@@ -17,8 +17,10 @@
 
 /**
  * Feature flag configuration.
- * DEMO_MODE gates all portal features for stakeholder preview.
+ * NEXT_PUBLIC_DEMO_MODE gates all portal features for stakeholder preview.
  * Individual feature flags allow granular control during rollout.
+ *
+ * NOTE: Using NEXT_PUBLIC_ prefix so flags are available in client components.
  */
 export const featureFlags = {
   /**
@@ -26,7 +28,7 @@ export const featureFlags = {
    * When enabled, shows employee/client portal routes and demo data.
    * When disabled, only marketing and current admin routes are available.
    */
-  demoMode: process.env.DEMO_MODE === 'true',
+  demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
 
   /**
    * Individual feature toggles for granular control.
@@ -36,53 +38,53 @@ export const featureFlags = {
   features: {
     /** Employee portal (/employee/*) */
     employeePortal:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_EMPLOYEE_PORTAL === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_EMPLOYEE_PORTAL === 'true',
 
     /** Client portal (/client/*) */
     clientPortal:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_CLIENT_PORTAL === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_CLIENT_PORTAL === 'true',
 
     /** Shift scheduling (/admin/shifts/*) */
     shiftScheduling:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_SHIFTS === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_SHIFTS === 'true',
 
     /** SMS notifications via Twilio */
     smsNotifications:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_SMS === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_SMS === 'true',
 
     /** Timesheet management */
     timesheets:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_TIMESHEETS === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_TIMESHEETS === 'true',
 
     /** Invoicing system */
     invoicing:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_INVOICING === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_INVOICING === 'true',
 
     /** Compliance document tracking */
     complianceDocs:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_COMPLIANCE === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_COMPLIANCE === 'true',
 
     /** Payroll export/integration */
     payrollExport:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_PAYROLL === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_PAYROLL === 'true',
 
     /** Worker management in admin */
     workerManagement:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_WORKERS === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_WORKERS === 'true',
 
     /** Client management in admin */
     clientManagement:
-      process.env.DEMO_MODE === 'true' ||
-      process.env.FEATURE_CLIENTS === 'true',
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_CLIENTS === 'true',
   },
 } as const;
 
@@ -98,7 +100,7 @@ export function isDemoEnabled(): boolean {
 
 /**
  * Check if a specific feature is enabled.
- * Features can be enabled via DEMO_MODE or individual FEATURE_* env vars.
+ * Features can be enabled via NEXT_PUBLIC_DEMO_MODE or individual NEXT_PUBLIC_FEATURE_* env vars.
  *
  * @param feature - The feature key to check
  * @returns true if the feature is enabled

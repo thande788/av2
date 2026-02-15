@@ -398,6 +398,172 @@ function CaregiverCardSkeleton() {
 }
 ```
 
+### Portal Stat Cards (Admin & Employee)
+
+All dashboard stat cards across portals MUST follow this styling pattern:
+
+```tsx
+// ✅ REQUIRED: Portal stat card structure
+<div className="relative overflow-hidden rounded-xl border p-6 transition-all hover:shadow-md border-primary/40 bg-primary/5 hover:bg-primary/10">
+  {/* Gradient overlay - REQUIRED */}
+  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+  
+  <div className="relative flex items-start justify-between">
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      <p className="text-3xl font-bold tracking-tight">{value}</p>
+    </div>
+    {/* Icon container */}
+    <div className="rounded-lg bg-primary/10 p-2.5">
+      <Icon className="size-5 text-primary" />
+    </div>
+  </div>
+</div>
+```
+
+**Key Styling Elements:**
+
+| Element | Classes | Notes |
+|---------|---------|-------|
+| Container | `rounded-xl border p-6` | Consistent padding and rounded corners |
+| Border | `border-primary/40` | Semi-transparent primary border |
+| Background | `bg-primary/5` | Very subtle primary tint |
+| Hover | `hover:shadow-md hover:bg-primary/10` | Subtle elevation on hover |
+| Gradient | `bg-gradient-to-br from-primary/5 via-transparent to-transparent` | Diagonal gradient accent |
+| Icon bg | `rounded-lg bg-primary/10 p-2.5` | Contained icon with padding |
+| Title | `text-sm font-medium text-muted-foreground` | Subtle label |
+| Value | `text-3xl font-bold tracking-tight` | Prominent metric |
+
+**Variant Colors (Employee Portal):**
+
+Employee portal uses semantic color variants:
+
+| Variant | Border | Background | Icon Color |
+|---------|--------|------------|------------|
+| default | `border-emerald-500/40` | `bg-emerald-500/5` | `text-emerald-600` |
+| warning | `border-yellow-500/40` | `bg-yellow-500/5` | `text-yellow-600` |
+| info | `border-blue-500/40` | `bg-blue-500/5` | `text-blue-600` |
+
+### Tabs Styling
+
+Tabs MUST use transparent backgrounds with only the active tab highlighted:
+
+```tsx
+// ✅ REQUIRED: Tab list with transparent background
+<TabsList className="bg-transparent border border-border">
+  <TabsTrigger value="all">
+    All Items
+    <Badge variant="secondary" className="ml-2">{count}</Badge>
+  </TabsTrigger>
+  <TabsTrigger value="active">Active</TabsTrigger>
+</TabsList>
+```
+
+**Active Tab Style:**
+- Background: `bg-primary/10`
+- Text: `text-primary`
+- Border: `border-primary/30`
+
+**Inactive Tab Style:**
+- Background: transparent
+- Text: `text-muted-foreground`
+- Hover: `hover:text-foreground`
+
+### DataTable (Admin Portal)
+
+DataTable components MUST include mobile responsiveness via card views:
+
+```tsx
+// Column definition with mobile-responsive options
+interface Column<T> {
+  key: keyof T | string;
+  header: string;
+  hideOnMobile?: boolean;  // Hide in desktop table, show in mobile card
+  mobileTitle?: boolean;   // Use as card title on mobile
+  render?: (row: T) => React.ReactNode;
+}
+
+// ✅ REQUIRED: Column configuration example
+const columns: Column<Worker>[] = [
+  { key: 'name', header: 'Name', mobileTitle: true },      // Card title
+  { key: 'email', header: 'Email' },                       // Always visible
+  { key: 'phone', header: 'Phone' },                       // Always visible
+  { key: 'skills', header: 'Skills', hideOnMobile: true }, // Desktop only
+  { key: 'status', header: 'Status' },                     // Status badge
+];
+```
+
+**Desktop Table Styling:**
+
+```tsx
+// ✅ REQUIRED: Table wrapper with rounded borders
+<div className="overflow-hidden rounded-xl border border-border/50">
+  <table className="w-full">
+    <thead className="bg-muted/50">
+      <tr>
+        <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+          {column.header}
+        </th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-border/50">
+      <tr className="transition-colors hover:bg-muted/30">
+        <td className="px-4 py-3 text-sm">{cell}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+**Mobile Card View:**
+
+```tsx
+// ✅ REQUIRED: Mobile card structure (shown on md:hidden)
+<div className={cn(
+  'relative overflow-hidden rounded-xl border p-4 transition-all',
+  'border-border/50 bg-card hover:border-primary/40 hover:shadow-md',
+  onRowClick && 'cursor-pointer'
+)}>
+  {/* Gradient overlay - REQUIRED */}
+  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+  
+  <div className="relative space-y-3">
+    {/* Title row with mobileTitle column */}
+    <div className="flex items-center justify-between">
+      <span className="font-semibold">{titleValue}</span>
+      <span className="text-xs text-muted-foreground">{timestamp}</span>
+    </div>
+    
+    {/* Visible columns as key-value pairs */}
+    <div className="grid gap-2 text-sm">
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">{column.header}</span>
+        <span>{cellValue}</span>
+      </div>
+    </div>
+    
+    {/* Actions */}
+    <div className="flex items-center gap-2 pt-2 border-t border-border/30">
+      <Button size="sm" variant="ghost">View</Button>
+    </div>
+  </div>
+</div>
+```
+
+**Responsive Breakpoint Pattern:**
+
+```tsx
+// Desktop table (hidden on mobile)
+<div className="hidden md:block">
+  <table>...</table>
+</div>
+
+// Mobile cards (hidden on desktop)
+<div className="md:hidden space-y-3">
+  {data.map((row) => <MobileCard key={row.id} />)}
+</div>
+```
+
 ---
 
 ## Accessibility Requirements

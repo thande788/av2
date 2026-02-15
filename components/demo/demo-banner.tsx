@@ -5,7 +5,7 @@ import { AlertTriangle } from 'lucide-react';
 
 /**
  * Floating banner indicating demo mode is active.
- * Displays in the bottom-right corner when DEMO_MODE=true.
+ * Displays in the bottom-right corner when NEXT_PUBLIC_DEMO_MODE=true.
  *
  * Add this to your root layout to show demo status globally.
  */
