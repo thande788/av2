@@ -32,7 +32,7 @@ import {
   ComplianceStatus,
 } from '@prisma/client';
 
-import { cn } from '@/lib/utils';
+import { cn, type Serialized } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,7 +64,7 @@ type WorkerWithRelations = Worker & {
 };
 
 interface WorkerDetailProps {
-  worker: WorkerWithRelations;
+  worker: Serialized<WorkerWithRelations>;
 }
 
 const statusColors: Record<UserStatus, string> = {

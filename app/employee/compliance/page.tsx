@@ -7,6 +7,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { ComplianceDocumentsList } from './compliance-documents-list';
 import { UploadDocumentDialog } from './upload-document-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -65,6 +66,9 @@ async function ComplianceContent() {
     );
   }
 
+  // Serialize Prisma objects to plain objects for client components
+  const serializedDocs = serialize(worker.complianceDocs);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -84,28 +88,28 @@ async function ComplianceContent() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatusCard
           label="Total Documents"
-          value={worker.complianceDocs.length}
+          value={serializedDocs.length}
           variant="default"
         />
         <StatusCard
           label="Approved"
-          value={worker.complianceDocs.filter((d) => d.status === 'APPROVED').length}
+          value={serializedDocs.filter((d) => d.status === 'APPROVED').length}
           variant="success"
         />
         <StatusCard
           label="Pending Review"
-          value={worker.complianceDocs.filter((d) => d.status === 'PENDING_REVIEW').length}
+          value={serializedDocs.filter((d) => d.status === 'PENDING_REVIEW').length}
           variant="warning"
         />
         <StatusCard
           label="Needs Action"
-          value={worker.complianceDocs.filter((d) => d.status === 'REJECTED').length}
+          value={serializedDocs.filter((d) => d.status === 'REJECTED').length}
           variant="danger"
         />
       </div>
 
       {/* Documents List */}
-      <ComplianceDocumentsList documents={worker.complianceDocs} workerId={worker.id} />
+      <ComplianceDocumentsList documents={serializedDocs} workerId={worker.id} />
     </div>
   );
 }

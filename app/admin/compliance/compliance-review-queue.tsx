@@ -8,7 +8,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ComplianceDoc, Worker, PortalUser, DocStatus } from '@prisma/client';
+import type { ComplianceDoc, Worker, PortalUser, DocStatus } from '@prisma/client';
+import type { Serialized } from '@/lib/utils';
 import {
   IconFileText,
   IconCheck,
@@ -34,11 +35,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { approveComplianceDocument, rejectComplianceDocument } from '@/app/actions';
 
-type DocumentWithWorker = ComplianceDoc & {
+type DocumentWithWorker = Serialized<ComplianceDoc & {
   worker: Worker & {
     user: PortalUser;
   };
-};
+}>;
 
 interface ComplianceReviewQueueProps {
   documents: DocumentWithWorker[];

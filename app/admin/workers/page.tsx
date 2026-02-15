@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { WorkersTable } from './workers-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -16,10 +17,13 @@ export default async function WorkersPage() {
     },
   });
 
-  const pendingCount = workers.filter(
+  // Serialize Prisma objects to plain objects for client components
+  const serializedWorkers = serialize(workers);
+
+  const pendingCount = serializedWorkers.filter(
     (w) => w.user.status === 'PENDING'
   ).length;
-  const activeCount = workers.filter(
+  const activeCount = serializedWorkers.filter(
     (w) => w.user.status === 'ACTIVE'
   ).length;
 
@@ -37,7 +41,7 @@ export default async function WorkersPage() {
           <TabsTrigger value="all">
             All Workers
             <Badge variant="secondary" className="ml-2">
-              {workers.length}
+              {serializedWorkers.length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="pending">
@@ -57,18 +61,18 @@ export default async function WorkersPage() {
         </TabsList>
 
         <TabsContent value="all">
-          <WorkersTable workers={workers} />
+          <WorkersTable workers={serializedWorkers} />
         </TabsContent>
         
         <TabsContent value="pending">
           <WorkersTable 
-            workers={workers.filter((w) => w.user.status === 'PENDING')} 
+            workers={serializedWorkers.filter((w) => w.user.status === 'PENDING')} 
           />
         </TabsContent>
         
         <TabsContent value="active">
           <WorkersTable 
-            workers={workers.filter((w) => w.user.status === 'ACTIVE')} 
+            workers={serializedWorkers.filter((w) => w.user.status === 'ACTIVE')} 
           />
         </TabsContent>
       </Tabs>

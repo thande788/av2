@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { DataTable, type Column } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
+import type { Serialized } from '@/lib/utils';
 import type {
   CareShift,
   ShiftStatus,
@@ -12,7 +13,7 @@ import type {
   PortalUser,
 } from '@prisma/client';
 
-type ShiftWithRelations = CareShift & {
+type ShiftWithRelations = Serialized<CareShift & {
   client: Client & {
     user: PortalUser;
   };
@@ -21,7 +22,7 @@ type ShiftWithRelations = CareShift & {
       user: PortalUser;
     };
   })[];
-};
+}>;
 
 const statusColors: Record<ShiftStatus, string> = {
   OPEN: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',

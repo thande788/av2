@@ -4,10 +4,11 @@ import { useRouter } from 'next/navigation';
 import { DataTable, type Column } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
 import type { Worker, PortalUser, UserStatus, ComplianceStatus } from '@prisma/client';
+import type { Serialized } from '@/lib/utils';
 
-type WorkerWithUser = Worker & {
+type WorkerWithUser = Serialized<Worker & {
   user: PortalUser;
-};
+}>;
 
 const statusColors: Record<UserStatus, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',

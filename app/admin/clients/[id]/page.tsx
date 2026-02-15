@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 import { ClientDetail } from './client-detail';
 
@@ -49,5 +50,5 @@ export default async function ClientDetailPage({ params }: Props) {
     notFound();
   }
 
-  return <ClientDetail client={client} />;
+  return <ClientDetail client={serialize(client)} />;
 }

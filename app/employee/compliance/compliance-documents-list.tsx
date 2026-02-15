@@ -7,7 +7,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ComplianceDoc, DocStatus } from '@prisma/client';
+import type { ComplianceDoc, DocStatus } from '@prisma/client';
+import type { Serialized } from '@/lib/utils';
 import {
   IconFileText,
   IconCheck,
@@ -34,7 +35,7 @@ import {
 import { deleteComplianceDocument } from '@/app/actions';
 
 interface ComplianceDocumentsListProps {
-  documents: ComplianceDoc[];
+  documents: Serialized<ComplianceDoc>[];
   workerId: string;
 }
 

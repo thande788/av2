@@ -24,7 +24,7 @@ import type {
   PortalUser,
 } from '@prisma/client';
 
-import { cn } from '@/lib/utils';
+import { cn, type Serialized } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,8 +70,8 @@ type WorkerWithUser = Worker & {
 };
 
 interface ShiftDetailProps {
-  shift: ShiftWithRelations;
-  availableWorkers: WorkerWithUser[];
+  shift: Serialized<ShiftWithRelations>;
+  availableWorkers: Serialized<WorkerWithUser>[];
 }
 
 const statusColors: Record<ShiftStatus, string> = {

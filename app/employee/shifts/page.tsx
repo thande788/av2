@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShiftRequestsList } from './shift-requests-list';
 import { UpcomingShiftsList } from './upcoming-shifts-list';
@@ -53,17 +54,20 @@ export default async function EmployeeShiftsPage() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const pendingBookings = demoWorker.shiftBookings.filter(
+  // Serialize Prisma objects to plain objects for client components
+  const serializedBookings = serialize(demoWorker.shiftBookings);
+
+  const pendingBookings = serializedBookings.filter(
     (b) => b.status === 'PENDING'
   );
 
-  const upcomingBookings = demoWorker.shiftBookings.filter(
+  const upcomingBookings = serializedBookings.filter(
     (b) =>
       (b.status === 'CONFIRMED' || b.status === 'ACCEPTED') &&
       new Date(b.shift.date) >= today
   );
 
-  const completedBookings = demoWorker.shiftBookings.filter(
+  const completedBookings = serializedBookings.filter(
     (b) => b.status === 'COMPLETED'
   );
 

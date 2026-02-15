@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { ClientsTable } from './clients-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -16,10 +17,13 @@ export default async function ClientsPage() {
     },
   });
 
-  const activeCount = clients.filter(
+  // Serialize Prisma objects to plain objects for client components
+  const serializedClients = serialize(clients);
+
+  const activeCount = serializedClients.filter(
     (c) => c.user.status === 'ACTIVE'
   ).length;
-  const pendingCount = clients.filter(
+  const pendingCount = serializedClients.filter(
     (c) => c.user.status === 'PENDING'
   ).length;
 
@@ -37,7 +41,7 @@ export default async function ClientsPage() {
           <TabsTrigger value="all">
             All Clients
             <Badge variant="secondary" className="ml-2">
-              {clients.length}
+              {serializedClients.length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="active">
@@ -57,18 +61,18 @@ export default async function ClientsPage() {
         </TabsList>
 
         <TabsContent value="all">
-          <ClientsTable clients={clients} />
+          <ClientsTable clients={serializedClients} />
         </TabsContent>
         
         <TabsContent value="active">
           <ClientsTable 
-            clients={clients.filter((c) => c.user.status === 'ACTIVE')} 
+            clients={serializedClients.filter((c) => c.user.status === 'ACTIVE')} 
           />
         </TabsContent>
         
         <TabsContent value="pending">
           <ClientsTable 
-            clients={clients.filter((c) => c.user.status === 'PENDING')} 
+            clients={serializedClients.filter((c) => c.user.status === 'PENDING')} 
           />
         </TabsContent>
       </Tabs>

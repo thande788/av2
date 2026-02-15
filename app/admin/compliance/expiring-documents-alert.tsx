@@ -5,15 +5,16 @@
  */
 
 import Link from 'next/link';
-import { ComplianceDoc, Worker, PortalUser } from '@prisma/client';
+import type { ComplianceDoc, Worker, PortalUser } from '@prisma/client';
+import type { Serialized } from '@/lib/utils';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 
-type DocumentWithWorker = ComplianceDoc & {
+type DocumentWithWorker = Serialized<ComplianceDoc & {
   worker: Worker & {
     user: PortalUser;
   };
-};
+}>;
 
 interface ExpiringDocumentsAlertProps {
   documents: DocumentWithWorker[];

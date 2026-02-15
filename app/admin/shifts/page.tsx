@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShiftsTable } from './shifts-table';
 
@@ -30,9 +31,12 @@ export default async function ShiftsPage() {
     },
   });
 
-  const openShifts = shifts.filter((s) => s.status === 'OPEN');
-  const bookedShifts = shifts.filter((s) => ['BOOKED', 'IN_PROGRESS'].includes(s.status));
-  const completedShifts = shifts.filter((s) => s.status === 'COMPLETED');
+  // Serialize Prisma objects to plain objects for client components
+  const serializedShifts = serialize(shifts);
+
+  const openShifts = serializedShifts.filter((s) => s.status === 'OPEN');
+  const bookedShifts = serializedShifts.filter((s) => ['BOOKED', 'IN_PROGRESS'].includes(s.status));
+  const completedShifts = serializedShifts.filter((s) => s.status === 'COMPLETED');
 
   return (
     <div className="space-y-6">
@@ -76,7 +80,7 @@ export default async function ShiftsPage() {
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
-          <ShiftsTable shifts={shifts} />
+          <ShiftsTable shifts={serializedShifts} />
         </TabsContent>
 
         <TabsContent value="open" className="mt-4">

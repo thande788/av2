@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import type { ShiftBooking, CareShift, Client, PortalUser } from '@prisma/client';
+import type { Serialized } from '@/lib/utils';
 import {
   IconMapPin,
   IconClock,
@@ -17,13 +18,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { checkInToShift, checkOutFromShift } from '@/app/actions/employee-shifts';
 
-type BookingWithRelations = ShiftBooking & {
+type BookingWithRelations = Serialized<ShiftBooking & {
   shift: CareShift & {
     client: Client & {
       user: PortalUser;
     };
   };
-};
+}>;
 
 interface UpcomingShiftsListProps {
   bookings: BookingWithRelations[];

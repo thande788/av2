@@ -42,3 +42,9 @@ export {
   getExpiringComplianceDocuments,
   type UploadDocumentResult,
 } from "./compliance";
+
+// Timesheet management actions
+export {
+  approveTimesheet,
+  rejectTimesheet,
+} from "./timesheets";

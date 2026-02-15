@@ -7,6 +7,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { DocStatus } from '@prisma/client';
 import { ComplianceReviewQueue } from './compliance-review-queue';
 import { ExpiringDocumentsAlert } from './expiring-documents-alert';
@@ -116,6 +117,11 @@ async function ComplianceContent() {
     getRecentlyReviewed(),
   ]);
 
+  // Serialize Prisma objects to plain objects for client components
+  const serializedPending = serialize(pendingDocs);
+  const serializedExpiring = serialize(expiringDocs);
+  const serializedRecent = serialize(recentDocs);
+
   const complianceRate =
     stats.totalWorkers > 0
       ? Math.round((stats.compliantWorkers / stats.totalWorkers) * 100)
@@ -158,8 +164,8 @@ async function ComplianceContent() {
       </div>
 
       {/* Expiring Alert */}
-      {expiringDocs.length > 0 && (
-        <ExpiringDocumentsAlert documents={expiringDocs} />
+      {serializedExpiring.length > 0 && (
+        <ExpiringDocumentsAlert documents={serializedExpiring} />
       )}
 
       {/* Tabs */}
@@ -185,15 +191,15 @@ async function ComplianceContent() {
         </TabsList>
 
         <TabsContent value="pending">
-          <ComplianceReviewQueue documents={pendingDocs} />
+          <ComplianceReviewQueue documents={serializedPending} />
         </TabsContent>
 
         <TabsContent value="expiring">
-          <ComplianceReviewQueue documents={expiringDocs} showExpiry />
+          <ComplianceReviewQueue documents={serializedExpiring} showExpiry />
         </TabsContent>
 
         <TabsContent value="recent">
-          <ComplianceReviewQueue documents={recentDocs} showStatus />
+          <ComplianceReviewQueue documents={serializedRecent} showStatus />
         </TabsContent>
       </Tabs>
     </div>

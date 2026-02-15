@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { ShiftDetail } from './shift-detail';
 
 export const metadata = {
@@ -59,8 +60,8 @@ export default async function ShiftDetailPage({ params }: ShiftDetailPageProps) 
 
   return (
     <ShiftDetail 
-      shift={shift}
-      availableWorkers={availableWorkers}
+      shift={serialize(shift)}
+      availableWorkers={serialize(availableWorkers)}
     />
   );
 }

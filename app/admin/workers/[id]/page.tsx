@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { serialize } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 import { WorkerDetail } from './worker-detail';
 
@@ -55,5 +56,5 @@ export default async function WorkerDetailPage({ params }: Props) {
     notFound();
   }
 
-  return <WorkerDetail worker={worker} />;
+  return <WorkerDetail worker={serialize(worker)} />;
 }

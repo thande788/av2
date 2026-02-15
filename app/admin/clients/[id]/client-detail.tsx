@@ -14,7 +14,7 @@ import {
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
-import {
+import type {
   Client,
   PortalUser,
   CareShift,
@@ -25,7 +25,7 @@ import {
   ClientType,
 } from '@prisma/client';
 
-import { cn } from '@/lib/utils';
+import { cn, type Serialized } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,7 +43,7 @@ type ClientWithRelations = Client & {
 };
 
 interface ClientDetailProps {
-  client: ClientWithRelations;
+  client: Serialized<ClientWithRelations>;
 }
 
 const statusColors: Record<UserStatus, string> = {
