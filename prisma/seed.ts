@@ -28,6 +28,9 @@ import {
   // Compliance enums
   DocType,
   DocStatus,
+  // Timesheet & Invoice enums
+  TimesheetStatus,
+  InvoiceStatus,
 } from '@prisma/client';
 import { config } from 'dotenv';
 import { resolve } from 'path';
@@ -695,6 +698,28 @@ const serviceInquiries = [
 // =============================================================================
 
 const portalWorkers = [
+  // Real test worker - linked to actual Clerk account
+  {
+    clerkId: 'user_39h5ncHO438SD2mBRdU2CHpaVEo',
+    email: 'worker@angeltouchhome.care',
+    phone: '(978) 555-0100',
+    firstName: 'Test',
+    lastName: 'Worker',
+    role: UserRole.CAREGIVER,
+    status: UserStatus.ACTIVE,
+    worker: {
+      employeeId: 'EMP-10000',
+      hireDate: new Date('2024-01-15'),
+      payRate: 25.00,
+      payType: PayType.HOURLY,
+      skills: ['Personal Care', 'Dementia Care', 'Medication Reminders', 'Hoyer Lift', 'Companionship'],
+      languages: ['English', 'Spanish'],
+      complianceStatus: ComplianceStatus.COMPLIANT,
+      city: 'Lowell',
+      state: 'MA',
+      zip: '01852',
+    },
+  },
   {
     clerkId: 'demo_worker_1',
     email: 'maria.santos@angeltouch.demo',
@@ -831,9 +856,84 @@ const complianceDocsData: Array<{
     status: DocStatus;
   }>;
 }> = [
-  // Maria Santos (index 0) - COMPLIANT - all docs approved
+  // Test Worker (index 0) - COMPLIANT - all docs approved
   {
     workerIndex: 0,
+    docs: [
+      {
+        type: DocType.DRIVERS_LICENSE,
+        name: 'Massachusetts Driver\'s License',
+        fileName: 'test_worker_drivers_license.pdf',
+        issuedDate: new Date('2023-06-15'),
+        expiresAt: new Date('2028-06-15'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.CPR_CERTIFICATION,
+        name: 'CPR/First Aid Certification',
+        fileName: 'test_worker_cpr_cert.pdf',
+        issuedDate: new Date('2025-01-10'),
+        expiresAt: new Date('2027-01-10'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.CNA_LICENSE,
+        name: 'CNA License',
+        fileName: 'test_worker_cna_license.pdf',
+        issuedDate: new Date('2024-01-15'),
+        expiresAt: new Date('2029-01-15'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.BACKGROUND_CHECK,
+        name: 'CORI Background Check',
+        fileName: 'test_worker_cori.pdf',
+        issuedDate: new Date('2024-12-01'),
+        expiresAt: new Date('2025-12-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.TB_TEST,
+        name: 'TB Test Results',
+        fileName: 'test_worker_tb_test.pdf',
+        issuedDate: new Date('2025-01-20'),
+        expiresAt: new Date('2026-01-20'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.PHYSICAL_EXAM,
+        name: 'Annual Physical Exam',
+        fileName: 'test_worker_physical.pdf',
+        issuedDate: new Date('2025-02-01'),
+        expiresAt: new Date('2026-02-01'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.I9_FORM,
+        name: 'I-9 Employment Verification',
+        fileName: 'test_worker_i9.pdf',
+        issuedDate: new Date('2024-01-15'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.W4_FORM,
+        name: 'W-4 Tax Withholding',
+        fileName: 'test_worker_w4.pdf',
+        issuedDate: new Date('2024-01-15'),
+        status: DocStatus.APPROVED,
+      },
+      {
+        type: DocType.DIRECT_DEPOSIT,
+        name: 'Direct Deposit Authorization',
+        fileName: 'test_worker_direct_deposit.pdf',
+        issuedDate: new Date('2024-01-15'),
+        status: DocStatus.APPROVED,
+      },
+    ],
+  },
+  // Maria Santos (index 1) - COMPLIANT - all docs approved
+  {
+    workerIndex: 1,
     docs: [
       {
         type: DocType.DRIVERS_LICENSE,
@@ -885,9 +985,9 @@ const complianceDocsData: Array<{
       },
     ],
   },
-  // James Wilson (index 1) - COMPLIANT - all docs approved
+  // James Wilson (index 2) - COMPLIANT - all docs approved
   {
-    workerIndex: 1,
+    workerIndex: 2,
     docs: [
       {
         type: DocType.DRIVERS_LICENSE,
@@ -931,9 +1031,9 @@ const complianceDocsData: Array<{
       },
     ],
   },
-  // Anna Petrova (index 2) - COMPLIANT with some expiring soon
+  // Anna Petrova (index 3) - COMPLIANT with some expiring soon
   {
-    workerIndex: 2,
+    workerIndex: 3,
     docs: [
       {
         type: DocType.DRIVERS_LICENSE,
@@ -986,9 +1086,9 @@ const complianceDocsData: Array<{
       },
     ],
   },
-  // Sarah Johnson (index 3) - COMPLIANT, new hire
+  // Sarah Johnson (index 4) - COMPLIANT, new hire
   {
-    workerIndex: 3,
+    workerIndex: 4,
     docs: [
       {
         type: DocType.DRIVERS_LICENSE,
@@ -1024,9 +1124,9 @@ const complianceDocsData: Array<{
       },
     ],
   },
-  // Carlos Rodriguez (index 4) - INCOMPLETE (pending worker)
+  // Carlos Rodriguez (index 5) - INCOMPLETE (pending worker)
   {
-    workerIndex: 4,
+    workerIndex: 5,
     docs: [
       {
         type: DocType.DRIVERS_LICENSE,
@@ -1046,9 +1146,9 @@ const complianceDocsData: Array<{
       },
     ],
   },
-  // Emily Chen (index 5) - PENDING (some docs pending review)
+  // Emily Chen (index 6) - PENDING (some docs pending review)
   {
-    workerIndex: 5,
+    workerIndex: 6,
     docs: [
       {
         type: DocType.DRIVERS_LICENSE,
@@ -1228,8 +1328,34 @@ function generateDemoShifts() {
 
   const today = new Date();
   
-  // Eleanor Anderson - Personal Care, Mon-Fri mornings
-  for (let i = 0; i < 14; i++) {
+  // Test Worker - Personal Care for Eleanor Anderson, Mon-Fri mornings (first week)
+  for (let i = -7; i < 7; i++) {
+    const shiftDate = new Date(today);
+    shiftDate.setDate(today.getDate() + i);
+    const dayOfWeek = shiftDate.getDay();
+    
+    // Skip weekends
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+    
+    // Test worker handles mornings for client 0 (past week + this week)
+    shifts.push({
+      clientIndex: 0, // Eleanor Anderson
+      date: shiftDate,
+      startTime: '08:00',
+      endTime: '12:00',
+      duration: 4,
+      serviceType: ServiceLevel.PERSONAL,
+      skillsRequired: ['Personal Care', 'Mobility Assistance'],
+      status: i < 0 ? ShiftStatus.COMPLETED : (i < 5 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
+      clientRate: 32.00,
+      workerRate: 25.00,
+      notes: 'Help with morning routine - bathing, dressing, breakfast',
+      workerIndex: i < 5 ? 0 : undefined, // Test Worker
+    });
+  }
+  
+  // Eleanor Anderson - Personal Care, Mon-Fri mornings (week 2, Maria covers)
+  for (let i = 7; i < 14; i++) {
     const shiftDate = new Date(today);
     shiftDate.setDate(today.getDate() + i);
     const dayOfWeek = shiftDate.getDay();
@@ -1245,16 +1371,16 @@ function generateDemoShifts() {
       duration: 4,
       serviceType: ServiceLevel.PERSONAL,
       skillsRequired: ['Personal Care', 'Mobility Assistance'],
-      status: i < 3 ? ShiftStatus.COMPLETED : (i < 7 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
+      status: ShiftStatus.OPEN,
       clientRate: 32.00,
       workerRate: 24.00,
       notes: 'Help with morning routine - bathing, dressing, breakfast',
-      workerIndex: i < 7 ? 0 : undefined, // Maria Santos
+      workerIndex: undefined, // Open for booking
     });
   }
 
   // Thomas Walsh Sr. - Companionship, 3x per week afternoons
-  for (let i = 0; i < 14; i++) {
+  for (let i = -7; i < 14; i++) {
     const shiftDate = new Date(today);
     shiftDate.setDate(today.getDate() + i);
     const dayOfWeek = shiftDate.getDay();
@@ -1270,16 +1396,16 @@ function generateDemoShifts() {
       duration: 4,
       serviceType: ServiceLevel.COMPANION,
       skillsRequired: ['Companionship'],
-      status: i < 5 ? ShiftStatus.BOOKED : ShiftStatus.OPEN,
+      status: i < 0 ? ShiftStatus.COMPLETED : (i < 7 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
       clientRate: 28.00,
       workerRate: 22.00,
       notes: 'Companionship visit. Walks the dog, plays chess, watches movies.',
-      workerIndex: i < 5 ? 1 : undefined, // James Wilson
+      workerIndex: i < 7 ? 2 : undefined, // James Wilson
     });
   }
 
   // George Thompson - 12-hour shifts, daily
-  for (let i = 0; i < 14; i++) {
+  for (let i = -7; i < 14; i++) {
     const shiftDate = new Date(today);
     shiftDate.setDate(today.getDate() + i);
     
@@ -1291,16 +1417,16 @@ function generateDemoShifts() {
       duration: 12,
       serviceType: ServiceLevel.SKILLED,
       skillsRequired: ['Dementia Care', 'Medication Reminders'],
-      status: i < 2 ? ShiftStatus.COMPLETED : (i < 10 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
+      status: i < 0 ? ShiftStatus.COMPLETED : (i < 10 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
       clientRate: 38.00,
       workerRate: 26.00,
       notes: 'Full day care. Insulin at 8am and 6pm. Do not leave unattended.',
-      workerIndex: i < 10 ? 2 : undefined, // Anna Petrova
+      workerIndex: i < 10 ? 3 : undefined, // Anna Petrova
     });
   }
 
   // Elizabeth Warren - Companionship, 2x per week mornings
-  for (let i = 0; i < 14; i++) {
+  for (let i = -7; i < 14; i++) {
     const shiftDate = new Date(today);
     shiftDate.setDate(today.getDate() + i);
     const dayOfWeek = shiftDate.getDay();
@@ -1316,11 +1442,11 @@ function generateDemoShifts() {
       duration: 3,
       serviceType: ServiceLevel.COMPANION,
       skillsRequired: ['Companionship', 'Light Housekeeping'],
-      status: i < 4 ? ShiftStatus.BOOKED : ShiftStatus.OPEN,
+      status: i < 0 ? ShiftStatus.COMPLETED : (i < 7 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
       clientRate: 28.00,
       workerRate: 20.00,
       notes: 'Light housekeeping, companionship, help with errands.',
-      workerIndex: i < 4 ? 3 : undefined, // Sarah Johnson
+      workerIndex: i < 7 ? 4 : undefined, // Sarah Johnson
     });
   }
 
@@ -1542,14 +1668,16 @@ async function main() {
   // Create sample availability for workers
   console.log('🕐 Seeding worker availability...');
   const availabilityPatterns = [
+    // Test Worker - Mon-Fri full availability
+    { workerIndex: 0, days: [1, 2, 3, 4, 5], startTime: '06:00', endTime: '18:00' },
     // Maria Santos - Mon-Fri mornings
-    { workerIndex: 0, days: [1, 2, 3, 4, 5], startTime: '06:00', endTime: '14:00' },
+    { workerIndex: 1, days: [1, 2, 3, 4, 5], startTime: '06:00', endTime: '14:00' },
     // James Wilson - Mon-Fri afternoons
-    { workerIndex: 1, days: [1, 2, 3, 4, 5], startTime: '12:00', endTime: '20:00' },
+    { workerIndex: 2, days: [1, 2, 3, 4, 5], startTime: '12:00', endTime: '20:00' },
     // Anna Petrova - Full availability
-    { workerIndex: 2, days: [0, 1, 2, 3, 4, 5, 6], startTime: '06:00', endTime: '22:00' },
+    { workerIndex: 3, days: [0, 1, 2, 3, 4, 5, 6], startTime: '06:00', endTime: '22:00' },
     // Sarah Johnson - Weekends + some weekdays
-    { workerIndex: 3, days: [0, 2, 4, 6], startTime: '08:00', endTime: '16:00' },
+    { workerIndex: 4, days: [0, 2, 4, 6], startTime: '08:00', endTime: '16:00' },
   ];
 
   for (const pattern of availabilityPatterns) {
@@ -1569,6 +1697,297 @@ async function main() {
   }
   console.log(`   Total: ${availabilityPatterns.length} availability patterns\n`);
 
+  // ==========================================================================
+  // TIMESHEETS (for completed shifts)
+  // ==========================================================================
+  console.log('📋 Seeding timesheets...');
+  
+  // Helper to get Monday of a week
+  const getMonday = (date: Date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+  };
+  
+  const today = new Date();
+  const lastWeekMonday = getMonday(new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000));
+  const lastWeekSunday = new Date(lastWeekMonday.getTime() + 6 * 24 * 60 * 60 * 1000);
+  const twoWeeksAgoMonday = getMonday(new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000));
+  const twoWeeksAgoSunday = new Date(twoWeeksAgoMonday.getTime() + 6 * 24 * 60 * 60 * 1000);
+  
+  // Create timesheets for test worker (index 0) and other active workers
+  const timesheetsData = [
+    // Test Worker - Last week (APPROVED) and 2 weeks ago (PROCESSED)
+    {
+      workerIndex: 0,
+      weekStarting: lastWeekMonday,
+      weekEnding: lastWeekSunday,
+      status: TimesheetStatus.APPROVED,
+      entries: [
+        { date: new Date(lastWeekMonday), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(lastWeekMonday.getTime() + 1 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(lastWeekMonday.getTime() + 2 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(lastWeekMonday.getTime() + 3 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(lastWeekMonday.getTime() + 4 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+      ],
+    },
+    {
+      workerIndex: 0,
+      weekStarting: twoWeeksAgoMonday,
+      weekEnding: twoWeeksAgoSunday,
+      status: TimesheetStatus.PROCESSED,
+      entries: [
+        { date: new Date(twoWeeksAgoMonday), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(twoWeeksAgoMonday.getTime() + 1 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(twoWeeksAgoMonday.getTime() + 2 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(twoWeeksAgoMonday.getTime() + 3 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(twoWeeksAgoMonday.getTime() + 4 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+      ],
+    },
+    // Maria Santos - Last week (SUBMITTED, pending approval)
+    {
+      workerIndex: 1,
+      weekStarting: lastWeekMonday,
+      weekEnding: lastWeekSunday,
+      status: TimesheetStatus.SUBMITTED,
+      entries: [
+        { date: new Date(lastWeekMonday), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(lastWeekMonday.getTime() + 1 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+        { date: new Date(lastWeekMonday.getTime() + 2 * 24 * 60 * 60 * 1000), clientName: 'Eleanor Anderson', startTime: '08:00', endTime: '12:00', hours: 4 },
+      ],
+    },
+    // James Wilson - Last week (APPROVED)
+    {
+      workerIndex: 2,
+      weekStarting: lastWeekMonday,
+      weekEnding: lastWeekSunday,
+      status: TimesheetStatus.APPROVED,
+      entries: [
+        { date: new Date(lastWeekMonday), clientName: 'Thomas Walsh Sr.', startTime: '13:00', endTime: '17:00', hours: 4 },
+        { date: new Date(lastWeekMonday.getTime() + 2 * 24 * 60 * 60 * 1000), clientName: 'Thomas Walsh Sr.', startTime: '13:00', endTime: '17:00', hours: 4 },
+        { date: new Date(lastWeekMonday.getTime() + 4 * 24 * 60 * 60 * 1000), clientName: 'Thomas Walsh Sr.', startTime: '13:00', endTime: '17:00', hours: 4 },
+      ],
+    },
+    // Anna Petrova - Last week (SUBMITTED)
+    {
+      workerIndex: 3,
+      weekStarting: lastWeekMonday,
+      weekEnding: lastWeekSunday,
+      status: TimesheetStatus.SUBMITTED,
+      entries: [
+        { date: new Date(lastWeekMonday), clientName: 'George Thompson', startTime: '07:00', endTime: '19:00', hours: 12 },
+        { date: new Date(lastWeekMonday.getTime() + 1 * 24 * 60 * 60 * 1000), clientName: 'George Thompson', startTime: '07:00', endTime: '19:00', hours: 12 },
+        { date: new Date(lastWeekMonday.getTime() + 2 * 24 * 60 * 60 * 1000), clientName: 'George Thompson', startTime: '07:00', endTime: '19:00', hours: 12 },
+        { date: new Date(lastWeekMonday.getTime() + 3 * 24 * 60 * 60 * 1000), clientName: 'George Thompson', startTime: '07:00', endTime: '19:00', hours: 12 },
+        { date: new Date(lastWeekMonday.getTime() + 4 * 24 * 60 * 60 * 1000), clientName: 'George Thompson', startTime: '07:00', endTime: '19:00', hours: 12 },
+        { date: new Date(lastWeekMonday.getTime() + 5 * 24 * 60 * 60 * 1000), clientName: 'George Thompson', startTime: '07:00', endTime: '19:00', hours: 12 },
+        { date: new Date(lastWeekMonday.getTime() + 6 * 24 * 60 * 60 * 1000), clientName: 'George Thompson', startTime: '07:00', endTime: '19:00', hours: 12 },
+      ],
+    },
+    // Sarah Johnson - Last week (DRAFT)
+    {
+      workerIndex: 4,
+      weekStarting: lastWeekMonday,
+      weekEnding: lastWeekSunday,
+      status: TimesheetStatus.DRAFT,
+      entries: [
+        { date: new Date(lastWeekMonday.getTime() + 1 * 24 * 60 * 60 * 1000), clientName: 'Elizabeth Warren', startTime: '09:00', endTime: '12:00', hours: 3 },
+        { date: new Date(lastWeekMonday.getTime() + 3 * 24 * 60 * 60 * 1000), clientName: 'Elizabeth Warren', startTime: '09:00', endTime: '12:00', hours: 3 },
+      ],
+    },
+  ];
+  
+  let timesheetCount = 0;
+  for (const tsData of timesheetsData) {
+    const worker = createdWorkers[tsData.workerIndex];
+    const totalHours = tsData.entries.reduce((sum, e) => sum + e.hours, 0);
+    const totalRegular = Math.min(totalHours, 40);
+    const totalOvertime = Math.max(totalHours - 40, 0);
+    
+    const timesheet = await prisma.timesheet.create({
+      data: {
+        workerId: worker.id,
+        weekStarting: tsData.weekStarting,
+        weekEnding: tsData.weekEnding,
+        status: tsData.status,
+        totalHours,
+        totalRegular,
+        totalOvertime,
+        submittedAt: tsData.status !== TimesheetStatus.DRAFT ? new Date() : null,
+        approvedBy: tsData.status === TimesheetStatus.APPROVED || tsData.status === TimesheetStatus.PROCESSED ? 'demo_admin' : null,
+        approvedAt: tsData.status === TimesheetStatus.APPROVED || tsData.status === TimesheetStatus.PROCESSED ? new Date() : null,
+        payrollBatchId: tsData.status === TimesheetStatus.PROCESSED ? 'PAYROLL-2026-W06' : null,
+      },
+    });
+    
+    // Create entries
+    for (const entry of tsData.entries) {
+      await prisma.timesheetEntry.create({
+        data: {
+          timesheetId: timesheet.id,
+          date: entry.date,
+          clientName: entry.clientName,
+          startTime: entry.startTime,
+          endTime: entry.endTime,
+          breakMinutes: 0,
+          hoursWorked: entry.hours,
+          workDescription: `${entry.clientName} - standard care shift`,
+        },
+      });
+    }
+    
+    timesheetCount++;
+    console.log(`   ✓ Created timesheet for worker ${tsData.workerIndex + 1} (${tsData.status})`);
+  }
+  console.log(`   Total: ${timesheetCount} timesheets\n`);
+
+  // ==========================================================================
+  // INVOICES (for clients)
+  // ==========================================================================
+  console.log('💰 Seeding invoices...');
+  
+  const invoicesData = [
+    // Eleanor Anderson - Last month (PAID), This month (SENT)
+    {
+      clientIndex: 0,
+      invoiceNumber: 'INV-2026-001',
+      issueDate: new Date('2026-01-15'),
+      dueDate: new Date('2026-01-30'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-01-15'),
+      status: InvoiceStatus.PAID,
+      lineItems: [
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-02'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-03'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-06'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-07'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-08'), hours: 4, rate: 32 },
+      ],
+      paidAmount: 640,
+      paidAt: new Date('2026-01-28'),
+    },
+    {
+      clientIndex: 0,
+      invoiceNumber: 'INV-2026-010',
+      issueDate: new Date('2026-02-01'),
+      dueDate: new Date('2026-02-15'),
+      periodStart: new Date('2026-01-16'),
+      periodEnd: new Date('2026-01-31'),
+      status: InvoiceStatus.SENT,
+      lineItems: [
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-20'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-21'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-22'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-23'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-24'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-27'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-28'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-29'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-30'), hours: 4, rate: 32 },
+        { description: 'Personal Care - Eleanor Anderson', date: new Date('2026-01-31'), hours: 4, rate: 32 },
+      ],
+      paidAmount: 0,
+    },
+    // Thomas Walsh - PAID
+    {
+      clientIndex: 1,
+      invoiceNumber: 'INV-2026-002',
+      issueDate: new Date('2026-01-15'),
+      dueDate: new Date('2026-01-30'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-01-15'),
+      status: InvoiceStatus.PAID,
+      lineItems: [
+        { description: 'Companionship - Thomas Walsh Sr.', date: new Date('2026-01-03'), hours: 4, rate: 28 },
+        { description: 'Companionship - Thomas Walsh Sr.', date: new Date('2026-01-06'), hours: 4, rate: 28 },
+        { description: 'Companionship - Thomas Walsh Sr.', date: new Date('2026-01-08'), hours: 4, rate: 28 },
+        { description: 'Companionship - Thomas Walsh Sr.', date: new Date('2026-01-10'), hours: 4, rate: 28 },
+        { description: 'Companionship - Thomas Walsh Sr.', date: new Date('2026-01-13'), hours: 4, rate: 28 },
+        { description: 'Companionship - Thomas Walsh Sr.', date: new Date('2026-01-15'), hours: 4, rate: 28 },
+      ],
+      paidAmount: 672,
+      paidAt: new Date('2026-01-25'),
+    },
+    // George Thompson - OVERDUE
+    {
+      clientIndex: 2,
+      invoiceNumber: 'INV-2026-003',
+      issueDate: new Date('2026-01-15'),
+      dueDate: new Date('2026-01-30'),
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-01-15'),
+      status: InvoiceStatus.OVERDUE,
+      lineItems: [
+        { description: 'Skilled Care - George Thompson (12hr)', date: new Date('2026-01-01'), hours: 12, rate: 38 },
+        { description: 'Skilled Care - George Thompson (12hr)', date: new Date('2026-01-02'), hours: 12, rate: 38 },
+        { description: 'Skilled Care - George Thompson (12hr)', date: new Date('2026-01-03'), hours: 12, rate: 38 },
+        { description: 'Skilled Care - George Thompson (12hr)', date: new Date('2026-01-04'), hours: 12, rate: 38 },
+        { description: 'Skilled Care - George Thompson (12hr)', date: new Date('2026-01-05'), hours: 12, rate: 38 },
+        { description: 'Skilled Care - George Thompson (12hr)', date: new Date('2026-01-06'), hours: 12, rate: 38 },
+        { description: 'Skilled Care - George Thompson (12hr)', date: new Date('2026-01-07'), hours: 12, rate: 38 },
+      ],
+      paidAmount: 0,
+    },
+    // Elizabeth Warren - DRAFT
+    {
+      clientIndex: 3,
+      invoiceNumber: 'INV-2026-011',
+      issueDate: new Date('2026-02-15'),
+      dueDate: new Date('2026-03-01'),
+      periodStart: new Date('2026-02-01'),
+      periodEnd: new Date('2026-02-14'),
+      status: InvoiceStatus.DRAFT,
+      lineItems: [
+        { description: 'Companionship - Elizabeth Warren', date: new Date('2026-02-04'), hours: 3, rate: 28 },
+        { description: 'Companionship - Elizabeth Warren', date: new Date('2026-02-06'), hours: 3, rate: 28 },
+        { description: 'Companionship - Elizabeth Warren', date: new Date('2026-02-11'), hours: 3, rate: 28 },
+        { description: 'Companionship - Elizabeth Warren', date: new Date('2026-02-13'), hours: 3, rate: 28 },
+      ],
+      paidAmount: 0,
+    },
+  ];
+  
+  let invoiceCount = 0;
+  for (const invData of invoicesData) {
+    const client = createdClients[invData.clientIndex];
+    const subtotal = invData.lineItems.reduce((sum, item) => sum + (item.hours || 0) * item.rate, 0);
+    
+    const invoice = await prisma.invoice.create({
+      data: {
+        clientId: client.id,
+        invoiceNumber: invData.invoiceNumber,
+        issueDate: invData.issueDate,
+        dueDate: invData.dueDate,
+        periodStart: invData.periodStart,
+        periodEnd: invData.periodEnd,
+        subtotal,
+        tax: 0,
+        total: subtotal,
+        status: invData.status,
+        paidAmount: invData.paidAmount || 0,
+        paidAt: invData.paidAt || null,
+      },
+    });
+    
+    for (const item of invData.lineItems) {
+      await prisma.invoiceLineItem.create({
+        data: {
+          invoiceId: invoice.id,
+          description: item.description,
+          date: item.date,
+          hours: item.hours,
+          rate: item.rate,
+          amount: (item.hours || 0) * item.rate,
+        },
+      });
+    }
+    
+    invoiceCount++;
+    console.log(`   ✓ Created invoice ${invData.invoiceNumber} (${invData.status})`);
+  }
+  console.log(`   Total: ${invoiceCount} invoices\n`);
+
   // Summary
   console.log('═══════════════════════════════════════════');
   console.log('✅ Database seeded successfully!\n');
@@ -1578,10 +1997,17 @@ async function main() {
   console.log(`   • ${contacts.length} contact submissions`);
   console.log(`   • ${testimonials.length} testimonials`);
   console.log(`   • ${serviceInquiries.length} service inquiries`);
-  console.log(`   • ${portalWorkers.length} portal workers`);
+  console.log(`   • ${portalWorkers.length} portal workers (incl. test worker)`);
   console.log(`   • ${complianceDocsData.reduce((acc, d) => acc + d.docs.length, 0)} compliance documents`);
   console.log(`   • ${portalClients.length} portal clients`);
   console.log(`   • ${demoShifts.length} care shifts`);
+  console.log(`   • ${timesheetCount} timesheets`);
+  console.log(`   • ${invoiceCount} invoices`);
+  console.log('');
+  console.log('🔑 Test Worker Account:');
+  console.log('   • Username: worker');
+  console.log('   • Clerk ID: user_39h5ncHO438SD2mBRdU2CHpaVEo');
+  console.log('   • Employee ID: EMP-10000');
   console.log('═══════════════════════════════════════════\n');
 }
 
