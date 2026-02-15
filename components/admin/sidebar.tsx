@@ -18,9 +18,11 @@ import {
   UserCheck,
   Calendar,
   ClipboardCheck,
+  LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { SignOutButton } from '@clerk/nextjs';
 
 interface NavItem {
   title: string;
@@ -150,7 +152,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 mt-auto">
+      <div className="p-3 mt-auto space-y-1.5">
         <Link
           href="/"
           className={cn(
@@ -163,6 +165,20 @@ export function AdminSidebar() {
           <ExternalLink className="size-5 shrink-0" />
           {!collapsed && <span>Back to Site</span>}
         </Link>
+        
+        <SignOutButton>
+          <button
+            className={cn(
+              'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+              'hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500',
+              collapsed && 'justify-center px-2'
+            )}
+            title={collapsed ? 'Sign Out' : undefined}
+          >
+            <LogOut className="size-5 shrink-0" />
+            {!collapsed && <span>Sign Out</span>}
+          </button>
+        </SignOutButton>
       </div>
     </aside>
   );
