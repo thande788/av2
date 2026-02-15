@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { EmployeeStatCard } from '@/components/employee/stat-card';
 
 export const metadata = {
   title: 'Dashboard',
@@ -99,53 +100,33 @@ export default async function EmployeeDashboardPage() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-lg bg-primary/10 p-3">
-              <IconCalendar className="size-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Upcoming Shifts</p>
-              <p className="text-2xl font-bold">{upcomingShifts.length}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <EmployeeStatCard
+          title="Upcoming Shifts"
+          value={upcomingShifts.length.toString()}
+          icon={IconCalendar}
+          variant="success"
+        />
 
-        <Card>
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-lg bg-yellow-100 p-3 dark:bg-yellow-900/30">
-              <IconAlertCircle className="size-6 text-yellow-600 dark:text-yellow-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Pending Requests</p>
-              <p className="text-2xl font-bold">{pendingRequests.length}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <EmployeeStatCard
+          title="Pending Requests"
+          value={pendingRequests.length.toString()}
+          icon={IconAlertCircle}
+          variant="warning"
+        />
 
-        <Card>
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-lg bg-emerald-100 p-3 dark:bg-emerald-900/30">
-              <IconClock className="size-6 text-emerald-600 dark:text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Hours This Month</p>
-              <p className="text-2xl font-bold">{totalHours.toFixed(1)}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <EmployeeStatCard
+          title="Hours This Month"
+          value={totalHours.toFixed(1)}
+          icon={IconClock}
+          variant="default"
+        />
 
-        <Card>
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900/30">
-              <IconCurrencyDollar className="size-6 text-blue-600 dark:text-blue-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Earnings This Month</p>
-              <p className="text-2xl font-bold">${totalEarnings.toFixed(2)}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <EmployeeStatCard
+          title="Earnings This Month"
+          value={`$${totalEarnings.toFixed(2)}`}
+          icon={IconCurrencyDollar}
+          variant="info"
+        />
       </div>
 
       {/* Pending Requests */}
