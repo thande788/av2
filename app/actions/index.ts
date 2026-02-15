@@ -5,3 +5,11 @@
 export { submitContactForm, type ContactFormState } from "./contact";
 export { submitApplication, type ApplicationFormState } from "./application";
 export { submitCareInquiry, type CareInquiryFormState } from "./care-inquiry";
+
+// Worker management actions
+export {
+  approveWorker,
+  rejectWorker,
+  updateWorkerStatus,
+  updateComplianceStatus,
+} from "./workers";

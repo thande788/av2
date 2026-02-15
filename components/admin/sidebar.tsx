@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import {
   LayoutDashboard,
   FileText,
@@ -13,16 +14,54 @@ import {
   ChevronLeft,
   Menu,
   ExternalLink,
+  Users,
+  UserCheck,
+  Calendar,
+  ClipboardCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
-const navItems = [
+interface NavItem {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: number;
+  demoOnly?: boolean;
+}
+
+const navItems: NavItem[] = [
   {
     title: 'Dashboard',
     href: '/admin',
     icon: LayoutDashboard,
   },
+  // Demo Portal Items
+  {
+    title: 'Workers',
+    href: '/admin/workers',
+    icon: Users,
+    demoOnly: true,
+  },
+  {
+    title: 'Clients',
+    href: '/admin/clients',
+    icon: UserCheck,
+    demoOnly: true,
+  },
+  {
+    title: 'Shifts',
+    href: '/admin/shifts',
+    icon: Calendar,
+    demoOnly: true,
+  },
+  {
+    title: 'Timesheets',
+    href: '/admin/timesheets',
+    icon: ClipboardCheck,
+    demoOnly: true,
+  },
+  // Standard Items
   {
     title: 'Jobs',
     href: '/admin/jobs',
@@ -53,6 +92,12 @@ const navItems = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  
+  // Filter demo-only items based on feature flag
+  const demoEnabled = isFeatureEnabled('workerManagement');
+  const filteredNavItems = navItems.filter(
+    (item) => !item.demoOnly || demoEnabled
+  );
 
   return (
     <aside
@@ -80,7 +125,7 @@ export function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const isActive = pathname === item.href || 
             (item.href !== '/admin' && pathname.startsWith(item.href));
           

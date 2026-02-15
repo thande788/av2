@@ -197,6 +197,580 @@ enum InquiryStatus {
 }
 
 // =============================================================================
+// PORTAL USERS & ROLES (Demo MVP)
+// =============================================================================
+
+model PortalUser {
+  id              String     @id @default(cuid())
+  clerkId         String     @unique // Clerk user ID
+  email           String     @unique
+  phone           String?
+  firstName       String
+  lastName        String
+  role            UserRole
+  status          UserStatus @default(PENDING)
+  
+  // Relations
+  worker          Worker?
+  client          Client?
+  
+  // Timestamps
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  lastLoginAt     DateTime?
+  
+  @@index([clerkId])
+  @@index([role])
+  @@index([status])
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  CAREGIVER
+  CLIENT
+}
+
+enum UserStatus {
+  PENDING      // Awaiting admin approval
+  ACTIVE       // Approved and active
+  INACTIVE     // Temporarily disabled
+  TERMINATED   // No longer with company
+}
+
+// =============================================================================
+// WORKERS (Caregivers, Nurses)
+// =============================================================================
+
+model Worker {
+  id                String            @id @default(cuid())
+  user              PortalUser        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String            @unique
+  
+  // Profile
+  employeeId        String?           @unique // Internal employee number
+  hireDate          DateTime?
+  payRate           Decimal           @db.Decimal(10, 2)
+  payType           PayType           @default(HOURLY)
+  
+  // Skills & Certifications
+  skills            String[]          // ["Personal Care", "Dementia", "Hoyer Lift"]
+  languages         String[]          // ["English", "Spanish", "Portuguese"]
+  
+  // Compliance
+  complianceStatus  ComplianceStatus  @default(INCOMPLETE)
+  complianceDocs    ComplianceDoc[]
+  
+  // Availability
+  availabilities    Availability[]
+  
+  // Work history
+  shiftBookings     ShiftBooking[]
+  timesheets        Timesheet[]
+  
+  // Address (for proximity matching)
+  street            String?
+  city              String?
+  state             String?
+  zip               String?
+  latitude          Decimal?          @db.Decimal(10, 8)
+  longitude         Decimal?          @db.Decimal(11, 8)
+  
+  // Notes
+  notes             String?           @db.Text
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([complianceStatus])
+  @@index([zip])
+}
+
+enum PayType {
+  HOURLY
+  SALARY
+  PER_DIEM
+}
+
+enum ComplianceStatus {
+  INCOMPLETE   // Missing required documents
+  PENDING      // Documents submitted, awaiting verification
+  COMPLIANT    // All documents verified and current
+  EXPIRED      // One or more documents expired
+}
+
+// =============================================================================
+// COMPLIANCE DOCUMENTS
+// =============================================================================
+
+model ComplianceDoc {
+  id            String          @id @default(cuid())
+  worker        Worker          @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  workerId      String
+  
+  type          DocType
+  name          String          // Display name
+  fileUrl       String          // Vercel Blob URL
+  fileName      String          // Original filename
+  
+  // Validity
+  issuedDate    DateTime?
+  expiresAt     DateTime?
+  
+  // Verification
+  status        DocStatus       @default(PENDING_REVIEW)
+  verifiedBy    String?         // Admin user ID
+  verifiedAt    DateTime?
+  rejectionNote String?
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([workerId])
+  @@index([type])
+  @@index([expiresAt])
+  @@index([status])
+}
+
+enum DocType {
+  DRIVERS_LICENSE
+  CPR_CERTIFICATION
+  CNA_LICENSE
+  HHA_CERTIFICATION
+  BACKGROUND_CHECK
+  TB_TEST
+  PHYSICAL_EXAM
+  I9_FORM
+  W4_FORM
+  DIRECT_DEPOSIT
+  OTHER
+}
+
+enum DocStatus {
+  PENDING_REVIEW  // Uploaded, awaiting review
+  APPROVED        // Verified by admin
+  REJECTED        // Rejected, needs resubmission
+  EXPIRED         // Past expiration date
+}
+
+// =============================================================================
+// AVAILABILITY
+// =============================================================================
+
+model Availability {
+  id            String        @id @default(cuid())
+  worker        Worker        @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  workerId      String
+  
+  dayOfWeek     Int           // 0=Sunday, 6=Saturday
+  startTime     String        // "06:00" (HH:mm format)
+  endTime       String        // "14:00"
+  isAvailable   Boolean       @default(true)
+  
+  // Recurring vs one-time
+  effectiveFrom DateTime?
+  effectiveTo   DateTime?
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([workerId, dayOfWeek, startTime, endTime])
+  @@index([workerId])
+  @@index([dayOfWeek])
+}
+
+// =============================================================================
+// CLIENTS (Care Recipients & Families)
+// =============================================================================
+
+model Client {
+  id                String        @id @default(cuid())
+  user              PortalUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String        @unique
+  
+  // Client type
+  type              ClientType    @default(FAMILY)
+  
+  // Care recipient info (if different from user)
+  careRecipientName String?
+  careRecipientDOB  DateTime?
+  relationship      String?       // "Mother", "Self", "Spouse"
+  
+  // Service details
+  serviceLevel      ServiceLevel  @default(COMPANION)
+  preferredTimes    String[]      // ["MORNING", "AFTERNOON"]
+  specialNeeds      String[]      // ["Dementia", "Wheelchair", "Non-verbal"]
+  
+  // Address (care location)
+  street            String
+  city              String
+  state             String
+  zip               String
+  latitude          Decimal?      @db.Decimal(10, 8)
+  longitude         Decimal?      @db.Decimal(11, 8)
+  
+  // Emergency contact
+  emergencyName     String?
+  emergencyPhone    String?
+  emergencyRelation String?
+  
+  // Billing
+  billingRate       Decimal       @db.Decimal(10, 2)
+  billingEmail      String?
+  
+  // Care plans & shifts
+  careShifts        CareShift[]
+  invoices          Invoice[]
+  
+  // Notes
+  careNotes         String?       @db.Text
+  accessNotes       String?       @db.Text // Gate codes, parking, etc.
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([type])
+  @@index([zip])
+}
+
+enum ClientType {
+  SELF          // Care recipient is the user
+  FAMILY        // Family member managing care
+  FACILITY      // Nursing home, hospital, etc.
+}
+
+enum ServiceLevel {
+  COMPANION     // Basic companionship
+  PERSONAL      // Personal care assistance
+  SKILLED       // Skilled nursing
+  LIVE_IN       // 24-hour care
+}
+
+// =============================================================================
+// SHIFTS & SCHEDULING
+// =============================================================================
+
+model CareShift {
+  id              String          @id @default(cuid())
+  client          Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId        String
+  
+  // Schedule
+  date            DateTime        @db.Date
+  startTime       String          // "09:00"
+  endTime         String          // "17:00"
+  duration        Decimal         @db.Decimal(4, 2) // Hours (calculated)
+  
+  // Requirements
+  serviceType     ServiceLevel
+  skillsRequired  String[]
+  notes           String?         @db.Text
+  
+  // Status
+  status          ShiftStatus     @default(OPEN)
+  
+  // Booking
+  bookings        ShiftBooking[]
+  
+  // Rates
+  clientRate      Decimal         @db.Decimal(10, 2) // What client pays
+  workerRate      Decimal?        @db.Decimal(10, 2) // What worker earns
+  
+  // Recurrence (optional)
+  recurringId     String?         // Links recurring shifts
+  
+  // Audit
+  createdBy       String          // Admin user ID
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([clientId])
+  @@index([date])
+  @@index([status])
+  @@index([recurringId])
+}
+
+enum ShiftStatus {
+  OPEN            // Available for booking
+  PENDING_BOOK    // Sent to workers, awaiting response
+  BOOKED          // Worker confirmed
+  IN_PROGRESS     // Shift currently active
+  COMPLETED       // Shift finished
+  CANCELLED       // Cancelled by admin/client
+  NO_SHOW         // Worker didn't show
+}
+
+// =============================================================================
+// SHIFT BOOKINGS
+// =============================================================================
+
+model ShiftBooking {
+  id              String          @id @default(cuid())
+  shift           CareShift       @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  shiftId         String
+  worker          Worker          @relation(fields: [workerId], references: [id])
+  workerId        String
+  
+  status          BookingStatus   @default(PENDING)
+  
+  // For real-time booking locks
+  lockedAt        DateTime?       // Prevents double-booking
+  lockedUntil     DateTime?       // Lock expiration
+  
+  // Response
+  respondedAt     DateTime?
+  confirmedAt     DateTime?
+  declinedReason  String?
+  
+  // Check-in/out
+  checkedInAt     DateTime?
+  checkedOutAt    DateTime?
+  checkInLat      Decimal?        @db.Decimal(10, 8)
+  checkInLng      Decimal?        @db.Decimal(11, 8)
+  checkOutLat     Decimal?        @db.Decimal(10, 8)
+  checkOutLng     Decimal?        @db.Decimal(11, 8)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([shiftId, workerId])
+  @@index([shiftId])
+  @@index([workerId])
+  @@index([status])
+}
+
+enum BookingStatus {
+  PENDING         // Offer sent to worker
+  ACCEPTED        // Worker accepted
+  DECLINED        // Worker declined
+  CONFIRMED       // Admin confirmed booking
+  CANCELLED       // Booking cancelled
+  COMPLETED       // Shift completed
+  NO_SHOW         // Worker didn't show
+}
+
+// =============================================================================
+// TIMESHEETS
+// =============================================================================
+
+model Timesheet {
+  id              String            @id @default(cuid())
+  worker          Worker            @relation(fields: [workerId], references: [id])
+  workerId        String
+  
+  // Period
+  weekStarting    DateTime          @db.Date // Always Monday
+  weekEnding      DateTime          @db.Date // Always Sunday
+  
+  // Status
+  status          TimesheetStatus   @default(DRAFT)
+  
+  // Entries
+  entries         TimesheetEntry[]
+  
+  // Totals (calculated)
+  totalHours      Decimal           @db.Decimal(6, 2)
+  totalRegular    Decimal           @db.Decimal(6, 2)
+  totalOvertime   Decimal           @db.Decimal(6, 2)
+  
+  // Approval workflow
+  submittedAt     DateTime?
+  approvedBy      String?           // Admin user ID
+  approvedAt      DateTime?
+  rejectedReason  String?
+  
+  // Linked to payroll
+  payrollBatchId  String?
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@unique([workerId, weekStarting])
+  @@index([workerId])
+  @@index([status])
+  @@index([weekStarting])
+}
+
+enum TimesheetStatus {
+  DRAFT           // Worker editing
+  SUBMITTED       // Awaiting approval
+  APPROVED        // Approved for payroll
+  REJECTED        // Needs corrections
+  PROCESSED       // Included in payroll
+}
+
+model TimesheetEntry {
+  id              String        @id @default(cuid())
+  timesheet       Timesheet     @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+  timesheetId     String
+  
+  date            DateTime      @db.Date
+  clientName      String        // Snapshot (client could be deleted)
+  shiftId         String?       // Link back to shift if applicable
+  
+  startTime       String        // "09:00"
+  endTime         String        // "17:00"
+  breakMinutes    Int           @default(0)
+  
+  // Calculated
+  hoursWorked     Decimal       @db.Decimal(5, 2)
+  
+  // Notes
+  workDescription String?       @db.Text
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([timesheetId])
+  @@index([date])
+}
+
+// =============================================================================
+// INVOICING
+// =============================================================================
+
+model Invoice {
+  id              String          @id @default(cuid())
+  client          Client          @relation(fields: [clientId], references: [id])
+  clientId        String
+  
+  // Invoice details
+  invoiceNumber   String          @unique
+  issueDate       DateTime        @db.Date
+  dueDate         DateTime        @db.Date
+  
+  // Period
+  periodStart     DateTime        @db.Date
+  periodEnd       DateTime        @db.Date
+  
+  // Amounts
+  subtotal        Decimal         @db.Decimal(10, 2)
+  tax             Decimal         @db.Decimal(10, 2) @default(0)
+  total           Decimal         @db.Decimal(10, 2)
+  
+  // Status
+  status          InvoiceStatus   @default(DRAFT)
+  
+  // Line items
+  lineItems       InvoiceLineItem[]
+  
+  // Payment
+  paidAmount      Decimal         @db.Decimal(10, 2) @default(0)
+  paidAt          DateTime?
+  stripeInvoiceId String?
+  
+  // Files
+  pdfUrl          String?
+  
+  // Notes
+  notes           String?         @db.Text
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([issueDate])
+}
+
+enum InvoiceStatus {
+  DRAFT           // Being created
+  SENT            // Sent to client
+  VIEWED          // Client opened
+  PAID            // Payment received
+  PARTIAL         // Partially paid
+  OVERDUE         // Past due date
+  CANCELLED       // Cancelled
+}
+
+model InvoiceLineItem {
+  id              String        @id @default(cuid())
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId       String
+  
+  description     String
+  date            DateTime?     @db.Date
+  hours           Decimal?      @db.Decimal(5, 2)
+  rate            Decimal       @db.Decimal(10, 2)
+  amount          Decimal       @db.Decimal(10, 2)
+  
+  // Link to shift
+  shiftId         String?
+  
+  createdAt       DateTime      @default(now())
+
+  @@index([invoiceId])
+}
+
+// =============================================================================
+// NOTIFICATIONS
+// =============================================================================
+
+model Notification {
+  id              String              @id @default(cuid())
+  
+  // Recipient
+  userId          String
+  channel         NotificationChannel
+  
+  // Content
+  type            NotificationType
+  title           String
+  body            String              @db.Text
+  data            Json?               // Additional context (shift ID, etc.)
+  
+  // Delivery
+  status          NotificationDeliveryStatus @default(PENDING)
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  readAt          DateTime?
+  
+  // External IDs
+  twilioSid       String?             // Twilio message SID
+  resendId        String?             // Resend message ID
+  
+  // Error tracking
+  errorMessage    String?
+  retryCount      Int                 @default(0)
+  
+  createdAt       DateTime            @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+}
+
+enum NotificationType {
+  SHIFT_AVAILABLE
+  SHIFT_BOOKED
+  SHIFT_CANCELLED
+  SHIFT_REMINDER
+  TIMESHEET_DUE
+  TIMESHEET_APPROVED
+  TIMESHEET_REJECTED
+  DOCUMENT_EXPIRING
+  DOCUMENT_REJECTED
+  INVOICE_SENT
+  PAYMENT_RECEIVED
+  GENERAL
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
+}
+
+// =============================================================================
 // NOTES FOR IMPLEMENTATION
 // =============================================================================
 //

@@ -27,7 +27,7 @@ interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
   searchable?: boolean;
-  searchKeys?: (keyof T)[];
+  searchKeys?: string[];
   pageSize?: number;
   onRowClick?: (item: T) => void;
   emptyMessage?: string;
@@ -47,13 +47,23 @@ export function DataTable<T extends { id: string }>({
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
+  // Helper to get nested values like 'user.firstName'
+  const getNestedValue = (obj: unknown, path: string): unknown => {
+    return path.split('.').reduce((current, key) => {
+      if (current && typeof current === 'object' && key in (current as Record<string, unknown>)) {
+        return (current as Record<string, unknown>)[key];
+      }
+      return undefined;
+    }, obj);
+  };
+
   const filteredData = useMemo(() => {
     if (!search || searchKeys.length === 0) return data;
 
     const searchLower = search.toLowerCase();
     return data.filter((item) =>
       searchKeys.some((key) => {
-        const value = item[key];
+        const value = getNestedValue(item, key);
         if (typeof value === 'string') {
           return value.toLowerCase().includes(searchLower);
         }

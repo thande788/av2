@@ -9,7 +9,23 @@
 
 import { neonConfig } from '@neondatabase/serverless';
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { PrismaClient, Department, JobType, SalaryPeriod, ApplicationStatus, Shift, InquiryStatus } from '@prisma/client';
+import { 
+  PrismaClient, 
+  Department, 
+  JobType, 
+  SalaryPeriod, 
+  ApplicationStatus, 
+  Shift, 
+  InquiryStatus,
+  // Portal enums
+  UserRole,
+  UserStatus,
+  PayType,
+  ComplianceStatus,
+  ClientType,
+  ServiceLevel,
+  ShiftStatus,
+} from '@prisma/client';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import ws from 'ws';
@@ -672,6 +688,370 @@ const serviceInquiries = [
 ];
 
 // =============================================================================
+// PORTAL DEMO DATA (Workers, Clients, Shifts)
+// =============================================================================
+
+const portalWorkers = [
+  {
+    clerkId: 'demo_worker_1',
+    email: 'maria.santos@angeltouch.demo',
+    phone: '(978) 555-3001',
+    firstName: 'Maria',
+    lastName: 'Santos',
+    role: UserRole.CAREGIVER,
+    status: UserStatus.ACTIVE,
+    worker: {
+      employeeId: 'EMP-10001',
+      hireDate: new Date('2024-06-15'),
+      payRate: 24.00,
+      payType: PayType.HOURLY,
+      skills: ['Personal Care', 'Dementia Care', 'Medication Reminders', 'Meal Prep'],
+      languages: ['English', 'Portuguese', 'Spanish'],
+      complianceStatus: ComplianceStatus.COMPLIANT,
+      city: 'Lowell',
+      state: 'MA',
+      zip: '01852',
+    },
+  },
+  {
+    clerkId: 'demo_worker_2',
+    email: 'james.wilson@angeltouch.demo',
+    phone: '(978) 555-3002',
+    firstName: 'James',
+    lastName: 'Wilson',
+    role: UserRole.CAREGIVER,
+    status: UserStatus.ACTIVE,
+    worker: {
+      employeeId: 'EMP-10002',
+      hireDate: new Date('2025-01-10'),
+      payRate: 22.00,
+      payType: PayType.HOURLY,
+      skills: ['Personal Care', 'Companionship', 'Transportation'],
+      languages: ['English'],
+      complianceStatus: ComplianceStatus.COMPLIANT,
+      city: 'Dracut',
+      state: 'MA',
+      zip: '01826',
+    },
+  },
+  {
+    clerkId: 'demo_worker_3',
+    email: 'anna.petrova@angeltouch.demo',
+    phone: '(978) 555-3003',
+    firstName: 'Anna',
+    lastName: 'Petrova',
+    role: UserRole.CAREGIVER,
+    status: UserStatus.ACTIVE,
+    worker: {
+      employeeId: 'EMP-10003',
+      hireDate: new Date('2023-09-01'),
+      payRate: 26.00,
+      payType: PayType.HOURLY,
+      skills: ['Personal Care', 'Dementia Care', 'Hoyer Lift', 'Live-In Care', 'Hospice'],
+      languages: ['English', 'Russian'],
+      complianceStatus: ComplianceStatus.COMPLIANT,
+      city: 'Chelmsford',
+      state: 'MA',
+      zip: '01824',
+    },
+  },
+  {
+    clerkId: 'demo_worker_4',
+    email: 'sarah.johnson@angeltouch.demo',
+    phone: '(978) 555-3004',
+    firstName: 'Sarah',
+    lastName: 'Johnson',
+    role: UserRole.CAREGIVER,
+    status: UserStatus.ACTIVE,
+    worker: {
+      employeeId: 'EMP-10004',
+      hireDate: new Date('2026-02-01'),
+      payRate: 20.00,
+      payType: PayType.HOURLY,
+      skills: ['Companionship', 'Meal Prep', 'Light Housekeeping'],
+      languages: ['English'],
+      complianceStatus: ComplianceStatus.COMPLIANT,
+      city: 'Tewksbury',
+      state: 'MA',
+      zip: '01876',
+    },
+  },
+  {
+    clerkId: 'demo_worker_5',
+    email: 'carlos.rodriguez@angeltouch.demo',
+    phone: '(978) 555-3005',
+    firstName: 'Carlos',
+    lastName: 'Rodriguez',
+    role: UserRole.CAREGIVER,
+    status: UserStatus.PENDING,
+    worker: {
+      payRate: 22.00,
+      payType: PayType.HOURLY,
+      skills: ['Personal Care', 'Transportation'],
+      languages: ['English', 'Spanish'],
+      complianceStatus: ComplianceStatus.INCOMPLETE,
+      city: 'Lowell',
+      state: 'MA',
+      zip: '01851',
+    },
+  },
+  {
+    clerkId: 'demo_worker_6',
+    email: 'emily.chen@angeltouch.demo',
+    phone: '(978) 555-3006',
+    firstName: 'Emily',
+    lastName: 'Chen',
+    role: UserRole.CAREGIVER,
+    status: UserStatus.PENDING,
+    worker: {
+      payRate: 23.00,
+      payType: PayType.HOURLY,
+      skills: ['Personal Care', 'Dementia Care', 'Medication Reminders'],
+      languages: ['English', 'Mandarin'],
+      complianceStatus: ComplianceStatus.PENDING,
+      city: 'Billerica',
+      state: 'MA',
+      zip: '01821',
+    },
+  },
+];
+
+const portalClients = [
+  {
+    clerkId: 'demo_client_1',
+    email: 'robert.anderson@email.demo',
+    phone: '(978) 555-4001',
+    firstName: 'Robert',
+    lastName: 'Anderson',
+    role: UserRole.CLIENT,
+    status: UserStatus.ACTIVE,
+    client: {
+      type: ClientType.FAMILY,
+      careRecipientName: 'Eleanor Anderson',
+      careRecipientDOB: new Date('1938-05-15'),
+      relationship: 'Mother',
+      serviceLevel: ServiceLevel.PERSONAL,
+      preferredTimes: ['MORNING', 'AFTERNOON'],
+      specialNeeds: ['Hip Replacement Recovery', 'Mobility Assistance'],
+      street: '45 Maple Street',
+      city: 'Lowell',
+      state: 'MA',
+      zip: '01852',
+      emergencyName: 'Robert Anderson',
+      emergencyPhone: '(978) 555-4001',
+      emergencyRelation: 'Son',
+      billingRate: 32.00,
+      billingEmail: 'robert.anderson@email.demo',
+      careNotes: 'Mrs. Anderson had hip replacement surgery on Feb 10. Needs assistance with bathing, dressing, and mobility. Uses a walker.',
+      accessNotes: 'Key under the mat. Ring doorbell twice.',
+    },
+  },
+  {
+    clerkId: 'demo_client_2',
+    email: 'jennifer.walsh@email.demo',
+    phone: '(978) 555-4002',
+    firstName: 'Jennifer',
+    lastName: 'Walsh',
+    role: UserRole.CLIENT,
+    status: UserStatus.ACTIVE,
+    client: {
+      type: ClientType.FAMILY,
+      careRecipientName: 'Thomas Walsh Sr.',
+      careRecipientDOB: new Date('1942-11-22'),
+      relationship: 'Father',
+      serviceLevel: ServiceLevel.COMPANION,
+      preferredTimes: ['AFTERNOON'],
+      specialNeeds: ['Loneliness', 'Mild Depression'],
+      street: '123 Oak Avenue',
+      city: 'Dracut',
+      state: 'MA',
+      zip: '01826',
+      emergencyName: 'Jennifer Walsh',
+      emergencyPhone: '(978) 555-4002',
+      emergencyRelation: 'Daughter',
+      billingRate: 28.00,
+      billingEmail: 'jennifer.walsh@email.demo',
+      careNotes: 'Mr. Walsh lost his wife 6 months ago and has become isolated. Enjoys talking about history and watching old movies. Has a small dog named Max.',
+      accessNotes: 'Garage code: 1234',
+    },
+  },
+  {
+    clerkId: 'demo_client_3',
+    email: 'margaret.thompson@email.demo',
+    phone: '(978) 555-4003',
+    firstName: 'Margaret',
+    lastName: 'Thompson',
+    role: UserRole.CLIENT,
+    status: UserStatus.ACTIVE,
+    client: {
+      type: ClientType.FAMILY,
+      careRecipientName: 'George Thompson',
+      careRecipientDOB: new Date('1935-03-08'),
+      relationship: 'Husband',
+      serviceLevel: ServiceLevel.SKILLED,
+      preferredTimes: ['MORNING', 'AFTERNOON', 'EVENING'],
+      specialNeeds: ['Dementia', 'Wandering Risk', 'Diabetes'],
+      street: '789 Elm Street',
+      city: 'Chelmsford',
+      state: 'MA',
+      zip: '01824',
+      emergencyName: 'Margaret Thompson',
+      emergencyPhone: '(978) 555-4003',
+      emergencyRelation: 'Wife',
+      billingRate: 38.00,
+      billingEmail: 'margaret.thompson@email.demo',
+      careNotes: 'Mr. Thompson has moderate dementia. Requires supervision at all times. Insulin injection twice daily. Wanders if front door is unlocked.',
+      accessNotes: 'Door code: 5678. Alarm code: 9999. Always lock front door.',
+    },
+  },
+  {
+    clerkId: 'demo_client_4',
+    email: 'elizabeth.warren@email.demo',
+    phone: '(978) 555-4004',
+    firstName: 'Elizabeth',
+    lastName: 'Warren',
+    role: UserRole.CLIENT,
+    status: UserStatus.ACTIVE,
+    client: {
+      type: ClientType.SELF,
+      serviceLevel: ServiceLevel.COMPANION,
+      preferredTimes: ['MORNING'],
+      specialNeeds: ['Arthritis', 'Limited Mobility'],
+      street: '456 Pine Road',
+      city: 'Tewksbury',
+      state: 'MA',
+      zip: '01876',
+      emergencyName: 'David Warren',
+      emergencyPhone: '(978) 555-4044',
+      emergencyRelation: 'Son',
+      billingRate: 28.00,
+      billingEmail: 'elizabeth.warren@email.demo',
+      careNotes: 'Mrs. Warren is independent but appreciates company and help with light housekeeping. Very organized and particular about routines.',
+    },
+  },
+];
+
+// Generate shifts for the next 14 days
+function generateDemoShifts() {
+  const shifts: Array<{
+    clientIndex: number;
+    date: Date;
+    startTime: string;
+    endTime: string;
+    duration: number;
+    serviceType: ServiceLevel;
+    skillsRequired: string[];
+    status: ShiftStatus;
+    clientRate: number;
+    workerRate: number;
+    notes?: string;
+    workerIndex?: number; // For booked shifts
+  }> = [];
+
+  const today = new Date();
+  
+  // Eleanor Anderson - Personal Care, Mon-Fri mornings
+  for (let i = 0; i < 14; i++) {
+    const shiftDate = new Date(today);
+    shiftDate.setDate(today.getDate() + i);
+    const dayOfWeek = shiftDate.getDay();
+    
+    // Skip weekends for some clients
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+    
+    shifts.push({
+      clientIndex: 0, // Eleanor Anderson
+      date: shiftDate,
+      startTime: '08:00',
+      endTime: '12:00',
+      duration: 4,
+      serviceType: ServiceLevel.PERSONAL,
+      skillsRequired: ['Personal Care', 'Mobility Assistance'],
+      status: i < 3 ? ShiftStatus.COMPLETED : (i < 7 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
+      clientRate: 32.00,
+      workerRate: 24.00,
+      notes: 'Help with morning routine - bathing, dressing, breakfast',
+      workerIndex: i < 7 ? 0 : undefined, // Maria Santos
+    });
+  }
+
+  // Thomas Walsh Sr. - Companionship, 3x per week afternoons
+  for (let i = 0; i < 14; i++) {
+    const shiftDate = new Date(today);
+    shiftDate.setDate(today.getDate() + i);
+    const dayOfWeek = shiftDate.getDay();
+    
+    // Mon, Wed, Fri only
+    if (dayOfWeek !== 1 && dayOfWeek !== 3 && dayOfWeek !== 5) continue;
+    
+    shifts.push({
+      clientIndex: 1, // Thomas Walsh
+      date: shiftDate,
+      startTime: '13:00',
+      endTime: '17:00',
+      duration: 4,
+      serviceType: ServiceLevel.COMPANION,
+      skillsRequired: ['Companionship'],
+      status: i < 5 ? ShiftStatus.BOOKED : ShiftStatus.OPEN,
+      clientRate: 28.00,
+      workerRate: 22.00,
+      notes: 'Companionship visit. Walks the dog, plays chess, watches movies.',
+      workerIndex: i < 5 ? 1 : undefined, // James Wilson
+    });
+  }
+
+  // George Thompson - 12-hour shifts, daily
+  for (let i = 0; i < 14; i++) {
+    const shiftDate = new Date(today);
+    shiftDate.setDate(today.getDate() + i);
+    
+    shifts.push({
+      clientIndex: 2, // George Thompson
+      date: shiftDate,
+      startTime: '07:00',
+      endTime: '19:00',
+      duration: 12,
+      serviceType: ServiceLevel.SKILLED,
+      skillsRequired: ['Dementia Care', 'Medication Reminders'],
+      status: i < 2 ? ShiftStatus.COMPLETED : (i < 10 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
+      clientRate: 38.00,
+      workerRate: 26.00,
+      notes: 'Full day care. Insulin at 8am and 6pm. Do not leave unattended.',
+      workerIndex: i < 10 ? 2 : undefined, // Anna Petrova
+    });
+  }
+
+  // Elizabeth Warren - Companionship, 2x per week mornings
+  for (let i = 0; i < 14; i++) {
+    const shiftDate = new Date(today);
+    shiftDate.setDate(today.getDate() + i);
+    const dayOfWeek = shiftDate.getDay();
+    
+    // Tue, Thu only
+    if (dayOfWeek !== 2 && dayOfWeek !== 4) continue;
+    
+    shifts.push({
+      clientIndex: 3, // Elizabeth Warren
+      date: shiftDate,
+      startTime: '09:00',
+      endTime: '12:00',
+      duration: 3,
+      serviceType: ServiceLevel.COMPANION,
+      skillsRequired: ['Companionship', 'Light Housekeeping'],
+      status: i < 4 ? ShiftStatus.BOOKED : ShiftStatus.OPEN,
+      clientRate: 28.00,
+      workerRate: 20.00,
+      notes: 'Light housekeeping, companionship, help with errands.',
+      workerIndex: i < 4 ? 3 : undefined, // Sarah Johnson
+    });
+  }
+
+  return shifts;
+}
+
+const demoShifts = generateDemoShifts();
+
+// =============================================================================
 // SEED FUNCTION
 // =============================================================================
 
@@ -736,6 +1116,140 @@ async function main() {
   }
   console.log(`   Total: ${serviceInquiries.length} inquiries\n`);
 
+  // ==========================================================================
+  // PORTAL DATA (Demo MVP)
+  // ==========================================================================
+  
+  console.log('👥 Seeding portal workers...');
+  // Clear existing portal data
+  await prisma.shiftBooking.deleteMany();
+  await prisma.careShift.deleteMany();
+  await prisma.availability.deleteMany();
+  await prisma.complianceDoc.deleteMany();
+  await prisma.timesheetEntry.deleteMany();
+  await prisma.timesheet.deleteMany();
+  await prisma.invoiceLineItem.deleteMany();
+  await prisma.invoice.deleteMany();
+  await prisma.worker.deleteMany();
+  await prisma.client.deleteMany();
+  await prisma.portalUser.deleteMany();
+  console.log('   ✓ Cleared existing portal data');
+
+  const createdWorkers: Array<{ id: string; userId: string }> = [];
+  const createdClients: Array<{ id: string; userId: string }> = [];
+
+  // Create workers
+  for (const workerData of portalWorkers) {
+    const { worker, ...userData } = workerData;
+    const user = await prisma.portalUser.create({
+      data: {
+        ...userData,
+        worker: {
+          create: worker,
+        },
+      },
+      include: { worker: true },
+    });
+    createdWorkers.push({ id: user.worker!.id, userId: user.id });
+    console.log(`   ✓ Created worker: ${userData.firstName} ${userData.lastName} (${userData.status})`);
+  }
+  console.log(`   Total: ${portalWorkers.length} workers\n`);
+
+  // Create clients
+  console.log('🏠 Seeding portal clients...');
+  for (const clientData of portalClients) {
+    const { client, ...userData } = clientData;
+    const user = await prisma.portalUser.create({
+      data: {
+        ...userData,
+        client: {
+          create: client,
+        },
+      },
+      include: { client: true },
+    });
+    createdClients.push({ id: user.client!.id, userId: user.id });
+    console.log(`   ✓ Created client: ${client.careRecipientName || userData.firstName} (${client.serviceLevel})`);
+  }
+  console.log(`   Total: ${portalClients.length} clients\n`);
+
+  // Create shifts
+  console.log('📅 Seeding care shifts...');
+  let completedShifts = 0;
+  let bookedShifts = 0;
+  let openShifts = 0;
+
+  for (const shiftData of demoShifts) {
+    const client = createdClients[shiftData.clientIndex];
+    const worker = shiftData.workerIndex !== undefined ? createdWorkers[shiftData.workerIndex] : null;
+    
+    const shift = await prisma.careShift.create({
+      data: {
+        clientId: client.id,
+        date: shiftData.date,
+        startTime: shiftData.startTime,
+        endTime: shiftData.endTime,
+        duration: shiftData.duration,
+        serviceType: shiftData.serviceType,
+        skillsRequired: shiftData.skillsRequired,
+        status: shiftData.status,
+        clientRate: shiftData.clientRate,
+        workerRate: shiftData.workerRate,
+        notes: shiftData.notes,
+        createdBy: 'demo_admin',
+      },
+    });
+
+    // Create booking if shift is booked/completed
+    if (worker && (shiftData.status === ShiftStatus.BOOKED || shiftData.status === ShiftStatus.COMPLETED)) {
+      await prisma.shiftBooking.create({
+        data: {
+          shiftId: shift.id,
+          workerId: worker.id,
+          status: shiftData.status === ShiftStatus.COMPLETED ? 'COMPLETED' : 'CONFIRMED',
+          confirmedAt: new Date(),
+          checkedInAt: shiftData.status === ShiftStatus.COMPLETED ? shiftData.date : null,
+          checkedOutAt: shiftData.status === ShiftStatus.COMPLETED ? shiftData.date : null,
+        },
+      });
+    }
+
+    if (shiftData.status === ShiftStatus.COMPLETED) completedShifts++;
+    else if (shiftData.status === ShiftStatus.BOOKED) bookedShifts++;
+    else openShifts++;
+  }
+  console.log(`   ✓ Created ${demoShifts.length} shifts (${completedShifts} completed, ${bookedShifts} booked, ${openShifts} open)\n`);
+
+  // Create sample availability for workers
+  console.log('🕐 Seeding worker availability...');
+  const availabilityPatterns = [
+    // Maria Santos - Mon-Fri mornings
+    { workerIndex: 0, days: [1, 2, 3, 4, 5], startTime: '06:00', endTime: '14:00' },
+    // James Wilson - Mon-Fri afternoons
+    { workerIndex: 1, days: [1, 2, 3, 4, 5], startTime: '12:00', endTime: '20:00' },
+    // Anna Petrova - Full availability
+    { workerIndex: 2, days: [0, 1, 2, 3, 4, 5, 6], startTime: '06:00', endTime: '22:00' },
+    // Sarah Johnson - Weekends + some weekdays
+    { workerIndex: 3, days: [0, 2, 4, 6], startTime: '08:00', endTime: '16:00' },
+  ];
+
+  for (const pattern of availabilityPatterns) {
+    const worker = createdWorkers[pattern.workerIndex];
+    for (const day of pattern.days) {
+      await prisma.availability.create({
+        data: {
+          workerId: worker.id,
+          dayOfWeek: day,
+          startTime: pattern.startTime,
+          endTime: pattern.endTime,
+          isAvailable: true,
+        },
+      });
+    }
+    console.log(`   ✓ Set availability for worker ${pattern.workerIndex + 1}`);
+  }
+  console.log(`   Total: ${availabilityPatterns.length} availability patterns\n`);
+
   // Summary
   console.log('═══════════════════════════════════════════');
   console.log('✅ Database seeded successfully!\n');
@@ -745,6 +1259,9 @@ async function main() {
   console.log(`   • ${contacts.length} contact submissions`);
   console.log(`   • ${testimonials.length} testimonials`);
   console.log(`   • ${serviceInquiries.length} service inquiries`);
+  console.log(`   • ${portalWorkers.length} portal workers`);
+  console.log(`   • ${portalClients.length} portal clients`);
+  console.log(`   • ${demoShifts.length} care shifts`);
   console.log('═══════════════════════════════════════════\n');
 }
 
