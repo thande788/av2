@@ -12,6 +12,7 @@ export async function acceptShiftBooking(
   try {
     const booking = await db.shiftBooking.findUnique({
       where: { id: bookingId },
+      include: { shift: true },
     });
 
     if (!booking) {
@@ -33,6 +34,7 @@ export async function acceptShiftBooking(
     revalidatePath('/employee');
     revalidatePath('/employee/shifts');
     revalidatePath('/admin/shifts');
+    revalidatePath(`/admin/clients/${booking.shift.clientId}`);
 
     return { success: true };
   } catch (error) {
@@ -51,6 +53,7 @@ export async function declineShiftBooking(
   try {
     const booking = await db.shiftBooking.findUnique({
       where: { id: bookingId },
+      include: { shift: true },
     });
 
     if (!booking) {
@@ -73,6 +76,7 @@ export async function declineShiftBooking(
     revalidatePath('/employee');
     revalidatePath('/employee/shifts');
     revalidatePath('/admin/shifts');
+    revalidatePath(`/admin/clients/${booking.shift.clientId}`);
 
     return { success: true };
   } catch (error) {
@@ -120,6 +124,7 @@ export async function checkInToShift(
 
     revalidatePath('/employee');
     revalidatePath('/employee/shifts');
+    revalidatePath(`/admin/clients/${booking.shift.clientId}`);
 
     return { success: true };
   } catch (error) {
@@ -168,6 +173,7 @@ export async function checkOutFromShift(
 
     revalidatePath('/employee');
     revalidatePath('/employee/shifts');
+    revalidatePath(`/admin/clients/${booking.shift.clientId}`);
 
     return { success: true };
   } catch (error) {

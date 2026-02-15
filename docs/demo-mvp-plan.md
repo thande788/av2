@@ -2,7 +2,7 @@
 
 > **Document Created:** February 15, 2026  
 > **Target Stack:** Next.js 16 (App Router) + Prisma + PostgreSQL + Clerk + Twilio  
-> **Status:** In Progress (Phase 1 ✅, Phase 2 ~85%)  
+> **Status:** In Progress (Phase 1 ✅, Phase 2 ~95%)  
 > **Related:** [portal_plan.md](./portal_plan.md), [admin-enhancements.md](./admin-enhancements.md)
 
 ---
@@ -87,6 +87,31 @@
 | Review queue | `app/admin/compliance/compliance-review-queue.tsx` | Approve/reject UI |
 | Expiring alert | `app/admin/compliance/expiring-documents-alert.tsx` | Warning banner |
 | Clamscan package | `package.json` | `clamscan@2.4.0` for antivirus |
+
+**Phase 2.4: Admin Dashboard Enhancements** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Today's schedule widget | `components/admin/today-schedule-widget.tsx` | Shows today's shifts with status |
+| Pending actions panel | `components/admin/pending-actions-panel.tsx` | Workers, timesheets, docs to review |
+| Quick actions | `components/admin/quick-actions.tsx` | Create shift, add worker buttons |
+| Dashboard stats | `app/admin/page.tsx` | Portal stats (workers, shifts, pending) |
+
+**Phase 2.2: Shift Creation & Matching** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Shift creation form | `components/admin/create-shift-form.tsx` | Multi-card form with client/schedule/rates |
+| Create shift page | `app/admin/shifts/new/page.tsx` | Server component with client dropdown |
+| Create shift action | `app/actions/shifts.ts` | `createShift()` with Zod validation |
+| Worker matching query | `app/actions/shifts.ts` | `findMatchingWorkers()` with scoring |
+| Create shift button | `app/admin/shifts/page.tsx` | Links to new shift form |
+
+**Phase 2.3: Employee Profile** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Profile page | `app/employee/profile/page.tsx` | Personal info, skills, availability, docs |
 
 ---
 
@@ -463,8 +488,8 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 
 | ID | Task | Hours | Status |
 |----|------|-------|--------|
-| S.1 | Shift creation form | 3 | ⬜ |
-| S.2 | Worker matching query | 2 | ⬜ |
+| S.1 | Shift creation form | 3 | ✅ |
+| S.2 | Worker matching query | 2 | ✅ |
 | S.3 | Twilio SMS integration | 2 | ⬜ |
 | S.4 | Booking link handler | 1 | ⬜ |
 | S.5 | Shift detail page (employee) | 2 | ✅ |
@@ -490,7 +515,7 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 | E.2 | Dashboard page with widgets | 3 | ✅ |
 | E.3 | Available shifts list | 2 | ✅ |
 | E.4 | My schedule view | 2 | ✅ |
-| E.5 | Profile page | 1 | ⬜ |
+| E.5 | Profile page | 1 | ✅ |
 
 ### 2.4 Admin Dashboard Enhancements
 
@@ -502,10 +527,10 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 
 | ID | Task | Hours | Status |
 |----|------|-------|--------|
-| A.1 | Dashboard stats cards | 2 | ⬜ |
-| A.2 | Today's schedule widget | 2 | ⬜ |
-| A.3 | Pending actions panel | 1 | ⬜ |
-| A.4 | Quick action buttons | 1 | ⬜ |
+| A.1 | Dashboard stats cards | 2 | ✅ |
+| A.2 | Today's schedule widget | 2 | ✅ |
+| A.3 | Pending actions panel | 1 | ✅ |
+| A.4 | Quick action buttons | 1 | ✅ |
 
 ---
 

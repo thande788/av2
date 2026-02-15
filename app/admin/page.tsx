@@ -1,5 +1,10 @@
 import { db } from '@/lib/db';
 import { StatCard } from '@/components/admin/stat-card';
+import { TodayScheduleWidget } from '@/components/admin/today-schedule-widget';
+import { PendingActionsPanel } from '@/components/admin/pending-actions-panel';
+import { QuickActions } from '@/components/admin/quick-actions';
+import { isDemoEnabled } from '@/lib/feature-flags';
+import { serialize } from '@/lib/utils';
 import {
   FileText,
   MessageSquare,
@@ -7,11 +12,21 @@ import {
   Star,
   Clock,
   CheckCircle,
+  Calendar,
+  Users,
+  AlertTriangle,
 } from 'lucide-react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, startOfDay, endOfDay } from 'date-fns';
 
 export default async function AdminDashboard() {
+  const demoEnabled = isDemoEnabled();
+  const today = new Date();
+  const todayStart = startOfDay(today);
+  const todayEnd = endOfDay(today);
+  const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  // Core CRM stats
   const [
     applicationCount,
     pendingApplications,
@@ -41,22 +56,130 @@ export default async function AdminDashboard() {
     }),
   ]);
 
+  // Portal stats (only fetch when demo enabled)
+  let portalStats = {
+    totalWorkers: 0,
+    activeWorkers: 0,
+    pendingWorkers: 0,
+    totalClients: 0,
+    openShifts: 0,
+    bookedShifts: 0,
+    pendingTimesheets: 0,
+    pendingDocs: 0,
+    expiringDocs: 0,
+    todayShifts: [] as Awaited<ReturnType<typeof db.careShift.findMany>>,
+  };
+
+  if (demoEnabled) {
+    const [
+      totalWorkers,
+      activeWorkers,
+      pendingWorkers,
+      totalClients,
+      openShifts,
+      bookedShifts,
+      pendingTimesheets,
+      pendingDocs,
+      expiringDocs,
+      todayShifts,
+    ] = await Promise.all([
+      db.worker.count(),
+      db.worker.count({ where: { user: { status: 'ACTIVE' } } }),
+      db.portalUser.count({ where: { role: 'CAREGIVER', status: 'PENDING' } }),
+      db.client.count(),
+      db.careShift.count({ where: { status: 'OPEN' } }),
+      db.careShift.count({ where: { status: { in: ['BOOKED', 'IN_PROGRESS'] } } }),
+      db.timesheet.count({ where: { status: 'SUBMITTED' } }),
+      db.complianceDoc.count({ where: { status: 'PENDING_REVIEW' } }),
+      db.complianceDoc.count({
+        where: {
+          status: 'APPROVED',
+          expiresAt: { lte: thirtyDaysFromNow, gte: today },
+        },
+      }),
+      db.careShift.findMany({
+        where: {
+          date: { gte: todayStart, lte: todayEnd },
+        },
+        include: {
+          client: {
+            include: { user: true },
+          },
+          bookings: {
+            include: {
+              worker: {
+                include: { user: true },
+              },
+            },
+          },
+        },
+        orderBy: { startTime: 'asc' },
+        take: 5,
+      }),
+    ]);
+
+    portalStats = {
+      totalWorkers,
+      activeWorkers,
+      pendingWorkers,
+      totalClients,
+      openShifts,
+      bookedShifts,
+      pendingTimesheets,
+      pendingDocs,
+      expiringDocs,
+      todayShifts,
+    };
+  }
+
   // Get greeting based on time of day
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight">
-          {greeting}! <span className="text-2xl">👋</span>
-        </h1>
-        <p className="text-muted-foreground">
-          Here&apos;s what&apos;s happening at Angel Touch Homecare today
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight">
+            {greeting}! <span className="text-2xl">👋</span>
+          </h1>
+          <p className="text-muted-foreground">
+            Here&apos;s what&apos;s happening at Angel Touch Homecare today
+          </p>
+        </div>
+        {demoEnabled && <QuickActions />}
       </div>
 
-      {/* Stats Grid */}
+      {/* Portal Stats (Demo Mode) */}
+      {demoEnabled && (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Active Workers"
+            value={portalStats.activeWorkers}
+            description={`${portalStats.totalWorkers} total`}
+            icon={Users}
+          />
+          <StatCard
+            title="Open Shifts"
+            value={portalStats.openShifts}
+            icon={Calendar}
+            highlight={portalStats.openShifts > 0}
+          />
+          <StatCard
+            title="Booked Today"
+            value={portalStats.bookedShifts}
+            icon={CheckCircle}
+          />
+          <StatCard
+            title="Pending Actions"
+            value={portalStats.pendingWorkers + portalStats.pendingDocs + portalStats.pendingTimesheets}
+            icon={AlertTriangle}
+            highlight={(portalStats.pendingWorkers + portalStats.pendingDocs + portalStats.pendingTimesheets) > 0}
+          />
+        </div>
+      )}
+
+      {/* CRM Stats Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Applications"
@@ -202,6 +325,19 @@ export default async function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Portal Widgets (Demo Mode) */}
+      {demoEnabled && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <TodayScheduleWidget shifts={serialize(portalStats.todayShifts)} />
+          <PendingActionsPanel
+            pendingWorkers={portalStats.pendingWorkers}
+            pendingTimesheets={portalStats.pendingTimesheets}
+            pendingDocs={portalStats.pendingDocs}
+            expiringDocs={portalStats.expiringDocs}
+          />
+        </div>
+      )}
     </div>
   );
 }

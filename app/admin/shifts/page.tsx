@@ -1,7 +1,10 @@
 import { db } from '@/lib/db';
 import { serialize } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { ShiftsTable } from './shifts-table';
+import Link from 'next/link';
+import { IconCalendarPlus } from '@tabler/icons-react';
 
 export const metadata = {
   title: 'Shifts | Admin',
@@ -45,7 +48,12 @@ export default async function ShiftsPage() {
           <h1 className="text-2xl font-bold text-foreground">Shifts</h1>
           <p className="text-muted-foreground">Manage care shifts and assignments</p>
         </div>
-        {/* Future: Add "Create Shift" button */}
+        <Button asChild>
+          <Link href="/admin/shifts/new">
+            <IconCalendarPlus className="size-4 mr-2" />
+            Create Shift
+          </Link>
+        </Button>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
