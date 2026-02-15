@@ -11,6 +11,7 @@ import {
   IconCertificate2,
   IconCheck,
   IconClock,
+  IconEdit,
   IconId,
   IconLanguage,
   IconLoader2,
@@ -48,7 +49,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { approveWorker, rejectWorker, updateWorkerStatus } from '@/app/actions/workers';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { approveWorker, rejectWorker, updateWorkerStatus, updateWorker } from '@/app/actions/workers';
 
 type WorkerWithRelations = Worker & {
   user: PortalUser;
@@ -87,6 +99,27 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
   const router = useRouter();
   const [isApproving, setIsApproving] = React.useState(false);
   const [isRejecting, setIsRejecting] = React.useState(false);
+  const [isEditingId, setIsEditingId] = React.useState(false);
+  const [editEmployeeId, setEditEmployeeId] = React.useState(worker.employeeId || '');
+  const [editError, setEditError] = React.useState<string | null>(null);
+  const [isSavingId, setIsSavingId] = React.useState(false);
+
+  const handleSaveEmployeeId = async () => {
+    if (!editEmployeeId.trim()) {
+      setEditError('Employee ID cannot be empty');
+      return;
+    }
+    setIsSavingId(true);
+    setEditError(null);
+    const result = await updateWorker(worker.id, { employeeId: editEmployeeId.trim() });
+    setIsSavingId(false);
+    if (result.success) {
+      setIsEditingId(false);
+      router.refresh();
+    } else {
+      setEditError(result.error || 'Failed to update employee ID');
+    }
+  };
 
   const handleApprove = async () => {
     setIsApproving(true);
@@ -149,11 +182,46 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
               <Badge className={cn('font-medium', complianceColors[worker.complianceStatus])}>
                 {worker.complianceStatus}
               </Badge>
-              {worker.employeeId && (
-                <span className="text-sm text-muted-foreground">
-                  ID: {worker.employeeId}
-                </span>
-              )}
+              <Dialog open={isEditingId} onOpenChange={setIsEditingId}>
+                <DialogTrigger asChild>
+                  <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <IconId className="size-3.5" />
+                    {worker.employeeId || 'No ID assigned'}
+                    <IconEdit className="ml-1 size-3 opacity-50" />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-sm">
+                  <DialogHeader>
+                    <DialogTitle>Edit Employee ID</DialogTitle>
+                    <DialogDescription>
+                      Update the employee ID for {worker.user.firstName} {worker.user.lastName}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="employeeId">Employee ID</Label>
+                      <Input
+                        id="employeeId"
+                        value={editEmployeeId}
+                        onChange={(e) => setEditEmployeeId(e.target.value)}
+                        placeholder="EMP-0001"
+                      />
+                      {editError && (
+                        <p className="text-sm text-destructive">{editError}</p>
+                      )}
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsEditingId(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveEmployeeId} disabled={isSavingId}>
+                      {isSavingId && <IconLoader2 className="mr-2 size-4 animate-spin" />}
+                      Save
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>

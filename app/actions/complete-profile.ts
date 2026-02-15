@@ -14,6 +14,40 @@ import {
 } from '@/lib/validation/worker-registration';
 import { z } from 'zod';
 
+/**
+ * Generate a unique employee ID in format EMP-XXXX
+ * Auto-increments based on existing employees
+ */
+async function generateEmployeeId(): Promise<string> {
+  // Get the highest existing employee ID number
+  const lastWorker = await db.worker.findFirst({
+    where: {
+      employeeId: {
+        startsWith: 'EMP-',
+      },
+    },
+    orderBy: {
+      employeeId: 'desc',
+    },
+    select: {
+      employeeId: true,
+    },
+  });
+
+  let nextNumber = 1;
+
+  if (lastWorker?.employeeId) {
+    // Extract number from EMP-XXXX format
+    const match = lastWorker.employeeId.match(/EMP-(\d+)/);
+    if (match) {
+      nextNumber = parseInt(match[1], 10) + 1;
+    }
+  }
+
+  // Pad to 4 digits (e.g., EMP-0001, EMP-0012, EMP-0123)
+  return `EMP-${nextNumber.toString().padStart(4, '0')}`;
+}
+
 // Combined schema for profile completion (personal info comes from Clerk)
 const workerProfileSchema = z.object({
   phone: z.string().min(10, 'Phone number is required'),
@@ -140,6 +174,9 @@ export async function completeWorkerProfile(
     };
     const payRate = payRateMap[data.yearsExperience] || 18.0;
 
+    // Generate employee ID
+    const employeeId = await generateEmployeeId();
+
     // Update PortalUser with phone and create Worker
     const worker = await db.$transaction(async (tx) => {
       // Update phone on PortalUser if provided
@@ -150,10 +187,12 @@ export async function completeWorkerProfile(
         });
       }
 
-      // Create Worker record
+      // Create Worker record with auto-generated employee ID
       return tx.worker.create({
         data: {
           userId: portalUser.id,
+          employeeId,
+          hireDate: new Date(),
           payRate,
           skills: skillsFormatted,
           languages: languagesFormatted,

@@ -72,6 +72,31 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async redirects() {
+    return [
+      {
+        source: '/signup',
+        destination: '/sign-up',
+        permanent: true,
+      },
+      {
+        source: '/signup/:path*',
+        destination: '/sign-up/:path*',
+        permanent: true,
+      },
+      {
+        source: '/signin',
+        destination: '/sign-in',
+        permanent: true,
+      },
+      {
+        source: '/signin/:path*',
+        destination: '/sign-in/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);

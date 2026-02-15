@@ -149,3 +149,61 @@ export async function updateComplianceStatus(
     return { success: false, error: 'Failed to update compliance status' };
   }
 }
+
+/**
+ * Update worker profile (admin action)
+ * Allows admins to modify worker details including employee ID
+ */
+export async function updateWorker(
+  workerId: string,
+  data: {
+    employeeId?: string;
+    payRate?: number;
+    skills?: string[];
+    languages?: string[];
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    notes?: string;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Check if employeeId is being changed and is unique
+    if (data.employeeId) {
+      const existing = await db.worker.findUnique({
+        where: { employeeId: data.employeeId },
+      });
+      
+      if (existing && existing.id !== workerId) {
+        return { 
+          success: false, 
+          error: `Employee ID "${data.employeeId}" is already assigned to another worker` 
+        };
+      }
+    }
+
+    await db.worker.update({
+      where: { id: workerId },
+      data: {
+        ...(data.employeeId !== undefined && { employeeId: data.employeeId }),
+        ...(data.payRate !== undefined && { payRate: data.payRate }),
+        ...(data.skills !== undefined && { skills: data.skills }),
+        ...(data.languages !== undefined && { languages: data.languages }),
+        ...(data.street !== undefined && { street: data.street }),
+        ...(data.city !== undefined && { city: data.city }),
+        ...(data.state !== undefined && { state: data.state }),
+        ...(data.zip !== undefined && { zip: data.zip }),
+        ...(data.notes !== undefined && { notes: data.notes }),
+      },
+    });
+
+    revalidatePath('/admin/workers');
+    revalidatePath(`/admin/workers/${workerId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update worker:', error);
+    return { success: false, error: 'Failed to update worker' };
+  }
+}

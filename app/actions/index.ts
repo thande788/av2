@@ -12,6 +12,7 @@ export {
   rejectWorker,
   updateWorkerStatus,
   updateComplianceStatus,
+  updateWorker,
 } from "./workers";
 
 // Shift management actions (Admin)
