@@ -13,3 +13,20 @@ export {
   updateWorkerStatus,
   updateComplianceStatus,
 } from "./workers";
+
+// Shift management actions (Admin)
+export {
+  sendBookingRequest,
+  confirmBooking,
+  cancelShift,
+  completeShift,
+  updateShiftStatus,
+} from "./shifts";
+
+// Employee shift actions
+export {
+  acceptShiftBooking,
+  declineShiftBooking,
+  checkInToShift,
+  checkOutFromShift,
+} from "./employee-shifts";
