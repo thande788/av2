@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { StatCard } from '@/components/admin/stat-card';
-import { TodayScheduleWidget } from '@/components/admin/today-schedule-widget';
+import { TodayScheduleWidget, type ShiftWithDetails } from '@/components/admin/today-schedule-widget';
 import { PendingActionsPanel } from '@/components/admin/pending-actions-panel';
 import { QuickActions } from '@/components/admin/quick-actions';
 import { isDemoEnabled } from '@/lib/feature-flags';
@@ -67,7 +67,8 @@ export default async function AdminDashboard() {
     pendingTimesheets: 0,
     pendingDocs: 0,
     expiringDocs: 0,
-    todayShifts: [] as Awaited<ReturnType<typeof db.careShift.findMany>>,
+    // todayShifts will be serialized and cast to ShiftWithDetails[]
+    todayShifts: [] as unknown[],
   };
 
   if (demoEnabled) {
@@ -329,7 +330,7 @@ export default async function AdminDashboard() {
       {/* Portal Widgets (Demo Mode) */}
       {demoEnabled && (
         <div className="grid gap-6 lg:grid-cols-2">
-          <TodayScheduleWidget shifts={serialize(portalStats.todayShifts)} />
+          <TodayScheduleWidget shifts={serialize(portalStats.todayShifts) as ShiftWithDetails[]} />
           <PendingActionsPanel
             pendingWorkers={portalStats.pendingWorkers}
             pendingTimesheets={portalStats.pendingTimesheets}

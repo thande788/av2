@@ -5,19 +5,19 @@ import { Button } from '@/components/ui/button';
 import { IconCalendar, IconUser, IconMapPin } from '@tabler/icons-react';
 import Link from 'next/link';
 
-interface ShiftWithDetails {
+export interface ShiftWithDetails {
   id: string;
   date: string;
   startTime: string;
   endTime: string;
   status: string;
   client: {
-    careRecipientName: string | null;
+    careRecipientName?: string | null;
     user: {
       firstName: string;
       lastName: string;
     };
-    city: string;
+    city?: string | null;
   };
   bookings: Array<{
     id: string;
@@ -32,6 +32,7 @@ interface ShiftWithDetails {
 }
 
 interface TodayScheduleWidgetProps {
+  // Accept any array that can be cast to ShiftWithDetails
   shifts: ShiftWithDetails[];
 }
 
