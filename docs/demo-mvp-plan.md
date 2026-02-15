@@ -2,7 +2,7 @@
 
 > **Document Created:** February 15, 2026  
 > **Target Stack:** Next.js 16 (App Router) + Prisma + PostgreSQL + Clerk + Twilio  
-> **Status:** In Progress (Phase 1 ✅, Phase 2 ~70%)  
+> **Status:** In Progress (Phase 1 ✅, Phase 2 ~85%)  
 > **Related:** [portal_plan.md](./portal_plan.md), [admin-enhancements.md](./admin-enhancements.md)
 
 ---
@@ -73,6 +73,20 @@
 | Navigation update | `data/navigation.tsx` | Links to `/portals` |
 | Admin sign out | `components/admin/sidebar.tsx` | Clerk SignOutButton |
 | Employee sign out | `components/employee/sidebar.tsx` | Clerk SignOutButton |
+
+**Slice 4: Compliance Document Upload → Review** ✅ Complete
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| File scanner utility | `lib/file-scanner.ts` | ClamAV antivirus integration |
+| Compliance actions | `app/actions/compliance.ts` | Upload, approve, reject with AV scan |
+| Employee compliance page | `app/employee/compliance/page.tsx` | Document list, status cards |
+| Upload dialog | `app/employee/compliance/upload-document-dialog.tsx` | Drag-and-drop upload |
+| Document list | `app/employee/compliance/compliance-documents-list.tsx` | Card view with actions |
+| Admin compliance page | `app/admin/compliance/page.tsx` | Review queue, expiring alerts |
+| Review queue | `app/admin/compliance/compliance-review-queue.tsx` | Approve/reject UI |
+| Expiring alert | `app/admin/compliance/expiring-documents-alert.tsx` | Warning banner |
+| Clamscan package | `package.json` | `clamscan@2.4.0` for antivirus |
 
 ---
 
@@ -515,10 +529,11 @@ Implement the core models from [portal_plan.md](./portal_plan.md):
 
 | ID | Task | Hours | Status |
 |----|------|-------|--------|
-| C.1 | Document upload component | 2 | ⬜ |
-| C.2 | Worker compliance page | 2 | ⬜ |
-| C.3 | Admin verification UI | 2 | ⬜ |
-| C.4 | Compliance dashboard | 2 | ⬜ |
+| C.1 | Document upload component | 2 | ✅ |
+| C.2 | Worker compliance page | 2 | ✅ |
+| C.3 | Admin verification UI | 2 | ✅ |
+| C.4 | Compliance dashboard | 2 | ✅ |
+| C.5 | Antivirus file scanning | 2 | ✅ |
 
 ### 3.3 Payroll Preview
 

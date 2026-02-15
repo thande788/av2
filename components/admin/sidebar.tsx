@@ -63,6 +63,12 @@ const navItems: NavItem[] = [
     icon: ClipboardCheck,
     demoOnly: true,
   },
+  {
+    title: 'Compliance',
+    href: '/admin/compliance',
+    icon: FileText,
+    demoOnly: true,
+  },
   // Standard Items
   {
     title: 'Jobs',

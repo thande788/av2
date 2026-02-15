@@ -36,6 +36,7 @@
     "@tabler/icons-react": "^3.36.1",
     "@tailwindcss/forms": "^0.5.11",
     "@vercel/blob": "^2.0.1",
+    "clamscan": "^2.4.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

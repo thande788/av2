@@ -30,3 +30,15 @@ export {
   checkInToShift,
   checkOutFromShift,
 } from "./employee-shifts";
+
+// Compliance document actions
+export {
+  uploadComplianceDocument,
+  deleteComplianceDocument,
+  approveComplianceDocument,
+  rejectComplianceDocument,
+  getWorkerComplianceDocuments,
+  getPendingComplianceDocuments,
+  getExpiringComplianceDocuments,
+  type UploadDocumentResult,
+} from "./compliance";
