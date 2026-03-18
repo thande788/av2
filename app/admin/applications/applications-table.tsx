@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { DataTable, type Column } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import type { Application, Job, ApplicationStatus } from '@prisma/client';
 
 type ApplicationWithJob = Application & {
@@ -66,7 +66,7 @@ const columns: Column<ApplicationWithJob>[] = [
     header: 'Submitted',
     sortable: true,
     hideOnMobile: true,
-    render: (app) => format(app.submittedAt, 'MMM d, yyyy'),
+    render: (app) => formatDateUS(app.submittedAt),
   },
 ];
 

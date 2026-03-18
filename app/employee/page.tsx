@@ -11,6 +11,7 @@ import {
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { EmployeeStatCard } from '@/components/employee/stat-card';
+import { formatDateUS } from '@/lib/utils';
 import { getCurrentWorkerWithBookings, isAdminOrManager } from '@/lib/auth';
 
 export const metadata = {
@@ -168,11 +169,7 @@ export default async function EmployeeDashboardPage() {
                       {booking.shift.client.user.firstName} {booking.shift.client.user.lastName}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(booking.shift.date).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                      })}{' '}
+                      {formatDateUS(booking.shift.date, 'weekday-short')}{' '}
                       • {booking.shift.startTime} - {booking.shift.endTime}
                     </p>
                   </div>
@@ -210,11 +207,7 @@ export default async function EmployeeDashboardPage() {
                       {booking.shift.client.user.firstName} {booking.shift.client.user.lastName}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(booking.shift.date).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                      })}{' '}
+                      {formatDateUS(booking.shift.date, 'weekday-short')}{' '}
                       • {booking.shift.startTime} - {booking.shift.endTime}
                     </p>
                     <p className="text-sm text-muted-foreground">

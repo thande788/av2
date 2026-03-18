@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconPhone } from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDateUS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TestimonialCardGrid } from "@/components/testimonials/testimonial-card";
@@ -62,10 +62,7 @@ async function getTestimonials(): Promise<Testimonial[]> {
         relation: client.relationship || "Client",
         rating: review.rating,
         date: review.publishedAt
-          ? new Date(review.publishedAt).toLocaleDateString("en-US", {
-              month: "long",
-              year: "numeric",
-            })
+          ? formatDateUS(new Date(review.publishedAt), 'month-year')
           : undefined,
       });
     }
@@ -80,10 +77,7 @@ async function getTestimonials(): Promise<Testimonial[]> {
         relation: t.role || "Client",
         rating: t.rating ?? undefined,
         avatarUrl: t.imageUrl ?? undefined,
-        date: new Date(t.createdAt).toLocaleDateString("en-US", {
-          month: "long",
-          year: "numeric",
-        }),
+        date: formatDateUS(new Date(t.createdAt), 'month-year'),
       });
     }
 

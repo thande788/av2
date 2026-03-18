@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { startOfWeek, format, parseISO } from 'date-fns';
+import { startOfWeek, parseISO } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import { getCurrentWorker } from '@/lib/auth';
 import { TimesheetForm } from '../timesheet-form';
 import Link from 'next/link';
@@ -38,7 +39,7 @@ export default async function NewTimesheetPage({ searchParams }: NewTimesheetPag
     weekStarting = startOfWeek(new Date(), { weekStartsOn: 1 });
   }
 
-  const weekStartingStr = format(weekStarting, 'yyyy-MM-dd');
+  const weekStartingStr = formatDateUS(weekStarting, 'iso');
 
   // Check if timesheet already exists for this week
   const existingTimesheet = await db.timesheet.findUnique({

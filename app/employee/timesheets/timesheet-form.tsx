@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { format, parseISO, startOfWeek, addDays } from 'date-fns';
+import { parseISO, startOfWeek, addDays } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,7 +80,7 @@ export function TimesheetForm({ workerId, weekStarting, existingTimesheet }: Tim
     setEntries([
       ...entries,
       {
-        date: format(entryDate, 'yyyy-MM-dd'),
+        date: formatDateUS(entryDate, 'iso'),
         clientName: '',
         startTime: '09:00',
         endTime: '17:00',
@@ -186,7 +187,7 @@ export function TimesheetForm({ workerId, weekStarting, existingTimesheet }: Tim
 
   // Group entries by day for display
   const entriesByDay = DAYS_OF_WEEK.map((day, index) => {
-    const dayDate = format(addDays(weekStart, index), 'yyyy-MM-dd');
+    const dayDate = formatDateUS(addDays(weekStart, index), 'iso');
     return {
       day,
       date: dayDate,
@@ -205,7 +206,7 @@ export function TimesheetForm({ workerId, weekStarting, existingTimesheet }: Tim
             <div>
               <CardTitle className="flex items-center gap-2">
                 <IconCalendarWeek className="size-5" />
-                Week of {format(weekStart, 'MMMM d')} - {format(weekEnd, 'MMMM d, yyyy')}
+                Week of {formatDateUS(weekStart, 'medium-no-year')} - {formatDateUS(weekEnd)}
               </CardTitle>
               <CardDescription>
                 {isEditing ? 'Edit your timesheet entries' : 'Create a new timesheet for this week'}
@@ -273,7 +274,7 @@ export function TimesheetForm({ workerId, weekStarting, existingTimesheet }: Tim
             <CardHeader className="py-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium">
-                  {day}, {format(parseISO(date), 'MMM d')}
+                  {day}, {formatDateUS(parseISO(date), 'medium-no-year')}
                 </CardTitle>
                 {canEdit && (
                   <Button

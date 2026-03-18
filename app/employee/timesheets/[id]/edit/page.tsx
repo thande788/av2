@@ -1,7 +1,6 @@
 import { db } from '@/lib/db';
 import { redirect, notFound } from 'next/navigation';
-import { format } from 'date-fns';
-import { serialize } from '@/lib/utils';
+import { serialize, formatDateUS } from '@/lib/utils';
 import { getClerkUserId } from '@/lib/auth';
 import { TimesheetForm } from '../../timesheet-form';
 import Link from 'next/link';
@@ -59,7 +58,7 @@ export default async function EditTimesheetPage({ params }: EditTimesheetPagePro
     status: timesheet.status,
     entries: timesheet.entries.map((entry) => ({
       id: entry.id,
-      date: format(entry.date, 'yyyy-MM-dd'),
+      date: formatDateUS(entry.date, 'iso'),
       clientName: entry.clientName,
       shiftId: entry.shiftId || undefined,
       startTime: entry.startTime,
@@ -69,7 +68,7 @@ export default async function EditTimesheetPage({ params }: EditTimesheetPagePro
     })),
   });
 
-  const weekStartingStr = format(timesheet.weekStarting, 'yyyy-MM-dd');
+  const weekStartingStr = formatDateUS(timesheet.weekStarting, 'iso');
 
   return (
     <div className="space-y-6">
@@ -82,7 +81,7 @@ export default async function EditTimesheetPage({ params }: EditTimesheetPagePro
         <div>
           <h1 className="text-2xl font-bold text-foreground">Edit Timesheet</h1>
           <p className="text-muted-foreground">
-            Update your hours for the week of {format(timesheet.weekStarting, 'MMMM d, yyyy')}
+            Update your hours for the week of {formatDateUS(timesheet.weekStarting)}
           </p>
         </div>
       </div>

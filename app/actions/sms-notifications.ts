@@ -11,7 +11,7 @@ import {
   type SMSResult,
 } from '@/lib/twilio';
 import { ShiftStatus } from '@prisma/client';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 
 export interface NotificationResult {
   success: boolean;
@@ -88,7 +88,7 @@ export async function sendShiftNotification(
       shiftId: shift.id,
       clientName: shift.client.careRecipientName || 
         `${shift.client.user.firstName} ${shift.client.user.lastName}`,
-      date: format(shift.date, 'EEEE, MMMM d'),
+      date: formatDateUS(shift.date, 'weekday-long'),
       startTime: shift.startTime,
       endTime: shift.endTime,
       address: `${shift.client.city}, ${shift.client.state}`,
@@ -204,7 +204,7 @@ export async function sendShiftConfirmation(
       clientName:
         shift.client.careRecipientName ||
         `${shift.client.user.firstName} ${shift.client.user.lastName}`,
-      date: format(shift.date, 'EEEE, MMMM d'),
+      date: formatDateUS(shift.date, 'weekday-long'),
       startTime: shift.startTime,
       address: `${shift.client.street}, ${shift.client.city}, ${shift.client.state} ${shift.client.zip}`,
     });
@@ -255,7 +255,7 @@ export async function sendShiftCancellation(
 
     const message = createShiftCancellationMessage({
       workerName: worker.user.firstName,
-      date: format(shift.date, 'EEEE, MMMM d'),
+      date: formatDateUS(shift.date, 'weekday-long'),
       clientName:
         shift.client.careRecipientName ||
         `${shift.client.user.firstName} ${shift.client.user.lastName}`,
@@ -313,7 +313,7 @@ export async function sendShiftNotificationToWorkers(
       clientName:
         shift.client.careRecipientName ||
         `${shift.client.user.firstName} ${shift.client.user.lastName}`,
-      date: format(shift.date, 'EEEE, MMMM d'),
+      date: formatDateUS(shift.date, 'weekday-long'),
       startTime: shift.startTime,
       endTime: shift.endTime,
       address: `${shift.client.city}, ${shift.client.state}`,

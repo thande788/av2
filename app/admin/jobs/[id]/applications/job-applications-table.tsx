@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { DataTable, type Column } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import type { Application, ApplicationStatus } from '@prisma/client';
 
 const statusColors: Record<ApplicationStatus, string> = {
@@ -62,7 +62,7 @@ const columns: Column<Application>[] = [
     key: 'submittedAt',
     header: 'Submitted',
     sortable: true,
-    render: (app) => format(app.submittedAt, 'MMM d, yyyy'),
+    render: (app) => formatDateUS(app.submittedAt),
   },
 ];
 

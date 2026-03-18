@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { format, startOfWeek, endOfWeek, subWeeks, addWeeks } from 'date-fns';
+import { startOfWeek, endOfWeek, subWeeks, addWeeks } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,8 +31,8 @@ export function PayrollPreview() {
   const lastWeekStart = startOfWeek(subWeeks(today, 1), { weekStartsOn: 1 });
   const lastWeekEnd = endOfWeek(lastWeekStart, { weekStartsOn: 1 });
 
-  const [periodStart, setPeriodStart] = useState(format(lastWeekStart, 'yyyy-MM-dd'));
-  const [periodEnd, setPeriodEnd] = useState(format(lastWeekEnd, 'yyyy-MM-dd'));
+  const [periodStart, setPeriodStart] = useState(formatDateUS(lastWeekStart, 'iso'));
+  const [periodEnd, setPeriodEnd] = useState(formatDateUS(lastWeekEnd, 'iso'));
 
   const handleCalculate = () => {
     setError(null);
@@ -75,16 +76,16 @@ export function PayrollPreview() {
   const goToPreviousWeek = () => {
     const start = new Date(periodStart);
     const newStart = subWeeks(start, 1);
-    setPeriodStart(format(newStart, 'yyyy-MM-dd'));
-    setPeriodEnd(format(endOfWeek(newStart, { weekStartsOn: 1 }), 'yyyy-MM-dd'));
+    setPeriodStart(formatDateUS(newStart, 'iso'));
+    setPeriodEnd(formatDateUS(endOfWeek(newStart, { weekStartsOn: 1 }), 'iso'));
     setPayrollData(null);
   };
 
   const goToNextWeek = () => {
     const start = new Date(periodStart);
     const newStart = addWeeks(start, 1);
-    setPeriodStart(format(newStart, 'yyyy-MM-dd'));
-    setPeriodEnd(format(endOfWeek(newStart, { weekStartsOn: 1 }), 'yyyy-MM-dd'));
+    setPeriodStart(formatDateUS(newStart, 'iso'));
+    setPeriodEnd(formatDateUS(endOfWeek(newStart, { weekStartsOn: 1 }), 'iso'));
     setPayrollData(null);
   };
 
@@ -223,7 +224,7 @@ export function PayrollPreview() {
                 <div>
                   <CardTitle>Payroll Details</CardTitle>
                   <CardDescription>
-                    {format(new Date(payrollData.periodStart), 'MMM d')} - {format(new Date(payrollData.periodEnd), 'MMM d, yyyy')}
+                    {formatDateUS(new Date(payrollData.periodStart), 'medium-no-year')} - {formatDateUS(new Date(payrollData.periodEnd))}
                   </CardDescription>
                 </div>
                 <Button variant="outline" onClick={handleExport} disabled={isExporting}>

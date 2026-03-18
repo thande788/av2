@@ -28,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { acceptShiftBooking, declineShiftBooking } from '@/app/actions/employee-shifts';
+import { formatDateUS } from '@/lib/utils';
 
 type BookingWithRelations = Serialized<ShiftBooking & {
   shift: CareShift & {
@@ -100,11 +101,7 @@ export function ShiftRequestsList({ bookings }: ShiftRequestsListProps) {
                   </div>
 
                   <h3 className="text-lg font-semibold">
-                    {new Date(shift.date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {formatDateUS(shift.date, 'weekday-long')}
                   </h3>
 
                   <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">

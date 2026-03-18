@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatSalaryRange, formatJobType, formatDepartment } from "@/data/jobs";
+import { formatDateUS } from '@/lib/utils';
 import type { JobCardProps } from "@/types/job";
 
 /**
@@ -69,11 +70,7 @@ export function JobCard({ job }: JobCardProps) {
         <div className="flex items-center gap-2 text-muted-foreground">
           <IconClock className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span className="text-sm">
-            Posted {new Date(job.postedAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            Posted {formatDateUS(job.postedAt)}
           </span>
         </div>
       </CardContent>

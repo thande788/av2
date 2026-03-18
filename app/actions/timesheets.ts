@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { z } from 'zod';
-import { startOfWeek, endOfWeek, parseISO, differenceInMinutes, format } from 'date-fns';
+import { startOfWeek, endOfWeek, parseISO, differenceInMinutes } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 
 // =============================================================================
 // SCHEMAS
@@ -303,7 +304,7 @@ export async function getShiftsForTimesheet(workerId: string, weekStarting: stri
     
     // Transform to timesheet entry format
     const entries = bookings.map((booking) => ({
-      date: format(booking.shift.date, 'yyyy-MM-dd'),
+      date: formatDateUS(booking.shift.date, 'iso'),
       clientName: booking.shift.client.careRecipientName || 
         `${booking.shift.client.user.firstName} ${booking.shift.client.user.lastName}`,
       shiftId: booking.shiftId,

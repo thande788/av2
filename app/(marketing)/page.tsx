@@ -16,7 +16,7 @@ import {
 } from "@tabler/icons-react";
 import { Bubbles as IconBubbles} from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDateUS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TestimonialCard } from "@/components/testimonials/testimonial-card";
@@ -177,10 +177,7 @@ async function getFeaturedTestimonials(): Promise<Testimonial[]> {
 				text: t.content,
 				relation: t.role ?? "Client",
 				rating: t.rating ?? undefined,
-				date: t.createdAt.toLocaleDateString("en-US", {
-					month: "long",
-					year: "numeric",
-				}),
+				date: formatDateUS(t.createdAt, 'month-year'),
 			}));
 		}
 	} catch {

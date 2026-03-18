@@ -26,7 +26,7 @@ import {
   Save,
   Loader2,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import type { Application, Job, ApplicationStatus } from '@prisma/client';
 import { updateApplicationStatus } from './actions';
 
@@ -191,7 +191,7 @@ export function ApplicationDetail({
                 <div>
                   <p className="text-sm text-muted-foreground">Available Start</p>
                   <p className="font-medium">
-                    {format(application.availableStart, 'MMMM d, yyyy')}
+                    {formatDateUS(application.availableStart)}
                   </p>
                 </div>
               </div>
@@ -318,7 +318,7 @@ export function ApplicationDetail({
                 <div>
                   <p className="font-medium">Application Submitted</p>
                   <p className="text-sm text-muted-foreground">
-                    {format(application.submittedAt, 'MMM d, yyyy h:mm a')}
+                    {formatDateUS(application.submittedAt, 'datetime')}
                   </p>
                 </div>
               </div>
@@ -328,7 +328,7 @@ export function ApplicationDetail({
                   <div>
                     <p className="font-medium">Reviewed</p>
                     <p className="text-sm text-muted-foreground">
-                      {format(application.reviewedAt, 'MMM d, yyyy h:mm a')}
+                      {formatDateUS(application.reviewedAt, 'datetime')}
                     </p>
                   </div>
                 </div>

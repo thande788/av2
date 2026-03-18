@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 import { isDemoEnabled } from '@/lib/feature-flags';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import { BookShiftCard } from './book-shift-card';
 
 interface BookingPageProps {
@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: BookingPageProps) {
   }
 
   return {
-    title: `Book Shift - ${format(shift.date, 'MMM d')} | Angel Touch Homecare`,
-    description: `Book a caregiving shift on ${format(shift.date, 'MMMM d, yyyy')} from ${shift.startTime} to ${shift.endTime}.`,
+    title: `Book Shift - ${formatDateUS(shift.date)} | Angel Touch Homecare`,
+    description: `Book a caregiving shift on ${formatDateUS(shift.date)} from ${shift.startTime} to ${shift.endTime}.`,
   };
 }
 
@@ -110,7 +110,7 @@ export default async function BookShiftPage({ params }: BookingPageProps) {
   // Format shift data for the card
   const shiftData = {
     id: shift.id,
-    date: format(shift.date, 'EEEE, MMMM d, yyyy'),
+    date: formatDateUS(shift.date, 'weekday-long'),
     startTime: shift.startTime,
     endTime: shift.endTime,
     duration: shift.duration.toNumber(),

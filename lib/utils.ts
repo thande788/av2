@@ -77,6 +77,60 @@ export function serialize<T>(data: T): Serialized<T> {
 
 /**
  * =============================================================================
+ * DATE FORMATTING UTILITIES
+ * =============================================================================
+ *
+ * All user-facing dates MUST use formatDateUS() to ensure:
+ *  1. American format (MM/DD/YYYY)
+ *  2. UTC timezone (prevents server/client hydration mismatches)
+ *
+ * Do NOT use date-fns format() or toLocaleDateString() for display dates.
+ * Date-fns format() uses local timezone which differs between server and client.
+ * =============================================================================
+ */
+
+type DateStyle =
+  | 'short'          // 3/18/2026
+  | 'medium'         // Mar 18, 2026
+  | 'long'           // March 18, 2026
+  | 'short-no-year'  // 3/18
+  | 'medium-no-year' // Mar 18
+  | 'datetime'       // 3/18/2026, 3:45 PM
+  | 'datetime-long'  // March 18, 2026 at 3:45 PM
+  | 'month-year'     // March 2026
+  | 'weekday-short'  // Tue, 3/18
+  | 'weekday-long'   // Tuesday, March 18
+  | 'iso';           // 2026-03-18 (for data, not display)
+
+const dateFormatOptions: Record<Exclude<DateStyle, 'iso'>, Intl.DateTimeFormatOptions> = {
+  short:           { month: 'numeric', day: 'numeric', year: 'numeric', timeZone: 'UTC' },
+  medium:          { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' },
+  long:            { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' },
+  'short-no-year': { month: 'numeric', day: 'numeric', timeZone: 'UTC' },
+  'medium-no-year':{ month: 'short', day: 'numeric', timeZone: 'UTC' },
+  datetime:        { month: 'numeric', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'UTC' },
+  'datetime-long': { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'UTC' },
+  'month-year':    { month: 'long', year: 'numeric', timeZone: 'UTC' },
+  'weekday-short': { weekday: 'short', month: 'numeric', day: 'numeric', timeZone: 'UTC' },
+  'weekday-long':  { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' },
+};
+
+/**
+ * Format a date in American format using UTC timezone.
+ * Prevents hydration mismatches between server and client.
+ */
+export function formatDateUS(date: Date | string, style: DateStyle = 'short'): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+
+  if (style === 'iso') {
+    return d.toISOString().slice(0, 10);
+  }
+
+  return new Intl.DateTimeFormat('en-US', dateFormatOptions[style]).format(d);
+}
+
+/**
+ * =============================================================================
  * COLOR USAGE GUIDELINES (Theme Awareness)
  * =============================================================================
  * 

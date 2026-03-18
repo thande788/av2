@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { serialize } from '@/lib/utils';
+import { serialize, formatDateUS } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import {
   IconClock,
   IconStarFilled,
 } from '@tabler/icons-react';
-import { format, addDays, isBefore, isToday, isTomorrow } from 'date-fns';
+import { addDays, isBefore, isToday, isTomorrow } from 'date-fns';
 import { getCurrentClient, getCurrentPortalUser } from '@/lib/auth';
 
 export const metadata = {
@@ -252,7 +252,7 @@ export default async function ClientDashboardPage() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="font-medium">
-                            {isToday(shiftDate) ? 'Today' : isTomorrow(shiftDate) ? 'Tomorrow' : format(shiftDate, 'EEE, MMM d')}
+                            {isToday(shiftDate) ? 'Today' : isTomorrow(shiftDate) ? 'Tomorrow' : formatDateUS(shiftDate, 'weekday-short')}
                           </span>
                           {isToday(shiftDate) && (
                             <Badge className="bg-sky-500/15 text-sky-600">Today</Badge>

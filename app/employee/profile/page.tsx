@@ -14,7 +14,7 @@ import {
   IconShieldCheck,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import { getCurrentWorkerWithProfile } from '@/lib/auth';
 import { MarketingProfileForm } from '@/components/employee/marketing-profile-form';
 
@@ -136,7 +136,7 @@ export default async function EmployeeProfilePage() {
                   <p className="text-xs text-muted-foreground">Hire Date</p>
                   <p className="text-sm font-medium">
                     {worker.hireDate
-                      ? format(new Date(worker.hireDate), 'MMMM d, yyyy')
+                      ? formatDateUS(new Date(worker.hireDate))
                       : 'Not set'}
                   </p>
                 </div>
@@ -267,7 +267,7 @@ export default async function EmployeeProfilePage() {
                   </div>
                   {doc.expiresAt && (
                     <p className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                      Exp: {format(new Date(doc.expiresAt), 'MMM d, yyyy')}
+                      Exp: {formatDateUS(new Date(doc.expiresAt))}
                     </p>
                   )}
                 </div>

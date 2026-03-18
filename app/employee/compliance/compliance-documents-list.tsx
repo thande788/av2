@@ -18,7 +18,7 @@ import {
   IconExternalLink,
   IconTrash,
 } from '@tabler/icons-react';
-import { cn } from '@/lib/utils';
+import { cn, formatDateUS } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -164,7 +164,7 @@ export function ComplianceDocumentsList({
                 {doc.issuedDate && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Issued:</span>
-                    <span>{new Date(doc.issuedDate).toLocaleDateString('en-US')}</span>
+                    <span>{formatDateUS(doc.issuedDate)}</span>
                   </div>
                 )}
                 {doc.expiresAt && (
@@ -175,7 +175,7 @@ export function ComplianceDocumentsList({
                         isExpiringSoon && 'font-medium text-orange-600 dark:text-orange-500'
                       )}
                     >
-                      {new Date(doc.expiresAt).toLocaleDateString('en-US')}
+                      {formatDateUS(doc.expiresAt)}
                       {isExpiringSoon && (
                         <IconAlertTriangle className="ml-1 inline size-3" />
                       )}
@@ -184,7 +184,7 @@ export function ComplianceDocumentsList({
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Uploaded:</span>
-                  <span>{new Date(doc.createdAt).toLocaleDateString('en-US')}</span>
+                  <span>{formatDateUS(doc.createdAt)}</span>
                 </div>
               </div>
 

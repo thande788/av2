@@ -19,6 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { checkInToShift, checkOutFromShift } from '@/app/actions/employee-shifts';
 import { cancelShiftBooking } from '@/app/actions/shift-booking';
+import { formatDateUS } from '@/lib/utils';
 
 type BookingWithRelations = Serialized<ShiftBooking & {
   shift: CareShift & {
@@ -84,7 +85,7 @@ export function UpcomingShiftsList({ bookings, showCompleted }: UpcomingShiftsLi
         const shift = booking.shift;
         const client = shift.client;
         
-        const isToday = new Date(shift.date).toDateString() === new Date().toDateString();
+        const isToday = formatDateUS(shift.date, 'iso') === formatDateUS(new Date(), 'iso');
         const canCheckIn = booking.status === 'CONFIRMED' && isToday && !booking.checkedInAt;
         const canCheckOut = booking.checkedInAt && !booking.checkedOutAt;
         const isCompleted = booking.status === 'COMPLETED' || !!booking.checkedOutAt;
@@ -117,11 +118,7 @@ export function UpcomingShiftsList({ bookings, showCompleted }: UpcomingShiftsLi
 
                   {/* Date & Time */}
                   <h3 className="text-lg font-semibold">
-                    {new Date(shift.date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {formatDateUS(shift.date, 'weekday-long')}
                   </h3>
 
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">

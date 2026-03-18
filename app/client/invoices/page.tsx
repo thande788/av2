@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { serialize } from '@/lib/utils';
+import { serialize, formatDateUS } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,6 @@ import {
   IconDownload,
   IconCheck,
 } from '@tabler/icons-react';
-import { format } from 'date-fns';
 
 export const metadata = {
   title: 'Invoices | Family Portal',
@@ -133,7 +132,7 @@ export default async function InvoicesPage() {
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Due: {format(new Date(invoice.dueDate), 'MMM d, yyyy')}
+                    Due: {formatDateUS(new Date(invoice.dueDate))}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -177,7 +176,7 @@ export default async function InvoicesPage() {
                     <div>
                       <p className="font-medium">Invoice #{invoice.invoiceNumber}</p>
                       <p className="text-sm text-muted-foreground">
-                        {format(new Date(invoice.periodStart), 'MMM d')} - {format(new Date(invoice.periodEnd), 'MMM d, yyyy')}
+                        {formatDateUS(new Date(invoice.periodStart), 'medium-no-year')} - {formatDateUS(new Date(invoice.periodEnd))}
                       </p>
                     </div>
                   </div>

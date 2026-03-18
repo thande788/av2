@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { IconStarFilled } from '@tabler/icons-react';
-import { cn } from '@/lib/utils';
+import { cn, formatDateUS } from '@/lib/utils';
 
 interface Review {
   id: string;
@@ -77,7 +77,7 @@ export function ReviewList({ reviews }: ReviewListProps) {
                 />
               ))}
               <span className="ml-2 text-xs text-muted-foreground">
-                {new Date(review.shift.date).toLocaleDateString('en-US')} • {review.shift.startTime} - {review.shift.endTime}
+                {formatDateUS(review.shift.date)} • {review.shift.startTime} - {review.shift.endTime}
               </span>
             </div>
 

@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { serialize } from '@/lib/utils';
+import { serialize, formatDateUS } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -8,7 +8,7 @@ import {
   IconCalendarWeek,
   IconUser,
 } from '@tabler/icons-react';
-import { format, isToday, isTomorrow, startOfWeek, endOfWeek, addWeeks } from 'date-fns';
+import { isToday, isTomorrow, startOfWeek, endOfWeek, addWeeks } from 'date-fns';
 
 export const metadata = {
   title: 'Schedule | Family Portal',
@@ -68,7 +68,7 @@ export default async function ClientSchedulePage() {
   // Group shifts by week
   const shiftsByWeek = shifts.reduce((acc, shift) => {
     const weekStart = startOfWeek(new Date(shift.date), { weekStartsOn: 1 });
-    const weekKey = format(weekStart, 'yyyy-MM-dd');
+    const weekKey = formatDateUS(weekStart, 'iso');
     if (!acc[weekKey]) {
       acc[weekKey] = [];
     }
@@ -101,13 +101,13 @@ export default async function ClientSchedulePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <IconCalendarWeek className="size-5" />
-                  Week of {format(weekStart, 'MMMM d')}
+                  Week of {formatDateUS(weekStart, 'medium-no-year')}
                   {isCurrentWeek && (
                     <Badge className="bg-sky-500/15 text-sky-600">This Week</Badge>
                   )}
                 </CardTitle>
                 <CardDescription>
-                  {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
+                  {formatDateUS(weekStart, 'medium-no-year')} - {formatDateUS(weekEnd)}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -123,7 +123,7 @@ export default async function ClientSchedulePage() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-3">
                           <span className="font-medium">
-                            {isToday(shiftDate) ? 'Today' : isTomorrow(shiftDate) ? 'Tomorrow' : format(shiftDate, 'EEEE, MMM d')}
+                            {isToday(shiftDate) ? 'Today' : isTomorrow(shiftDate) ? 'Tomorrow' : formatDateUS(shiftDate, 'weekday-long')}
                           </span>
                           <Badge className={statusColors[shift.status]}>
                             {shift.status === 'OPEN' ? 'Pending Assignment' : shift.status}

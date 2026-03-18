@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { serialize } from '@/lib/utils';
+import { serialize, formatDateUS } from '@/lib/utils';
 import { getCurrentWorkerWithTimesheets } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +15,7 @@ import {
   IconPlus,
   IconEdit,
 } from '@tabler/icons-react';
-import { format, startOfWeek, endOfWeek } from 'date-fns';
+import { startOfWeek, endOfWeek } from 'date-fns';
 import Link from 'next/link';
 
 export const metadata = {
@@ -116,16 +116,16 @@ export default async function EmployeeTimesheetsPage() {
             Current Week
           </CardTitle>
           <CardDescription>
-            {format(thisWeekStart, 'MMM d')} -{' '}
-            {format(endOfWeek(thisWeekStart, { weekStartsOn: 1 }), 'MMM d, yyyy')}
+            {formatDateUS(thisWeekStart, 'medium-no-year')} -{' '}
+            {formatDateUS(endOfWeek(thisWeekStart, { weekStartsOn: 1 }))}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {(() => {
             const currentTimesheet = timesheets.find(
               (t) =>
-                format(new Date(t.weekStarting), 'yyyy-MM-dd') ===
-                format(thisWeekStart, 'yyyy-MM-dd')
+                formatDateUS(new Date(t.weekStarting), 'iso') ===
+                formatDateUS(thisWeekStart, 'iso')
             );
 
             if (currentTimesheet) {
@@ -251,7 +251,7 @@ function TimesheetCard({ timesheet }: TimesheetCardProps) {
       <div className="space-y-1">
         <div className="flex items-center gap-3">
           <span className="font-medium">
-            {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
+            {formatDateUS(weekStart, 'medium-no-year')} - {formatDateUS(weekEnd)}
           </span>
           <Badge className={statusColors[timesheet.status]}>
             {statusLabels[timesheet.status]}
@@ -278,7 +278,7 @@ function TimesheetCard({ timesheet }: TimesheetCardProps) {
         {timesheet.status === 'APPROVED' && timesheet.approvedAt && (
           <div className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
             <IconCheck className="size-3.5" />
-            Approved on {format(new Date(timesheet.approvedAt), 'MMM d, yyyy')}
+            Approved on {formatDateUS(new Date(timesheet.approvedAt))}
           </div>
         )}
       </div>

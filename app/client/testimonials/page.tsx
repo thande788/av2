@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { IconPencil, IconStarFilled, IconCheck, IconClock } from '@tabler/icons-react';
 import { getCurrentPortalUser } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { cn } from '@/lib/utils';
+import { cn, formatDateUS } from '@/lib/utils';
 import { TestimonialForm } from '@/components/client/testimonial-form';
 
 export const metadata = {
@@ -105,11 +105,7 @@ export default async function ClientTestimonialsPage() {
                       &ldquo;{t.content}&rdquo;
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Submitted {new Date(t.createdAt).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
+                      Submitted {formatDateUS(t.createdAt)}
                     </p>
                   </div>
                 </div>

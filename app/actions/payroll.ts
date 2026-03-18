@@ -1,7 +1,8 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { startOfWeek, endOfWeek, format, parseISO } from 'date-fns';
+import { startOfWeek, endOfWeek, parseISO } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 
 // =============================================================================
 // TYPES
@@ -123,8 +124,8 @@ export async function calculatePayroll(
 
     // Calculate summary totals
     const summary: PayrollSummary = {
-      periodStart: format(startDate, 'yyyy-MM-dd'),
-      periodEnd: format(endDate, 'yyyy-MM-dd'),
+      periodStart: formatDateUS(startDate, 'iso'),
+      periodEnd: formatDateUS(endDate, 'iso'),
       totalWorkers: entries.length,
       totalRegularHours: entries.reduce((sum, e) => sum + e.regularHours, 0),
       totalOvertimeHours: entries.reduce((sum, e) => sum + e.overtimeHours, 0),

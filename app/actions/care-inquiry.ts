@@ -14,6 +14,7 @@ import {
   formatInquiryForAdmin,
 } from "@/lib/email";
 import { headers } from "next/headers";
+import { formatDateUS } from '@/lib/utils';
 import { z } from "zod";
 
 export type CareInquiryFormState = {
@@ -124,7 +125,7 @@ export async function submitCareInquiry(
         phone: result.data.phone,
         serviceType: result.data.serviceType,
         hoursPerWeek: result.data.hoursNeeded?.toString() ?? null,
-        startTimeline: result.data.startDate?.toLocaleDateString() ?? null,
+        startTimeline: result.data.startDate ? formatDateUS(result.data.startDate) : null,
         message: result.data.message ?? null,
       })
     ).catch((err) => console.error("Failed to send admin notification:", err));

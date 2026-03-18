@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import type { Testimonial } from '@prisma/client';
 import { togglePublishStatus, deleteTestimonial } from './actions';
 import { MoreHorizontal, Edit, Trash2, Eye, EyeOff, Star, UserCircle, ShieldCheck } from 'lucide-react';
@@ -121,7 +121,7 @@ export function TestimonialsTable({
       header: 'Created',
       sortable: true,
       hideOnMobile: true,
-      render: (t) => format(t.createdAt, 'MMM d, yyyy'),
+      render: (t) => formatDateUS(t.createdAt),
     },
     {
       key: 'actions',

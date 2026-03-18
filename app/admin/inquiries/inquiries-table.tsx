@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import type { ServiceInquiry, InquiryStatus } from '@prisma/client';
 import { updateInquiryStatus } from './actions';
 import { Mail, Phone, Calendar, Clock, Save, Loader2 } from 'lucide-react';
@@ -85,7 +85,7 @@ const columns: Column<ServiceInquiry>[] = [
     key: 'submittedAt',
     header: 'Date',
     sortable: true,
-    render: (inquiry) => format(inquiry.submittedAt, 'MMM d, yyyy'),
+    render: (inquiry) => formatDateUS(inquiry.submittedAt),
   },
   {
     key: 'status',
@@ -154,7 +154,7 @@ export function InquiriesTable({ inquiries }: { inquiries: ServiceInquiry[] }) {
                 <div>
                   <p className="text-sm text-muted-foreground">Date</p>
                   <p className="font-medium">
-                    {format(selectedInquiry.submittedAt, 'MMMM d, yyyy h:mm a')}
+                    {formatDateUS(selectedInquiry.submittedAt, 'datetime')}
                   </p>
                 </div>
               </div>
@@ -198,7 +198,7 @@ export function InquiriesTable({ inquiries }: { inquiries: ServiceInquiry[] }) {
                     <div>
                       <p className="text-sm text-muted-foreground">Desired Start</p>
                       <p className="font-medium">
-                        {format(selectedInquiry.startDate, 'MMMM d, yyyy')}
+                        {formatDateUS(selectedInquiry.startDate)}
                       </p>
                     </div>
                   </div>

@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatSalaryRange, formatJobType, formatDepartment } from "@/data/jobs";
+import { formatDateUS } from '@/lib/utils';
 import type { JobListingProps } from "@/types/job";
 
 /**
@@ -81,11 +82,7 @@ export function JobListing({ job }: JobListingProps) {
           <div className="flex items-center gap-2">
             <IconCalendarEvent className="h-5 w-5" aria-hidden="true" />
             <span>
-              Posted {new Date(job.postedAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
+              Posted {formatDateUS(job.postedAt)}
             </span>
           </div>
         </div>

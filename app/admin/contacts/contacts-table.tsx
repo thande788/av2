@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import type { ContactSubmission } from '@prisma/client';
 import { markContactAsRead } from './actions';
 import { Mail, Phone, Check, Eye } from 'lucide-react';
@@ -54,7 +54,7 @@ const columns: Column<ContactSubmission>[] = [
     key: 'submittedAt',
     header: 'Date',
     sortable: true,
-    render: (contact) => format(contact.submittedAt, 'MMM d, yyyy'),
+    render: (contact) => formatDateUS(contact.submittedAt),
   },
   {
     key: 'isRead',
@@ -105,7 +105,7 @@ export function ContactsTable({ contacts }: { contacts: ContactSubmission[] }) {
                 <div>
                   <p className="text-sm text-muted-foreground">Date</p>
                   <p className="font-medium">
-                    {format(selectedContact.submittedAt, 'MMMM d, yyyy h:mm a')}
+                    {formatDateUS(selectedContact.submittedAt, 'datetime')}
                   </p>
                 </div>
               </div>

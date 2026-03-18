@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { notFound, redirect } from 'next/navigation';
-import { format } from 'date-fns';
+import { formatDateUS } from '@/lib/utils';
 import { getClerkUserId } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -73,7 +73,7 @@ export default async function TimesheetDetailPage({ params }: TimesheetDetailPag
 
   // Group entries by day
   const entriesByDay = timesheet.entries.reduce((acc, entry) => {
-    const dayKey = format(entry.date, 'yyyy-MM-dd');
+    const dayKey = formatDateUS(entry.date, 'iso');
     if (!acc[dayKey]) {
       acc[dayKey] = [];
     }
@@ -92,7 +92,7 @@ export default async function TimesheetDetailPage({ params }: TimesheetDetailPag
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-foreground">Timesheet Details</h1>
           <p className="text-muted-foreground">
-            Week of {format(timesheet.weekStarting, 'MMMM d')} - {format(timesheet.weekEnding, 'MMMM d, yyyy')}
+            Week of {formatDateUS(timesheet.weekStarting, 'medium-no-year')} - {formatDateUS(timesheet.weekEnding)}
           </p>
         </div>
         <Badge className={statusColors[timesheet.status]}>
@@ -133,7 +133,7 @@ export default async function TimesheetDetailPage({ params }: TimesheetDetailPag
           {timesheet.status === 'APPROVED' && timesheet.approvedAt && (
             <div className="mt-4 flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-400">
               <IconCheck className="size-4" />
-              Approved on {format(timesheet.approvedAt, 'MMMM d, yyyy')}
+              Approved on {formatDateUS(timesheet.approvedAt)}
             </div>
           )}
 
@@ -146,7 +146,7 @@ export default async function TimesheetDetailPage({ params }: TimesheetDetailPag
 
           {timesheet.submittedAt && (
             <p className="mt-4 text-sm text-muted-foreground">
-              Submitted on {format(timesheet.submittedAt, 'MMMM d, yyyy \'at\' h:mm a')}
+              Submitted on {formatDateUS(timesheet.submittedAt, 'datetime')}
             </p>
           )}
         </CardContent>
@@ -160,7 +160,7 @@ export default async function TimesheetDetailPage({ params }: TimesheetDetailPag
           <Card key={dayKey}>
             <CardHeader className="py-3">
               <CardTitle className="text-base font-medium">
-                {format(new Date(dayKey), 'EEEE, MMMM d')}
+                {formatDateUS(new Date(dayKey), 'weekday-long')}
               </CardTitle>
               <CardDescription>
                 {dayEntries.reduce((sum, e) => sum + Number(e.hoursWorked), 0).toFixed(1)} hours

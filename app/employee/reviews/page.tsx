@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { IconStarFilled, IconMessageCircle, IconTrendingUp } from '@tabler/icons-react';
-import { cn } from '@/lib/utils';
+import { cn, formatDateUS } from '@/lib/utils';
 import { getCurrentWorkerWithBookings } from '@/lib/auth';
 import { serialize } from '@/lib/utils';
 import { db } from '@/lib/db';
@@ -156,10 +156,7 @@ export default async function EmployeeReviewsPage() {
                           {review.reviewerType === 'CLIENT' ? 'Client Feedback' : 'Supervisor Feedback'}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(review.shift.date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            year: 'numeric',
-                          })}
+                          {formatDateUS(review.shift.date, 'month-year')}
                         </span>
                       </div>
                     </div>
