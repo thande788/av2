@@ -74,6 +74,12 @@ const isEmployeeRoute = createRouteMatcher(['/employee(.*)']);
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
   const { pathname } = req.nextUrl;
+  const hostname = req.headers.get('host') || '';
+
+  // Subdomain routing: app.angeltouch.services root → /portals
+  if (hostname.startsWith('app.') && pathname === '/') {
+    return NextResponse.rewrite(new URL('/portals', req.url));
+  }
 
   // Gate demo routes - redirect to home if demo mode is disabled
   if (isDemoGatedRoute(pathname) && !isDemoEnabled()) {

@@ -13,7 +13,6 @@ import {
   Briefcase,
   ChevronLeft,
   Menu,
-  ExternalLink,
   Users,
   UserCheck,
   Calendar,
@@ -165,20 +164,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 mt-auto space-y-1.5">
-        <Link
-          href="/"
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-            'hover:bg-primary/10 text-muted-foreground hover:text-foreground',
-            collapsed && 'justify-center px-2'
-          )}
-          title={collapsed ? 'Back to Site' : undefined}
-        >
-          <ExternalLink className="size-5 shrink-0" />
-          {!collapsed && <span>Back to Site</span>}
-        </Link>
-        
+      <div className="p-3 mt-auto">
         <SignOutButton>
           <button
             className={cn(

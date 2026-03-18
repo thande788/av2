@@ -11,7 +11,6 @@ import {
   Settings,
   ChevronLeft,
   Menu,
-  ExternalLink,
   LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -114,18 +113,7 @@ export function ClientSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-sky-500/20 p-3 space-y-1.5">
-        <Link
-          href="/"
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-            'text-muted-foreground hover:bg-sky-500/10 hover:text-foreground',
-            collapsed && 'justify-center px-2'
-          )}
-        >
-          <ExternalLink className="size-5 shrink-0" />
-          {!collapsed && <span>Main Website</span>}
-        </Link>
+      <div className="border-t border-sky-500/20 p-3">
         <SignOutButton>
           <button
             className={cn(
