@@ -6,11 +6,12 @@ import {
   IconClock,
   IconCurrencyDollar,
   IconAlertCircle,
+  IconShield,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { EmployeeStatCard } from '@/components/employee/stat-card';
-import { getCurrentWorkerWithBookings } from '@/lib/auth';
+import { getCurrentWorkerWithBookings, getCurrentPortalUser } from '@/lib/auth';
 
 export const metadata = {
   title: 'Dashboard',
@@ -18,11 +19,59 @@ export const metadata = {
 };
 
 export default async function EmployeeDashboardPage() {
+  // Get the current portal user first to check their role
+  const portalUser = await getCurrentPortalUser();
+  
   // Get the current authenticated worker
   const worker = await getCurrentWorkerWithBookings();
 
   if (!worker) {
-    // No worker record found - redirect to complete profile
+    // Check if user is an admin/manager viewing the portal
+    if (portalUser?.role === 'ADMIN' || portalUser?.role === 'MANAGER') {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              Employee Portal Preview
+            </h1>
+            <p className="text-muted-foreground">
+              You&apos;re viewing the employee portal as an administrator
+            </p>
+          </div>
+
+          <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30">
+            <CardContent className="flex items-center gap-4 py-6">
+              <div className="rounded-full bg-blue-100 p-3 dark:bg-blue-900">
+                <IconShield className="size-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+                  Admin View Mode
+                </h3>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  You don&apos;t have a worker profile. As an {portalUser.role.toLowerCase()}, 
+                  you can view this portal but the dashboard requires worker data.
+                </p>
+                <div className="mt-3 flex gap-2">
+                  <Link href="/admin/workers">
+                    <Button size="sm" variant="outline">
+                      Manage Workers
+                    </Button>
+                  </Link>
+                  <Link href="/admin">
+                    <Button size="sm">
+                      Go to Admin Portal
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    // No worker record and not admin - redirect to complete profile
     redirect('/employee/complete-profile');
   }
 

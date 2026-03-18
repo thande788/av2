@@ -18,6 +18,32 @@ export async function getClerkUserId() {
 }
 
 /**
+ * Get the current portal user (regardless of role)
+ * Returns the PortalUser record if found, null otherwise
+ */
+export async function getCurrentPortalUser() {
+  const clerkId = await getClerkUserId();
+  
+  if (!clerkId) {
+    return null;
+  }
+
+  const portalUser = await db.portalUser.findUnique({
+    where: { clerkId },
+  });
+
+  return portalUser;
+}
+
+/**
+ * Check if current user is an admin or manager
+ */
+export async function isAdminOrManager() {
+  const portalUser = await getCurrentPortalUser();
+  return portalUser?.role === 'ADMIN' || portalUser?.role === 'MANAGER';
+}
+
+/**
  * Get the current authenticated worker with their user data
  * Returns null if user is not a worker or not found
  */
