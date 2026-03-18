@@ -7,19 +7,18 @@ interface LogoWatermarkProps {
 
 /**
  * A subtle logo watermark for portal backgrounds
- * Positioned in the bottom-right corner with low opacity
- * Uses CSS overflow clipping to remove whitespace from the source image
+ * Positioned as a background element behind all content
  */
 export function LogoWatermark({ className }: LogoWatermarkProps) {
   return (
     <div
       className={cn(
-        'pointer-events-none fixed bottom-8 right-8 z-0 select-none opacity-[0.03] dark:opacity-[0.02]',
+        'pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden select-none',
         className
       )}
       aria-hidden="true"
     >
-      <div className="size-64 overflow-hidden sm:size-80 lg:size-96">
+      <div className="size-[500px] overflow-hidden opacity-[0.05] dark:opacity-[0.03] lg:size-[600px]">
         <Image
           src="/angel_pink.png"
           alt=""
