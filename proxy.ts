@@ -5,9 +5,13 @@
  *
  * This proxy:
  * 1. Redirects authenticated users away from auth pages to their dashboard
- * 2. Protects /admin and /employee routes, requiring authentication
- * 3. Enforces role-based access (admin/manager for /admin routes)
- * 4. Gates demo routes behind NEXT_PUBLIC_DEMO_MODE env var
+ * 2. Protects portal routes with role-based access control
+ * 3. Gates demo routes behind NEXT_PUBLIC_DEMO_MODE env var
+ *
+ * Role-based access:
+ * - /admin: admin, manager only
+ * - /employee: admin, manager, caregiver only (clients blocked)
+ * - /client: admin, manager, client only (caregivers blocked)
  *
  * @see {@link https://clerk.com/docs/nextjs/middleware Clerk Next.js middleware docs}
  */
@@ -70,6 +74,24 @@ const isAuthRoute = createRouteMatcher([
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 const isEmployeeRoute = createRouteMatcher(['/employee(.*)']);
+const isClientRoute = createRouteMatcher(['/client(.*)']);
+
+/**
+ * Role-based access control helpers
+ */
+const canAccessAdmin = (role?: string) => role === 'admin' || role === 'manager';
+const canAccessEmployee = (role?: string) => role === 'admin' || role === 'manager' || role === 'caregiver';
+const canAccessClient = (role?: string) => role === 'admin' || role === 'manager' || role === 'client';
+
+/**
+ * Get default redirect URL based on role
+ */
+function getDefaultPortalUrl(role?: string): string {
+  if (role === 'admin' || role === 'manager') return '/admin';
+  if (role === 'caregiver') return '/employee';
+  if (role === 'client') return '/client';
+  return '/portals'; // Fallback to portal selection
+}
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
@@ -93,16 +115,8 @@ export default clerkMiddleware(async (auth, req) => {
 
   // If user is signed in and tries to access auth routes, redirect to dashboard
   if (userId && isAuthRoute(req)) {
-    // Get role from Clerk metadata
     const role = await getUserRole(userId, sessionClaims as { metadata?: { role?: string } } | null);
-    
-    // Redirect based on role
-    let redirectUrl = '/employee'; // Default for caregivers
-    if (role === 'admin' || role === 'manager') {
-      redirectUrl = '/admin';
-    }
-    
-    return NextResponse.redirect(new URL(redirectUrl, req.url));
+    return NextResponse.redirect(new URL(getDefaultPortalUrl(role), req.url));
   }
 
   // Auth routes are public for non-authenticated users
@@ -110,28 +124,38 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next();
   }
 
-  // Protect admin routes - require authentication and admin/manager role
-  if (isAdminRoute(req)) {
+  // Get role for protected routes (only fetch once)
+  let role: string | undefined;
+  if (isAdminRoute(req) || isEmployeeRoute(req) || isClientRoute(req)) {
     if (!userId) {
       const signInUrl = new URL('/sign-in', req.url);
       signInUrl.searchParams.set('redirect_url', pathname);
       return NextResponse.redirect(signInUrl);
     }
-    
-    // Check for admin/manager role
-    const role = await getUserRole(userId, sessionClaims as { metadata?: { role?: string } } | null);
-    if (role !== 'admin' && role !== 'manager') {
-      // Not authorized - redirect to employee portal or home
-      return NextResponse.redirect(new URL('/employee', req.url));
+    role = await getUserRole(userId, sessionClaims as { metadata?: { role?: string } } | null);
+  }
+
+  // Protect admin routes - admin/manager only
+  if (isAdminRoute(req)) {
+    if (!canAccessAdmin(role)) {
+      // Redirect to their appropriate portal
+      return NextResponse.redirect(new URL(getDefaultPortalUrl(role), req.url));
     }
   }
 
-  // Protect employee routes - require authentication
+  // Protect employee routes - admin/manager/caregiver only (clients blocked)
   if (isEmployeeRoute(req)) {
-    if (!userId) {
-      const signInUrl = new URL('/sign-in', req.url);
-      signInUrl.searchParams.set('redirect_url', pathname);
-      return NextResponse.redirect(signInUrl);
+    if (!canAccessEmployee(role)) {
+      // Clients trying to access employee portal → redirect to client portal
+      return NextResponse.redirect(new URL('/client', req.url));
+    }
+  }
+
+  // Protect client routes - admin/manager/client only (caregivers blocked)
+  if (isClientRoute(req)) {
+    if (!canAccessClient(role)) {
+      // Caregivers trying to access client portal → redirect to employee portal
+      return NextResponse.redirect(new URL('/employee', req.url));
     }
   }
 

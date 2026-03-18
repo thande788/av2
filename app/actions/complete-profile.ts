@@ -238,6 +238,7 @@ export async function checkWorkerProfileStatus(): Promise<{
   hasAccount: boolean;
   hasWorkerProfile: boolean;
   portalUserId?: string;
+  error?: string;
 }> {
   const { userId: clerkUserId } = await auth();
 
@@ -245,44 +246,67 @@ export async function checkWorkerProfileStatus(): Promise<{
     return { hasAccount: false, hasWorkerProfile: false };
   }
 
-  // First try to find existing PortalUser
-  let portalUser = await db.portalUser.findUnique({
-    where: { clerkId: clerkUserId },
-    include: { worker: true },
-  });
+  try {
+    // First try to find existing PortalUser
+    let portalUser = await db.portalUser.findUnique({
+      where: { clerkId: clerkUserId },
+      include: { worker: true },
+    });
 
-  // If no PortalUser exists, create one on-demand
-  // This handles cases where the Clerk webhook hasn't fired (local dev, etc.)
-  if (!portalUser) {
-    // Import currentUser to get user details
-    const { currentUser } = await import('@clerk/nextjs/server');
-    const user = await currentUser();
-    
-    if (user) {
-      const primaryEmail = user.emailAddresses.find(
-        e => e.id === user.primaryEmailAddressId
-      )?.emailAddress || user.emailAddresses[0]?.emailAddress;
+    // If no PortalUser exists, create one on-demand
+    // This handles cases where the Clerk webhook hasn't fired (local dev, etc.)
+    if (!portalUser) {
+      // Import currentUser to get user details
+      const { currentUser } = await import('@clerk/nextjs/server');
+      const user = await currentUser();
+      
+      if (user) {
+        const primaryEmail = user.emailAddresses.find(
+          e => e.id === user.primaryEmailAddressId
+        )?.emailAddress || user.emailAddresses[0]?.emailAddress;
 
-      if (primaryEmail) {
-        const created = await db.portalUser.create({
-          data: {
-            clerkId: clerkUserId,
-            email: primaryEmail,
-            firstName: user.firstName || 'New',
-            lastName: user.lastName || 'User',
-            role: 'CAREGIVER', // Default role for self-signup
-            status: 'ACTIVE',
-          },
-          include: { worker: true },
-        });
-        portalUser = created;
+        if (primaryEmail) {
+          // Check if email is already taken (unique constraint)
+          const existingByEmail = await db.portalUser.findUnique({
+            where: { email: primaryEmail },
+          });
+
+          if (existingByEmail) {
+            // Email exists but with different clerkId - link them
+            portalUser = await db.portalUser.update({
+              where: { email: primaryEmail },
+              data: { clerkId: clerkUserId },
+              include: { worker: true },
+            });
+          } else {
+            // Create new PortalUser
+            portalUser = await db.portalUser.create({
+              data: {
+                clerkId: clerkUserId,
+                email: primaryEmail,
+                firstName: user.firstName || 'New',
+                lastName: user.lastName || 'User',
+                role: 'CAREGIVER', // Default role for self-signup
+                status: 'ACTIVE',
+              },
+              include: { worker: true },
+            });
+          }
+        }
       }
     }
-  }
 
-  return {
-    hasAccount: !!portalUser,
-    hasWorkerProfile: !!portalUser?.worker,
-    portalUserId: portalUser?.id,
-  };
+    return {
+      hasAccount: !!portalUser,
+      hasWorkerProfile: !!portalUser?.worker,
+      portalUserId: portalUser?.id,
+    };
+  } catch (error) {
+    console.error('Error checking worker profile status:', error);
+    return {
+      hasAccount: false,
+      hasWorkerProfile: false,
+      error: error instanceof Error ? error.message : 'Database error',
+    };
+  }
 }
