@@ -164,7 +164,7 @@ export function ComplianceDocumentsList({
                 {doc.issuedDate && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Issued:</span>
-                    <span>{new Date(doc.issuedDate).toLocaleDateString()}</span>
+                    <span>{new Date(doc.issuedDate).toLocaleDateString('en-US')}</span>
                   </div>
                 )}
                 {doc.expiresAt && (
@@ -175,7 +175,7 @@ export function ComplianceDocumentsList({
                         isExpiringSoon && 'font-medium text-orange-600 dark:text-orange-500'
                       )}
                     >
-                      {new Date(doc.expiresAt).toLocaleDateString()}
+                      {new Date(doc.expiresAt).toLocaleDateString('en-US')}
                       {isExpiringSoon && (
                         <IconAlertTriangle className="ml-1 inline size-3" />
                       )}
@@ -184,7 +184,7 @@ export function ComplianceDocumentsList({
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Uploaded:</span>
-                  <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
+                  <span>{new Date(doc.createdAt).toLocaleDateString('en-US')}</span>
                 </div>
               </div>
 

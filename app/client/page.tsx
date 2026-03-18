@@ -10,8 +10,10 @@ import {
   IconFileInvoice,
   IconAlertCircle,
   IconClock,
+  IconStarFilled,
 } from '@tabler/icons-react';
 import { format, addDays, isBefore, isToday, isTomorrow } from 'date-fns';
+import { getCurrentClient, getCurrentPortalUser } from '@/lib/auth';
 
 export const metadata = {
   title: 'Family Portal | Dashboard',
@@ -19,14 +21,21 @@ export const metadata = {
 };
 
 export default async function ClientDashboardPage() {
-  // In real app, get client ID from auth session
-  // For demo, we'll use the first active client
-  const demoClient = await db.client.findFirst({
-    where: {
-      user: {
-        status: 'ACTIVE',
-      },
-    },
+  // Get authenticated client or fall back to first active for demo
+  let clientRecord = await getCurrentClient();
+  
+  if (!clientRecord) {
+    // Fallback for demo: use first active client
+    clientRecord = await db.client.findFirst({
+      where: { user: { status: 'ACTIVE' } },
+      include: { user: true },
+    });
+  }
+
+  const portalUser = await getCurrentPortalUser();
+
+  const demoClient = clientRecord ? await db.client.findUnique({
+    where: { id: clientRecord.id },
     include: {
       user: true,
       careShifts: {
@@ -67,7 +76,24 @@ export default async function ClientDashboardPage() {
         take: 3,
       },
     },
-  });
+  }) : null;
+
+  // Count completed shifts awaiting review
+  const pendingReviewCount = clientRecord && portalUser ? await db.careShift.count({
+    where: {
+      clientId: clientRecord.id,
+      status: 'COMPLETED',
+      reviews: {
+        none: {
+          reviewerType: 'CLIENT',
+          reviewerId: portalUser.id,
+        },
+      },
+      bookings: {
+        some: { status: 'COMPLETED' },
+      },
+    },
+  }) : 0;
 
   if (!demoClient) {
     return (
@@ -165,6 +191,28 @@ export default async function ClientDashboardPage() {
           <p className="mt-1 text-sm text-amber-700 dark:text-amber-500">
             We&apos;re working to assign a caregiver. You&apos;ll be notified once confirmed.
           </p>
+        </div>
+      )}
+
+      {/* Pending Reviews Nudge */}
+      {pendingReviewCount > 0 && (
+        <div className="rounded-lg border border-sky-200 bg-sky-50 p-4 dark:border-sky-900 dark:bg-sky-950">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <IconStarFilled className="size-5 text-amber-400" />
+              <div>
+                <p className="font-medium text-sky-800 dark:text-sky-400">
+                  {pendingReviewCount} completed visit{pendingReviewCount > 1 ? 's' : ''} awaiting your review
+                </p>
+                <p className="mt-0.5 text-sm text-sky-700 dark:text-sky-500">
+                  Your feedback helps us improve care quality.
+                </p>
+              </div>
+            </div>
+            <Button size="sm" variant="outline" asChild>
+              <Link href="/client/reviews">Leave a Review</Link>
+            </Button>
+          </div>
         </div>
       )}
 

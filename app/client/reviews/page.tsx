@@ -97,7 +97,7 @@ export default async function ClientReviewsPage() {
                     <ShiftReviewForm
                       shiftId={shift.id}
                       caregiverName={`${booking.worker.user.firstName} ${booking.worker.user.lastName}`}
-                      shiftDate={`${new Date(shift.date).toLocaleDateString()} • ${shift.startTime} - ${shift.endTime}`}
+                      shiftDate={`${new Date(shift.date).toLocaleDateString('en-US')} • ${shift.startTime} - ${shift.endTime}`}
                     />
                   </div>
                 );

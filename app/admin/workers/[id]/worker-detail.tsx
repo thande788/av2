@@ -404,7 +404,7 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
               <div className="flex items-center gap-3 text-sm">
                 <IconCalendar className="size-4 text-muted-foreground" />
                 <span className="text-foreground">
-                  Hired: {new Date(worker.hireDate).toLocaleDateString()}
+                  Hired: {new Date(worker.hireDate).toLocaleDateString('en-US')}
                 </span>
               </div>
             )}
@@ -419,7 +419,7 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
             <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground">Created:</span>
               <span className="text-foreground">
-                {new Date(worker.user.createdAt).toLocaleDateString()}
+                {new Date(worker.user.createdAt).toLocaleDateString('en-US')}
               </span>
             </div>
           </CardContent>
@@ -630,7 +630,7 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
                   <div>
                     <p className="font-medium text-foreground">{doc.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      Expires: {doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString() : 'N/A'}
+                      Expires: {doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString('en-US') : 'N/A'}
                     </p>
                   </div>
                   <Badge
@@ -702,7 +702,7 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
                       {booking.shift.client.user.firstName} {booking.shift.client.user.lastName}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(booking.shift.date).toLocaleDateString()} •{' '}
+                      {new Date(booking.shift.date).toLocaleDateString('en-US')} •{' '}
                       {booking.shift.startTime} - {booking.shift.endTime}
                     </p>
                   </div>

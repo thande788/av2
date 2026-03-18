@@ -14,6 +14,7 @@ import {
   Menu,
   LogOut,
   FileCheck,
+  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -46,6 +47,11 @@ const navItems: NavItem[] = [
     title: 'Compliance',
     href: '/employee/compliance',
     icon: FileCheck,
+  },
+  {
+    title: 'My Reviews',
+    href: '/employee/reviews',
+    icon: Star,
   },
   {
     title: 'Profile',

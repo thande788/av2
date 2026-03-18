@@ -177,7 +177,7 @@ export function ClientDetail({ client }: ClientDetailProps) {
                   <div>
                     <p className="text-sm text-muted-foreground">Date of Birth</p>
                     <p className="font-medium">
-                      {new Date(client.careRecipientDOB).toLocaleDateString()}
+                      {new Date(client.careRecipientDOB).toLocaleDateString('en-US')}
                     </p>
                   </div>
                 )}

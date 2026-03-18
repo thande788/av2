@@ -77,7 +77,7 @@ export function ReviewList({ reviews }: ReviewListProps) {
                 />
               ))}
               <span className="ml-2 text-xs text-muted-foreground">
-                {new Date(review.shift.date).toLocaleDateString()} • {review.shift.startTime} - {review.shift.endTime}
+                {new Date(review.shift.date).toLocaleDateString('en-US')} • {review.shift.startTime} - {review.shift.endTime}
               </span>
             </div>
 

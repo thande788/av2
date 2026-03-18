@@ -183,7 +183,7 @@ export function ComplianceReviewQueue({
                       </Link>
                       <span className="flex items-center gap-1">
                         <IconClock className="size-4" />
-                        {new Date(doc.createdAt).toLocaleDateString()}
+                        {new Date(doc.createdAt).toLocaleDateString('en-US')}
                       </span>
                     </div>
                     {showExpiry && doc.expiresAt && (
