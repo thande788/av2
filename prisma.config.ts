@@ -8,7 +8,11 @@ config({ path: ".env.local" });
 export default defineConfig({
   schema: path.join(__dirname, "prisma", "schema.prisma"),
 
-  datasource: {
-    url: process.env.DATABASE_URL!,
+  migrate: {
+    adapter: async () => {
+      // Use DIRECT_URL for migrations (non-pooled connection)
+      const { PrismaNeon } = await import("@prisma/adapter-neon");
+      return new PrismaNeon({ connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL! });
+    },
   },
 });
