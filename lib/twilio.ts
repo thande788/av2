@@ -200,7 +200,7 @@ export const twilio = new TwilioClient();
  * Generate shift notification SMS body
  */
 export function createShiftNotificationMessage(data: ShiftNotificationData): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://angeltouchhomecare.com';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://angeltouch.services';
   const bookingLink = `${baseUrl}/book/${data.shiftId}`;
 
   return `Hi ${data.workerName}! A new shift is available:
