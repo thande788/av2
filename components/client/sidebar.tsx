@@ -14,6 +14,7 @@ import {
   Menu,
   LogOut,
   Star,
+  MessageSquareHeart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -51,6 +52,11 @@ const navItems: NavItem[] = [
     title: 'Reviews',
     href: '/client/reviews',
     icon: Star,
+  },
+  {
+    title: 'Testimonials',
+    href: '/client/testimonials',
+    icon: MessageSquareHeart,
   },
   {
     title: 'Settings',

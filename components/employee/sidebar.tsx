@@ -14,7 +14,7 @@ import {
   Menu,
   LogOut,
   FileCheck,
-  Star,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -51,7 +51,7 @@ const navItems: NavItem[] = [
   {
     title: 'My Reviews',
     href: '/employee/reviews',
-    icon: Star,
+    icon: BarChart3,
   },
   {
     title: 'Profile',

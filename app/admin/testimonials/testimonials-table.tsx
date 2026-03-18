@@ -24,7 +24,7 @@ import {
 import { format } from 'date-fns';
 import type { Testimonial } from '@prisma/client';
 import { togglePublishStatus, deleteTestimonial } from './actions';
-import { MoreHorizontal, Edit, Trash2, Eye, EyeOff, Star } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Eye, EyeOff, Star, UserCircle, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 export function TestimonialsTable({
@@ -64,6 +64,22 @@ export function TestimonialsTable({
           {t.role && <p className="text-sm text-muted-foreground">{t.role}</p>}
         </div>
       ),
+    },
+    {
+      key: 'submittedById',
+      header: 'Source',
+      render: (t) =>
+        t.submittedById ? (
+          <Badge variant="outline" className="text-xs gap-1">
+            <UserCircle className="size-3" />
+            Client Portal
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="text-xs gap-1">
+            <ShieldCheck className="size-3" />
+            Admin
+          </Badge>
+        ),
     },
     {
       key: 'content',

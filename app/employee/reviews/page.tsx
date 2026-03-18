@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { IconStarFilled, IconMessageCircle } from '@tabler/icons-react';
+import { IconStarFilled, IconMessageCircle, IconTrendingUp } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { getCurrentWorkerWithBookings } from '@/lib/auth';
 import { serialize } from '@/lib/utils';
@@ -9,7 +9,7 @@ import { db } from '@/lib/db';
 
 export const metadata = {
   title: 'My Reviews',
-  description: 'View feedback received from clients and supervisors',
+  description: 'View anonymous feedback on your performance',
 };
 
 export default async function EmployeeReviewsPage() {
@@ -24,13 +24,7 @@ export default async function EmployeeReviewsPage() {
       workerId: worker.id,
     },
     include: {
-      shift: {
-        include: {
-          client: {
-            include: { user: true },
-          },
-        },
-      },
+      shift: true,
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -45,12 +39,18 @@ export default async function EmployeeReviewsPage() {
     ? serializedReviews.reduce((sum, r) => sum + r.rating, 0) / serializedReviews.length
     : 0;
 
+  // Rating distribution
+  const distribution = [5, 4, 3, 2, 1].map((stars) => ({
+    stars,
+    count: serializedReviews.filter((r) => r.rating === stars).length,
+  }));
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">My Reviews</h1>
         <p className="text-muted-foreground">
-          Feedback received from clients and supervisors
+          Anonymous feedback from clients and supervisors
         </p>
       </div>
 
@@ -88,7 +88,7 @@ export default async function EmployeeReviewsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                <IconMessageCircle className="size-5 text-emerald-600 dark:text-emerald-500" />
+                <IconTrendingUp className="size-5 text-emerald-600 dark:text-emerald-500" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{adminReviews.length}</p>
@@ -99,7 +99,39 @@ export default async function EmployeeReviewsPage() {
         </Card>
       </div>
 
-      {/* Reviews List */}
+      {/* Rating Distribution */}
+      {serializedReviews.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Rating Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {distribution.map(({ stars, count }) => {
+                const pct = serializedReviews.length > 0
+                  ? (count / serializedReviews.length) * 100
+                  : 0;
+                return (
+                  <div key={stars} className="flex items-center gap-3">
+                    <span className="w-12 text-sm text-muted-foreground text-right">
+                      {stars} star{stars !== 1 ? 's' : ''}
+                    </span>
+                    <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-amber-400 transition-all"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="w-8 text-sm text-muted-foreground">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Anonymous Reviews List */}
       {serializedReviews.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
@@ -120,21 +152,16 @@ export default async function EmployeeReviewsPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold">
-                          {review.shift.client.user.firstName} {review.shift.client.user.lastName}
-                        </p>
                         <Badge variant="outline" className="text-xs">
-                          {review.reviewerType === 'CLIENT' ? 'Client' : 'Supervisor'}
+                          {review.reviewerType === 'CLIENT' ? 'Client Feedback' : 'Supervisor Feedback'}
                         </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(review.shift.date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(review.shift.date).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                        })}{' '}
-                        &bull; {review.shift.startTime} - {review.shift.endTime}
-                      </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       {Array.from({ length: 5 }, (_, i) => (
@@ -153,12 +180,6 @@ export default async function EmployeeReviewsPage() {
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       &ldquo;{review.comment}&rdquo;
                     </p>
-                  )}
-
-                  {review.isPublished && (
-                    <Badge className="bg-green-500/15 text-green-600 dark:text-green-400 text-xs">
-                      Featured on website
-                    </Badge>
                   )}
                 </div>
               </CardContent>
