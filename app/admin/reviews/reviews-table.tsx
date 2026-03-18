@@ -97,7 +97,7 @@ function ReviewCard({ review }: { review: Review }) {
             <p className="text-xs text-muted-foreground">
               Reviewed by: {review.shift.client.user.firstName} {review.shift.client.user.lastName}
               {' '}&bull;{' '}
-              {new Date(review.shift.date).toLocaleDateString()} ({review.shift.startTime} - {review.shift.endTime})
+              {new Date(review.shift.date).toLocaleDateString('en-US')} ({review.shift.startTime} - {review.shift.endTime})
             </p>
           </div>
           <div className="flex items-center gap-1 shrink-0">
