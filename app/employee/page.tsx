@@ -11,7 +11,7 @@ import {
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { EmployeeStatCard } from '@/components/employee/stat-card';
-import { getCurrentWorkerWithBookings, getCurrentPortalUser } from '@/lib/auth';
+import { getCurrentWorkerWithBookings, isAdminOrManager } from '@/lib/auth';
 
 export const metadata = {
   title: 'Dashboard',
@@ -19,15 +19,13 @@ export const metadata = {
 };
 
 export default async function EmployeeDashboardPage() {
-  // Get the current portal user first to check their role
-  const portalUser = await getCurrentPortalUser();
-  
   // Get the current authenticated worker
   const worker = await getCurrentWorkerWithBookings();
 
   if (!worker) {
-    // Check if user is an admin/manager viewing the portal
-    if (portalUser?.role === 'ADMIN' || portalUser?.role === 'MANAGER') {
+    // Check if user is an admin/manager viewing the portal (checks DB + Clerk metadata)
+    const isAdmin = await isAdminOrManager();
+    if (isAdmin) {
       return (
         <div className="space-y-6">
           <div>
@@ -49,7 +47,7 @@ export default async function EmployeeDashboardPage() {
                   Admin View Mode
                 </h3>
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  You don&apos;t have a worker profile. As an {portalUser.role.toLowerCase()}, 
+                  You don&apos;t have a worker profile. As an administrator, 
                   you can view this portal but the dashboard requires worker data.
                 </p>
                 <div className="mt-3 flex gap-2">

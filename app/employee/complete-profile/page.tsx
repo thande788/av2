@@ -3,7 +3,7 @@ import { currentUser } from '@clerk/nextjs/server';
 import { checkWorkerProfileStatus } from '@/app/actions/complete-profile';
 import { WorkerProfileForm } from '@/components/signup/worker-profile-form';
 import { AccountSetupWaiting } from '@/components/employee/account-setup-waiting';
-import { getCurrentPortalUser } from '@/lib/auth';
+import { isAdminOrManager } from '@/lib/auth';
 
 export const metadata = {
   title: 'Complete Your Profile | Angel Touch Homecare Services',
@@ -19,9 +19,9 @@ export default async function CompleteProfilePage() {
     redirect('/sign-up');
   }
 
-  // Check if this is an admin/manager viewing the portal
-  const portalUser = await getCurrentPortalUser();
-  if (portalUser?.role === 'ADMIN' || portalUser?.role === 'MANAGER') {
+  // Check if this is an admin/manager viewing the portal (checks DB + Clerk metadata)
+  const isAdmin = await isAdminOrManager();
+  if (isAdmin) {
     // Admins don't need to complete a worker profile
     redirect('/employee');
   }

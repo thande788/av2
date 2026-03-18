@@ -5,7 +5,7 @@
  * based on their Clerk authentication session.
  */
 
-import { auth } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 
 /**
@@ -36,11 +36,39 @@ export async function getCurrentPortalUser() {
 }
 
 /**
- * Check if current user is an admin or manager
+ * Get the user's role from Clerk metadata (fallback when DB record doesn't exist)
+ * This handles cases where webhook hasn't fired (local dev) but role was set manually
  */
-export async function isAdminOrManager() {
+export async function getClerkUserRole(): Promise<string | null> {
+  const clerkId = await getClerkUserId();
+  
+  if (!clerkId) {
+    return null;
+  }
+
+  try {
+    const client = await clerkClient();
+    const user = await client.users.getUser(clerkId);
+    return (user.publicMetadata as { role?: string })?.role || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check if current user is an admin or manager
+ * Checks database first, then falls back to Clerk metadata
+ */
+export async function isAdminOrManager(): Promise<boolean> {
+  // First check database
   const portalUser = await getCurrentPortalUser();
-  return portalUser?.role === 'ADMIN' || portalUser?.role === 'MANAGER';
+  if (portalUser) {
+    return portalUser.role === 'ADMIN' || portalUser.role === 'MANAGER';
+  }
+
+  // Fallback: check Clerk metadata (for local dev where webhook hasn't fired)
+  const clerkRole = await getClerkUserRole();
+  return clerkRole === 'admin' || clerkRole === 'manager';
 }
 
 /**
