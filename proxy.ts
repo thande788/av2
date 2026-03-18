@@ -19,10 +19,11 @@ import { clerkMiddleware, createRouteMatcher, clerkClient } from '@clerk/nextjs/
 import { NextResponse } from 'next/server';
 
 import { isDemoGatedRoute, isDemoEnabled } from '@/lib/feature-flags';
+import { db } from '@/lib/db';
 
 /**
- * Get user role from Clerk metadata
- * Checks sessionClaims first, then fetches from Clerk API as fallback
+ * Get user role from Clerk metadata, with database fallback
+ * Checks sessionClaims first, then Clerk API, then database
  */
 async function getUserRole(userId: string, sessionClaims: { metadata?: { role?: string } } | null): Promise<string | undefined> {
   // First check Clerk session claims (fastest)
@@ -31,7 +32,7 @@ async function getUserRole(userId: string, sessionClaims: { metadata?: { role?: 
     return clerkRole;
   }
 
-  // Fallback: check publicMetadata directly from Clerk user
+  // Fallback 1: check publicMetadata directly from Clerk user
   try {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
@@ -41,6 +42,28 @@ async function getUserRole(userId: string, sessionClaims: { metadata?: { role?: 
     }
   } catch {
     // Clerk API call failed
+  }
+
+  // Fallback 2: check database for role (handles users created before publicMetadata sync)
+  try {
+    const portalUser = await db.portalUser.findUnique({
+      where: { clerkId: userId },
+      select: { role: true },
+    });
+    if (portalUser?.role) {
+      // Sync role to Clerk for future requests
+      try {
+        const client = await clerkClient();
+        await client.users.updateUserMetadata(userId, {
+          publicMetadata: { role: portalUser.role.toLowerCase() },
+        });
+      } catch {
+        // Non-critical, continue
+      }
+      return portalUser.role.toLowerCase();
+    }
+  } catch {
+    // Database lookup failed
   }
 
   return undefined;
@@ -138,24 +161,24 @@ export default clerkMiddleware(async (auth, req) => {
   // Protect admin routes - admin/manager only
   if (isAdminRoute(req)) {
     if (!canAccessAdmin(role)) {
-      // Redirect to their appropriate portal
+      // Redirect to their appropriate portal based on role
       return NextResponse.redirect(new URL(getDefaultPortalUrl(role), req.url));
     }
   }
 
-  // Protect employee routes - admin/manager/caregiver only (clients blocked)
+  // Protect employee routes - admin/manager/caregiver only
   if (isEmployeeRoute(req)) {
     if (!canAccessEmployee(role)) {
-      // Clients trying to access employee portal → redirect to client portal
-      return NextResponse.redirect(new URL('/client', req.url));
+      // Redirect to their appropriate portal based on role
+      return NextResponse.redirect(new URL(getDefaultPortalUrl(role), req.url));
     }
   }
 
-  // Protect client routes - admin/manager/client only (caregivers blocked)
+  // Protect client routes - admin/manager/client only
   if (isClientRoute(req)) {
     if (!canAccessClient(role)) {
-      // Caregivers trying to access client portal → redirect to employee portal
-      return NextResponse.redirect(new URL('/employee', req.url));
+      // Redirect to their appropriate portal based on role
+      return NextResponse.redirect(new URL(getDefaultPortalUrl(role), req.url));
     }
   }
 

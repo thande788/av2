@@ -14,6 +14,7 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { Webhook } from 'svix';
+import { clerkClient } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 import { UserRole, UserStatus } from '@prisma/client';
 
@@ -198,7 +199,25 @@ export async function POST(req: Request) {
           },
         });
 
-        console.log(`Created PortalUser for ${email} (${clerkId})`);
+        // Sync role to Clerk publicMetadata so middleware can access it
+        // This is needed because signup sets role in unsafeMetadata which isn't in sessionClaims
+        if (roleString && !data.public_metadata?.role) {
+          try {
+            const client = await clerkClient();
+            await client.users.updateUserMetadata(clerkId, {
+              publicMetadata: {
+                ...data.public_metadata,
+                role: roleString,
+              },
+            });
+            console.log(`Synced role '${roleString}' to Clerk publicMetadata for ${clerkId}`);
+          } catch (metaErr) {
+            console.error('Failed to sync role to Clerk:', metaErr);
+            // Don't fail the webhook - user is created, they can retry login
+          }
+        }
+
+        console.log(`Created PortalUser for ${email} (${clerkId})`)
         break;
       }
 
