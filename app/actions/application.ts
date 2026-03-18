@@ -8,7 +8,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { getJobBySlug } from "@/data/jobs";
+
 import {
   sendEmail,
   notifyAdmin,
@@ -96,8 +96,12 @@ export async function submitApplication(
       return { success: false, message: "Invalid job posting." };
     }
 
-    // Look up job in static data
-    const job = jobSlug ? getJobBySlug(jobSlug) : null;
+    // Look up job in database by slug (static data IDs don't match DB IDs)
+    const job = jobSlug
+      ? await db.job.findUnique({ where: { slug: jobSlug }, select: { id: true, slug: true, title: true, isActive: true } })
+      : jobId
+        ? await db.job.findUnique({ where: { id: jobId }, select: { id: true, slug: true, title: true, isActive: true } })
+        : null;
     if (!job || !job.isActive) {
       return { success: false, message: "This position is no longer available." };
     }
