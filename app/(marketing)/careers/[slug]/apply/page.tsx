@@ -4,7 +4,8 @@ import Link from "next/link";
 import { IconArrowLeft, IconMapPin, IconCurrencyDollar, IconClock } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { ApplicationForm } from "@/components/careers/application-form";
-import { getJobBySlug, jobs, formatSalaryRange, formatJobType, formatDepartment } from "@/data/jobs";
+import { formatSalaryRange, formatJobType, formatDepartment } from "@/data/jobs";
+import { fetchJobBySlug, fetchJobSlugs } from "@/lib/jobs";
 
 interface ApplyPageProps {
   params: Promise<{
@@ -16,9 +17,8 @@ interface ApplyPageProps {
  * Generate static paths for all jobs at build time
  */
 export async function generateStaticParams() {
-  return jobs.map((job) => ({
-    slug: job.slug,
-  }));
+  const slugs = await fetchJobSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 /**
@@ -26,7 +26,7 @@ export async function generateStaticParams() {
  */
 export async function generateMetadata({ params }: ApplyPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const job = getJobBySlug(slug);
+  const job = await fetchJobBySlug(slug);
 
   if (!job) {
     return {
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: ApplyPageProps): Promise<Meta
 
 export default async function ApplyPage({ params }: ApplyPageProps) {
   const { slug } = await params;
-  const job = getJobBySlug(slug);
+  const job = await fetchJobBySlug(slug);
 
   if (!job) {
     notFound();

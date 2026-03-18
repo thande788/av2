@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { IconStarFilled, IconClock, IconLanguage } from "@tabler/icons-react";
 
 import { cn } from "@/lib/utils";
@@ -41,16 +42,7 @@ export function CaregiverCard({
 	const imageSrc =
 		photoUrl || (photoBase ? `/caregivers/original/${photoBase}.jpg` : null);
 
-	const handleClick = () => {
-		onSelect?.(caregiver);
-	};
-
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter" || e.key === " ") {
-			e.preventDefault();
-			handleClick();
-		}
-	};
+	const profileHref = `/caregivers/${id}`;
 
 	return (
 		<Card
@@ -64,12 +56,9 @@ export function CaregiverCard({
 			aria-labelledby={`caregiver-${id}-name`}
 		>
 			{/* Image with overlay */}
-			<div
-				role="button"
-				tabIndex={0}
-				onClick={handleClick}
-				onKeyDown={handleKeyDown}
-				className="relative cursor-pointer focus:outline-none"
+			<Link
+				href={profileHref}
+				className="relative block cursor-pointer focus:outline-none"
 				aria-label={`View profile for ${fullName}`}
 			>
 				{/* Dark overlay */}
@@ -126,7 +115,7 @@ export function CaregiverCard({
 						<span>{yearsExperience}+ years</span>
 					</Badge>
 				</div>
-			</div>
+			</Link>
 
 			<CardHeader className="pb-3">
 				<CardTitle
@@ -172,10 +161,11 @@ export function CaregiverCard({
 				<Button
 					className="w-full"
 					variant="outline"
-					onClick={handleClick}
-					aria-label={`View ${fullName}'s full profile`}
+					asChild
 				>
-					View Profile
+					<Link href={profileHref} aria-label={`View ${fullName}'s full profile`}>
+						View Profile
+					</Link>
 				</Button>
 			</CardFooter>
 		</Card>

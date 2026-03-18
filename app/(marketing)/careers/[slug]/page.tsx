@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JobListing } from "@/components/careers/job-listing";
-import { getJobBySlug, jobs, formatSalaryRange, formatJobType } from "@/data/jobs";
+import { formatSalaryRange, formatJobType } from "@/data/jobs";
+import { fetchJobBySlug, fetchJobSlugs } from "@/lib/jobs";
 
 interface JobPageProps {
   params: Promise<{
@@ -13,9 +14,8 @@ interface JobPageProps {
  * Generate static paths for all jobs at build time
  */
 export async function generateStaticParams() {
-  return jobs.map((job) => ({
-    slug: job.slug,
-  }));
+  const slugs = await fetchJobSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 /**
@@ -23,7 +23,7 @@ export async function generateStaticParams() {
  */
 export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const job = getJobBySlug(slug);
+  const job = await fetchJobBySlug(slug);
 
   if (!job) {
     return {
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
 
 export default async function JobPage({ params }: JobPageProps) {
   const { slug } = await params;
-  const job = getJobBySlug(slug);
+  const job = await fetchJobBySlug(slug);
 
   if (!job) {
     notFound();

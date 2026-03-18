@@ -3,14 +3,12 @@ import Link from "next/link";
 import { IconBriefcase, IconUsers, IconHeart } from "@tabler/icons-react";
 import { JobCard } from "@/components/careers/job-card";
 import { BenefitsSection } from "@/components/careers/benefits-section";
-import { getActiveJobs, getActiveDepartments, formatDepartment } from "@/data/jobs";
+import { formatDepartment } from "@/data/jobs";
 import { Button } from "@/components/ui/button";
 import { JsonLdGraph } from "@/components/seo";
 import { createJobPostingSchema, organizationSchema, getCanonicalAlternates } from "@/lib/seo";
-
-// Generate job posting schemas for all active positions
-const activeJobs = getActiveJobs();
-const jobSchemas = activeJobs.map((job) => createJobPostingSchema(job));
+import { fetchActiveJobs } from "@/lib/jobs";
+import type { Job } from "@/types/job";
 
 export const metadata: Metadata = {
   title: "Careers | Join Our Team | Angel Touch Homecare Services",
@@ -33,9 +31,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CareersPage() {
-  const jobs = getActiveJobs();
-  const departments = getActiveDepartments();
+export default async function CareersPage() {
+  const jobs = await fetchActiveJobs();
+  const departments = Array.from(new Set(jobs.map((j) => j.department)));
+
+  // Generate JSON-LD schemas for active positions
+  const jobSchemas = jobs.map((job) => createJobPostingSchema(job));
 
   return (
     <>

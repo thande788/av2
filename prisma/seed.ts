@@ -31,6 +31,8 @@ import {
   // Timesheet & Invoice enums
   TimesheetStatus,
   InvoiceStatus,
+  // Review enums
+  ReviewerType,
 } from '@prisma/client';
 import { config } from 'dotenv';
 import { resolve } from 'path';
@@ -1526,6 +1528,7 @@ async function main() {
   
   console.log('👥 Seeding portal workers...');
   // Clear existing portal data
+  await prisma.shiftReview.deleteMany();
   await prisma.shiftBooking.deleteMany();
   await prisma.careShift.deleteMany();
   await prisma.availability.deleteMany();
@@ -1637,6 +1640,7 @@ async function main() {
   let completedShifts = 0;
   let bookedShifts = 0;
   let openShifts = 0;
+  const completedShiftData: Array<{ shiftId: string; workerId: string; clientUserId: string }> = [];
 
   for (const shiftData of demoShifts) {
     const client = createdClients[shiftData.clientIndex];
@@ -1673,8 +1677,16 @@ async function main() {
       });
     }
 
-    if (shiftData.status === ShiftStatus.COMPLETED) completedShifts++;
-    else if (shiftData.status === ShiftStatus.BOOKED) bookedShifts++;
+    if (shiftData.status === ShiftStatus.COMPLETED) {
+      completedShifts++;
+      if (worker) {
+        completedShiftData.push({
+          shiftId: shift.id,
+          workerId: worker.id,
+          clientUserId: client.userId,
+        });
+      }
+    } else if (shiftData.status === ShiftStatus.BOOKED) bookedShifts++;
     else openShifts++;
   }
   console.log(`   ✓ Created ${demoShifts.length} shifts (${completedShifts} completed, ${bookedShifts} booked, ${openShifts} open)\n`);
@@ -1710,6 +1722,84 @@ async function main() {
     console.log(`   ✓ Set availability for worker ${pattern.workerIndex + 1}`);
   }
   console.log(`   Total: ${availabilityPatterns.length} availability patterns\n`);
+
+  // ==========================================================================
+  // SHIFT REVIEWS (for completed shifts)
+  // ==========================================================================
+  console.log('⭐ Seeding shift reviews...');
+
+  // Client review comments - realistic feedback on caregivers
+  const clientReviewComments = [
+    'Wonderful caregiver! Very patient and attentive to Mom\'s needs. Always arrives on time and leaves the house tidy.',
+    'We are so grateful for the excellent care provided. The caregiver is like family to us now.',
+    'Very professional and caring. Dad looks forward to every visit. Highly recommend!',
+    'Outstanding service. The caregiver goes above and beyond every single day.',
+    'Compassionate and skilled. Mom feels safe and comfortable. Thank you!',
+    'Great companion for Dad. They play chess together and he really enjoys the company.',
+    'Reliable and thorough. Takes excellent care of everything from meals to medication reminders.',
+    null, // Some reviews are rating-only (no comment)
+    'The caregiver is punctual, kind, and truly cares about the wellbeing of our family member.',
+    null,
+  ];
+
+  // Admin review comments - supervisor performance evaluations
+  const adminReviewComments = [
+    'Consistently demonstrates excellent clinical skills and a caring demeanor. A top performer on the team.',
+    'Reliably follows care plans and communicates changes in client condition promptly.',
+    'Shows initiative and goes above expectations. Clients consistently request this caregiver.',
+    null, // Some admin reviews are rating-only
+    'Good work ethic but needs improvement in documentation timeliness.',
+  ];
+
+  let reviewCount = 0;
+  let publishedCount = 0;
+
+  // Create reviews for a subset of completed shifts (not every shift gets a review)
+  const reviewableShifts = completedShiftData.filter((_, i) => i % 2 === 0); // Every other completed shift
+
+  for (let i = 0; i < reviewableShifts.length; i++) {
+    const { shiftId, workerId, clientUserId } = reviewableShifts[i];
+
+    // Client review (most completed shifts)
+    const clientComment = clientReviewComments[i % clientReviewComments.length];
+    const clientRating = [5, 5, 4, 5, 4, 5, 5, 3, 4, 5][i % 10];
+    const shouldPublish = clientComment && clientRating >= 4 && i % 3 === 0;
+
+    await prisma.shiftReview.create({
+      data: {
+        shiftId,
+        workerId,
+        reviewerType: ReviewerType.CLIENT,
+        reviewerId: clientUserId,
+        rating: clientRating,
+        comment: clientComment,
+        isPublished: !!shouldPublish,
+        publishedAt: shouldPublish ? new Date() : null,
+      },
+    });
+    reviewCount++;
+    if (shouldPublish) publishedCount++;
+
+    // Admin review on some shifts (supervisor evaluations are less frequent)
+    if (i % 3 === 0) {
+      const adminComment = adminReviewComments[i % adminReviewComments.length];
+      const adminRating = [5, 4, 5, 4, 3][i % 5];
+
+      await prisma.shiftReview.create({
+        data: {
+          shiftId,
+          workerId,
+          reviewerType: ReviewerType.ADMIN,
+          reviewerId: 'demo_admin',
+          rating: adminRating,
+          comment: adminComment,
+          isPublished: false,
+        },
+      });
+      reviewCount++;
+    }
+  }
+  console.log(`   ✓ Created ${reviewCount} shift reviews (${publishedCount} published)\n`);
 
   // ==========================================================================
   // TIMESHEETS (for completed shifts)
@@ -2015,6 +2105,7 @@ async function main() {
   console.log(`   • ${complianceDocsData.reduce((acc, d) => acc + d.docs.length, 0)} compliance documents`);
   console.log(`   • ${portalClients.length} portal clients`);
   console.log(`   • ${demoShifts.length} care shifts`);
+  console.log(`   • ${reviewCount} shift reviews (${publishedCount} published)`);
   console.log(`   • ${timesheetCount} timesheets`);
   console.log(`   • ${invoiceCount} invoices`);
   console.log('');
