@@ -838,6 +838,80 @@ enum NotificationDeliveryStatus {
 }
 
 // =============================================================================
+// CONTENT MANAGEMENT — FAQs, Services, Pricing
+// =============================================================================
+
+/// Frequently Asked Question (admin-manageable)
+model FAQ {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String
+  category    String?
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, sortOrder])
+}
+
+/// Top-level service category (e.g. "Personal Care", "Companionship")
+model ServiceCategory {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  description String
+  icon        String        // key into serviceIconMap
+  image       String?
+  sortOrder   Int           @default(0)
+  isActive    Boolean       @default(true)
+  services    ServiceItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+/// Individual service within a category
+model ServiceItem {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       String
+  description String
+  features    String[]        // e.g. ["Bathing assistance", "Dressing support"]
+  icon        String
+  priceFrom   Float?
+  sortOrder   Int             @default(0)
+  isActive    Boolean         @default(true)
+  categoryId  String
+  category    ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([categoryId, isActive, sortOrder])
+}
+
+/// Pricing tier displayed on the services/pricing page
+model PricingTier {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  price       Float
+  period      String   // "hour" | "day" | "week" | "month"
+  description String
+  features    String[]
+  isPopular   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  ctaText     String?
+  ctaHref     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+// =============================================================================
 // NOTES FOR IMPLEMENTATION
 // =============================================================================
 //

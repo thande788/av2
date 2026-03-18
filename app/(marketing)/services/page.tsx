@@ -4,26 +4,74 @@ import Link from "next/link";
 import { IconPhone } from "@tabler/icons-react";
 
 import { cn } from "@/lib/utils";
+import { db } from "@/lib/db";
 import { getServiceIcon } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PricingCardGrid } from "@/components/services/pricing-card";
 import { ServiceCategoriesSection } from "@/components/services/service-categories-section";
-import { serviceStats, serviceCategories } from "@/data/services";
-import { getActivePricingTiers } from "@/data/pricing";
+import { CareInquiryForm } from "@/components/services/care-inquiry-form";
+import { serviceStats, serviceCategories as staticCategories, type ServiceCategory } from "@/data/services";
+import { getActivePricingTiers, type PricingTier } from "@/data/pricing";
 import { JsonLdGraph } from "@/components/seo";
 import { createServiceSchema, localBusinessSchema, getCanonicalAlternates } from "@/lib/seo";
 
-// Generate service schemas from data
-const serviceSchemas = serviceCategories.flatMap((category) =>
-  category.services.map((service) =>
-    createServiceSchema({
-      name: service.title,
-      description: service.description,
-      category: category.name,
-    })
-  )
-);
+async function getServiceCategories(): Promise<ServiceCategory[]> {
+  try {
+    const cats = await db.serviceCategory.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+      include: { services: { where: { isActive: true }, orderBy: { sortOrder: "asc" } } },
+    });
+    if (cats.length > 0) {
+      return cats.map((c) => ({
+        id: c.slug,
+        name: c.name,
+        description: c.description,
+        icon: c.icon,
+        image: c.image ?? undefined,
+        services: c.services.map((s) => ({
+          id: s.slug,
+          title: s.title,
+          description: s.description,
+          features: s.features,
+          icon: s.icon,
+          priceFrom: s.priceFrom ?? undefined,
+        })),
+      }));
+    }
+  } catch {
+    // DB unavailable — fall through
+  }
+  return staticCategories;
+}
+
+async function getPricingTiers(): Promise<PricingTier[]> {
+  try {
+    const tiers = await db.pricingTier.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+    });
+    if (tiers.length > 0) {
+      return tiers.map((t) => ({
+        id: t.slug,
+        title: t.title,
+        price: t.price,
+        period: t.period as PricingTier["period"],
+        description: t.description,
+        features: t.features,
+        isPopular: t.isPopular,
+        isActive: t.isActive,
+        sortOrder: t.sortOrder,
+        ctaText: t.ctaText ?? undefined,
+        ctaHref: t.ctaHref ?? undefined,
+      }));
+    }
+  } catch {
+    // DB unavailable — fall through
+  }
+  return getActivePricingTiers();
+}
 
 export const metadata: Metadata = {
   title: "Services",
@@ -49,8 +97,21 @@ export const metadata: Metadata = {
 /**
  * Services page
  */
-export default function ServicesPage() {
-  const pricingTiers = getActivePricingTiers();
+export default async function ServicesPage() {
+  const [categories, pricingTiers] = await Promise.all([
+    getServiceCategories(),
+    getPricingTiers(),
+  ]);
+
+  const serviceSchemas = categories.flatMap((category) =>
+    category.services.map((service) =>
+      createServiceSchema({
+        name: service.title,
+        description: service.description,
+        category: category.name,
+      })
+    )
+  );
 
   return (
     <>
@@ -137,7 +198,7 @@ export default function ServicesPage() {
 
       {/* Service Categories Section - Carousel with DetailSheet */}
       <section id="services" className="scroll-mt-24">
-        <ServiceCategoriesSection />
+        <ServiceCategoriesSection categories={categories} />
       </section>
 
       {/* Pricing Section */}
@@ -184,6 +245,20 @@ export default function ServicesPage() {
             </div>
           </div>
         </Card>
+      </section>
+
+      {/* Care Inquiry Form */}
+      <section id="care-inquiry" className="px-4 md:px-8 max-w-3xl mx-auto mb-16">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Request Care Services
+          </h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">
+            Tell us about your care needs and we&apos;ll get back to you within
+            24 hours with a personalized care plan.
+          </p>
+        </div>
+        <CareInquiryForm />
       </section>
 
       {/* CTA Section */}

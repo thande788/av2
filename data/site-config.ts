@@ -2,13 +2,20 @@
  * Site-wide configuration for toggleable features
  * 
  * This file controls feature flags and promotional banners.
- * In production, these would be managed via:
- * - Environment variables
- * - Database (admin dashboard)
- * - CMS integration
+ * Configuration reads from environment variables with sensible defaults.
  * 
- * For now, toggle features by editing this file.
+ * Environment variables:
+ * - NEXT_PUBLIC_HIRING_BANNER: "true" | "false" (default: "true")
+ * - NEXT_PUBLIC_ANNOUNCEMENT_BANNER: "true" | "false" (default: "false")
+ * - NEXT_PUBLIC_BRAND_ACCENT_BABY_BLUE: "true" | "false" (default: "true")
+ * - NEXT_PUBLIC_BRAND_ACCENT_ROSE: "true" | "false" (default: "true")
  */
+
+const envBool = (key: string, fallback: boolean): boolean => {
+  const val = process.env[key];
+  if (val === undefined) return fallback;
+  return val === 'true';
+};
 
 export const siteConfig = {
   /**
@@ -18,19 +25,19 @@ export const siteConfig = {
    */
   brandAccents: {
     /** Enable baby-blue accents (navbar highlights, decorative borders, card accents) */
-    babyBlue: true,
+    babyBlue: envBool('NEXT_PUBLIC_BRAND_ACCENT_BABY_BLUE', true),
     /** Enable rose accents (icons, hover states, gradients) */
-    rose: true,
+    rose: envBool('NEXT_PUBLIC_BRAND_ACCENT_ROSE', true),
     /** Use deep rose (#E37383) for icons instead of base rose */
     useDeepRoseForIcons: true,
   },
 
   /**
    * Hiring banner configuration
-   * Toggle `enabled` to show/hide the banner site-wide
+   * Toggle via NEXT_PUBLIC_HIRING_BANNER env var or edit defaults here
    */
   hiringBanner: {
-    enabled: true,
+    enabled: envBool('NEXT_PUBLIC_HIRING_BANNER', true),
     message: "We're hiring! Join our team of compassionate caregivers.",
     ctaText: "View Open Positions",
     ctaHref: "/careers",
@@ -40,15 +47,16 @@ export const siteConfig = {
 
   /**
    * Announcement banner (for promotions, alerts, etc.)
+   * Toggle via NEXT_PUBLIC_ANNOUNCEMENT_BANNER env var
    */
   announcementBanner: {
-    enabled: false,
+    enabled: envBool('NEXT_PUBLIC_ANNOUNCEMENT_BANNER', false),
     message: "",
     ctaText: "",
     ctaHref: "",
     variant: "info" as "info" | "warning" | "success",
   },
-} as const;
+};
 
 /**
  * Check if hiring banner should be displayed

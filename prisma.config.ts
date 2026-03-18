@@ -8,6 +8,10 @@ config({ path: ".env.local" });
 export default defineConfig({
   schema: path.join(__dirname, "prisma", "schema.prisma"),
 
+  migrations: {
+    seed: "npx tsx prisma/seed.ts",
+  },
+
   datasource: {
     // Use DIRECT_URL for migrations if available, otherwise DATABASE_URL
     url: process.env.DIRECT_URL || process.env.DATABASE_URL!,

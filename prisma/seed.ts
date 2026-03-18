@@ -1458,6 +1458,69 @@ function generateDemoShifts() {
 const demoShifts = generateDemoShifts();
 
 // =============================================================================
+// FAQs, SERVICE CATEGORIES, SERVICE ITEMS, PRICING TIERS
+// =============================================================================
+
+const seedFAQs = [
+  { question: 'What areas do you serve?', answer: 'We serve Lowell, Dracut, Chelmsford, Tewksbury, Billerica, and nearby towns throughout the Greater Lowell area.', category: 'General', sortOrder: 1 },
+  { question: 'Are your caregivers certified?', answer: 'Yes, all caregivers are experienced, certified, and undergo comprehensive background checks, CORI screening, and ongoing training to maintain the highest standards of care.', category: 'Caregivers', sortOrder: 2 },
+  { question: 'How do I get started with services?', answer: 'Contact us via our online form or phone to schedule a complimentary consultation. We\'ll conduct a comprehensive assessment and create a personalized care plan tailored to your specific needs.', category: 'Getting Started', sortOrder: 3 },
+  { question: 'What payment options are available?', answer: 'We accept private pay, long-term care insurance, and some Medicaid programs. We\'ll work with you to find the most suitable payment option for your situation.', category: 'Billing', sortOrder: 4 },
+  { question: 'Can I choose my caregiver?', answer: 'Absolutely! We strive for consistent caregiver assignments and carefully match clients with caregivers who best fit their personality, needs, and preferences.', category: 'Caregivers', sortOrder: 5 },
+  { question: 'Is my information kept confidential?', answer: 'Yes, we are fully HIPAA-compliant and prioritize client privacy and data security. All personal and medical information is kept strictly confidential.', category: 'Privacy', sortOrder: 6 },
+  { question: 'Do you provide 24-hour care?', answer: 'We offer flexible scheduling including hourly, daily, and extended care options. While we currently focus on scheduled visits, we\'re expanding to offer 24-hour live-in care.', category: 'Services', sortOrder: 7 },
+  { question: 'What if I\'m not satisfied with the service?', answer: 'Your satisfaction is our priority. We offer ongoing communication and will adjust care plans or reassign caregivers as needed to ensure you receive the best possible care.', category: 'Quality', sortOrder: 8 },
+];
+
+const seedServiceCategories = [
+  {
+    slug: 'personal-care',
+    name: 'Personal Care',
+    description: 'Professional assistance with daily living activities, medication management, and personal hygiene.',
+    icon: 'personal-care',
+    image: '/services/personal-care.jpg',
+    sortOrder: 1,
+    services: [
+      { slug: 'daily-living', title: 'Daily Living Assistance', description: 'Help with bathing, grooming, dressing, and personal hygiene', features: ['Bathing assistance', 'Hair care', 'Nail care', 'Oral hygiene', 'Dressing support'], icon: 'bath', priceFrom: 35, sortOrder: 1 },
+      { slug: 'mobility-support', title: 'Mobility Support', description: 'Safe transfer assistance and mobility aid support', features: ['Transfer assistance', 'Walking support', 'Wheelchair assistance', 'Fall prevention'], icon: 'wheelchair', priceFrom: 35, sortOrder: 2 },
+      { slug: 'medication-management', title: 'Medication Management', description: 'Medication reminders and organization', features: ['Pill organization', 'Medication reminders', 'Prescription pickup', 'Health monitoring'], icon: 'pill', priceFrom: 28, sortOrder: 3 },
+    ],
+  },
+  {
+    slug: 'household-services',
+    name: 'Household Services',
+    description: 'Comprehensive home maintenance, meal preparation, and housekeeping services.',
+    icon: 'household-services',
+    image: '/services/household.jpg',
+    sortOrder: 2,
+    services: [
+      { slug: 'light-housekeeping', title: 'Light Housekeeping', description: 'Maintaining a clean and safe living environment', features: ['Dusting & vacuuming', 'Kitchen cleaning', 'Bathroom maintenance', 'Laundry assistance'], icon: 'broom', priceFrom: 28, sortOrder: 1 },
+      { slug: 'meal-preparation', title: 'Meal Preparation', description: 'Nutritious meal planning and cooking', features: ['Menu planning', 'Grocery shopping', 'Meal cooking', 'Special diet accommodation'], icon: 'kitchen', priceFrom: 28, sortOrder: 2 },
+      { slug: 'home-organization', title: 'Home Organization', description: 'Organizing living spaces for safety and comfort', features: ['Closet organization', 'Safety modifications', 'Clutter removal', 'Accessibility improvements'], icon: 'package', priceFrom: 28, sortOrder: 3 },
+    ],
+  },
+  {
+    slug: 'companionship',
+    name: 'Companionship',
+    description: 'Social engagement, emotional support, and assistance with community activities.',
+    icon: 'companionship',
+    image: '/services/companionship.jpg',
+    sortOrder: 3,
+    services: [
+      { slug: 'social-companionship', title: 'Social Companionship', description: 'Engaging conversation and emotional support', features: ['Conversation', 'Games & puzzles', 'Reading together', 'Emotional support'], icon: 'users', priceFrom: 28, sortOrder: 1 },
+      { slug: 'activity-assistance', title: 'Activity Assistance', description: 'Help with hobbies, crafts, and recreational activities', features: ['Crafts & hobbies', 'Exercise programs', 'Pet care', 'Technology assistance'], icon: 'palette', priceFrom: 28, sortOrder: 2 },
+      { slug: 'transportation', title: 'Transportation Services', description: 'Safe transportation and errand assistance', features: ['Medical appointments', 'Grocery shopping', 'Social outings', 'Errands'], icon: 'car', priceFrom: 28, sortOrder: 3 },
+    ],
+  },
+];
+
+const seedPricingTiers = [
+  { slug: 'companion', title: 'Companion Care', price: 28, period: 'hour', description: 'Light housekeeping, meal prep, medication reminders', features: ['Light housekeeping', 'Meal preparation', 'Medication reminders', 'Transportation', 'Social companionship'], isPopular: false, sortOrder: 1 },
+  { slug: 'personal', title: 'Personal Care', price: 35, period: 'hour', description: 'Daily living assistance, bathing, grooming, mobility', features: ['All Companion Care services', 'Bathing & grooming assistance', 'Dressing support', 'Mobility assistance', 'Toileting support'], isPopular: true, sortOrder: 2 },
+  { slug: 'specialized', title: 'Specialized Care', price: 40, period: 'hour', description: 'Memory care, post-surgery recovery, complex needs', features: ['All Personal Care services', 'Dementia/Alzheimer\'s care', 'Post-surgery recovery', 'Chronic condition support', 'Specialized training'], isPopular: false, sortOrder: 3 },
+];
+
+// =============================================================================
 // SEED FUNCTION
 // =============================================================================
 
@@ -1471,6 +1534,10 @@ async function main() {
   await prisma.contactSubmission.deleteMany();
   await prisma.testimonial.deleteMany();
   await prisma.serviceInquiry.deleteMany();
+  await prisma.serviceItem.deleteMany();
+  await prisma.serviceCategory.deleteMany();
+  await prisma.fAQ.deleteMany();
+  await prisma.pricingTier.deleteMany();
   console.log('   ✓ Existing data cleared\n');
 
   // Seed Jobs
@@ -1521,6 +1588,34 @@ async function main() {
     console.log(`   ✓ Created inquiry: ${inquiry.name} - ${inquiry.serviceType} (${inquiry.status})`);
   }
   console.log(`   Total: ${serviceInquiries.length} inquiries\n`);
+
+  // Seed FAQs
+  console.log('❓ Seeding FAQs...');
+  for (const faq of seedFAQs) {
+    await prisma.fAQ.create({ data: faq });
+    console.log(`   ✓ Created FAQ: ${faq.question.slice(0, 40)}...`);
+  }
+  console.log(`   Total: ${seedFAQs.length} FAQs\n`);
+
+  // Seed Service Categories + Items
+  console.log('🏥 Seeding service categories...');
+  for (const cat of seedServiceCategories) {
+    const { services: svcItems, ...catData } = cat;
+    const created = await prisma.serviceCategory.create({ data: catData });
+    for (const svc of svcItems) {
+      await prisma.serviceItem.create({ data: { ...svc, categoryId: created.id } });
+    }
+    console.log(`   ✓ Created category: ${cat.name} (${svcItems.length} services)`);
+  }
+  console.log(`   Total: ${seedServiceCategories.length} categories\n`);
+
+  // Seed Pricing Tiers
+  console.log('💰 Seeding pricing tiers...');
+  for (const tier of seedPricingTiers) {
+    await prisma.pricingTier.create({ data: tier });
+    console.log(`   ✓ Created tier: ${tier.title} ($${tier.price}/${tier.period})`);
+  }
+  console.log(`   Total: ${seedPricingTiers.length} tiers\n`);
 
   // ==========================================================================
   // PORTAL DATA (Demo MVP)

@@ -4,14 +4,34 @@ import Link from "next/link";
 import { IconPhone } from "@tabler/icons-react";
 
 import { cn } from "@/lib/utils";
+import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FAQSection } from "@/components/faqs";
-import { faqs } from "@/data/faqs";
+import { faqs as staticFaqs } from "@/data/faqs";
 import { JsonLd } from "@/components/seo";
 import { createFAQPageSchema, getCanonicalAlternates } from "@/lib/seo";
+import type { FAQItem } from "@/types/faq";
 
-const faqSchema = createFAQPageSchema(faqs);
+async function getFAQs(): Promise<FAQItem[]> {
+  try {
+    const rows = await db.fAQ.findMany({
+      where: { isPublished: true },
+      orderBy: { sortOrder: "asc" },
+    });
+    if (rows.length > 0) {
+      return rows.map((r) => ({
+        id: r.id,
+        question: r.question,
+        answer: r.answer,
+        category: r.category ?? undefined,
+      }));
+    }
+  } catch {
+    // DB unavailable — fall through to static
+  }
+  return staticFaqs;
+}
 
 export const metadata: Metadata = {
   title: "FAQs",
@@ -39,7 +59,10 @@ export const metadata: Metadata = {
  * Server component that displays frequently asked questions
  * using the FAQSection component from Sprint 3.
  */
-export default function FAQsPage() {
+export default async function FAQsPage() {
+  const faqs = await getFAQs();
+  const faqSchema = createFAQPageSchema(faqs);
+
   return (
     <>
       <JsonLd data={faqSchema} />

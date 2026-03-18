@@ -14,7 +14,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
-  serviceCategories,
+  serviceCategories as staticCategories,
   type ServiceCategory,
 } from "@/data/services";
 
@@ -36,8 +36,8 @@ const categoryImages: Record<string, string> = {
 /**
  * Service category carousel slides - generated from serviceCategories data
  */
-function getServiceCategorySlides(): FeatureSlide[] {
-  return serviceCategories.map((category) => {
+function getServiceCategorySlides(categories: ServiceCategory[]): FeatureSlide[] {
+  return categories.map((category) => {
     const imageId = categoryImages[category.id] || "7551442";
     return {
       id: category.id,
@@ -130,17 +130,18 @@ function ServiceDetailContent({ category }: { category: ServiceCategory }) {
  * Service Categories Section with Carousel and DetailSheet
  * Clicking a carousel slide opens the corresponding DetailSheet
  */
-export function ServiceCategoriesSection() {
+export function ServiceCategoriesSection({ categories }: { categories?: ServiceCategory[] } = {}) {
+  const data = categories ?? staticCategories;
   const [selectedCategory, setSelectedCategory] = React.useState<ServiceCategory | null>(null);
   const [sheetOpen, setSheetOpen] = React.useState(false);
 
   const handleSlideClick = React.useCallback((slideId: string) => {
-    const category = serviceCategories.find((c) => c.id === slideId);
+    const category = data.find((c) => c.id === slideId);
     if (category) {
       setSelectedCategory(category);
       setSheetOpen(true);
     }
-  }, []);
+  }, [data]);
 
   const handleSheetOpenChange = React.useCallback((open: boolean) => {
     setSheetOpen(open);
@@ -150,7 +151,7 @@ export function ServiceCategoriesSection() {
     }
   }, []);
 
-  const slides = React.useMemo(() => getServiceCategorySlides(), []);
+  const slides = React.useMemo(() => getServiceCategorySlides(data), [data]);
 
   return (
     <section

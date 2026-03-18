@@ -71,3 +71,34 @@ export {
   bookShiftFromLink,
   cancelShiftBooking,
 } from "./shift-booking";
+
+// Shift review actions
+export {
+  submitShiftReview,
+  publishReview,
+  unpublishReview,
+  getCompletedShiftsAwaitingReview,
+  getClientReviews,
+} from "./shift-reviews";
+
+// Payroll actions
+export {
+  calculatePayroll,
+  generatePayrollCSV,
+  markTimesheetsProcessed,
+  type PayrollEntry,
+  type PayrollSummary,
+} from "./payroll";
+
+// Worker profile (marketing) actions
+export {
+  submitMarketingProfile,
+  saveMarketingProfileDraft,
+  updateMarketingPhoto,
+} from "./worker-profile";
+
+// Client testimonial actions
+export {
+  submitClientTestimonial,
+  type ClientTestimonialData,
+} from "./testimonials";

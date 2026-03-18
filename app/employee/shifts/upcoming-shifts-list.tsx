@@ -11,12 +11,14 @@ import {
   IconLoader2,
   IconLogin,
   IconLogout,
+  IconX,
 } from '@tabler/icons-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { checkInToShift, checkOutFromShift } from '@/app/actions/employee-shifts';
+import { cancelShiftBooking } from '@/app/actions/shift-booking';
 
 type BookingWithRelations = Serialized<ShiftBooking & {
   shift: CareShift & {
@@ -48,6 +50,15 @@ export function UpcomingShiftsList({ bookings, showCompleted }: UpcomingShiftsLi
   const handleCheckOut = async (bookingId: string) => {
     setLoadingId(bookingId);
     const result = await checkOutFromShift(bookingId);
+    setLoadingId(null);
+    if (result.success) {
+      router.refresh();
+    }
+  };
+
+  const handleCancel = async (bookingId: string) => {
+    setLoadingId(bookingId);
+    const result = await cancelShiftBooking(bookingId);
     setLoadingId(null);
     if (result.success) {
       router.refresh();
@@ -194,6 +205,23 @@ export function UpcomingShiftsList({ bookings, showCompleted }: UpcomingShiftsLi
                           <IconLogout className="mr-2 size-4" />
                         )}
                         Check Out
+                      </Button>
+                    )}
+
+                    {/* Cancel button for pending/accepted bookings that haven't started */}
+                    {(booking.status === 'PENDING' || booking.status === 'ACCEPTED') && !booking.checkedInAt && (
+                      <Button
+                        onClick={() => handleCancel(booking.id)}
+                        disabled={isLoading}
+                        variant="outline"
+                        className="flex-1 sm:flex-none text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950"
+                      >
+                        {isLoading ? (
+                          <IconLoader2 className="mr-2 size-4 animate-spin" />
+                        ) : (
+                          <IconX className="mr-2 size-4" />
+                        )}
+                        Cancel
                       </Button>
                     )}
                   </div>

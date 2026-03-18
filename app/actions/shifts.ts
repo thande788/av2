@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { ShiftStatus, ServiceLevel } from '@prisma/client';
 import { z } from 'zod';
+import { sendShiftConfirmation, sendShiftCancellation } from './sms-notifications';
 
 // Validation schema for shift creation
 const createShiftSchema = z.object({
@@ -324,6 +325,11 @@ export async function confirmBooking(
     revalidatePath(`/admin/shifts/${booking.shiftId}`);
     revalidatePath(`/admin/clients/${booking.shift.clientId}`);
 
+    // Send SMS confirmation to the worker (fire-and-forget)
+    sendShiftConfirmation(booking.shiftId, booking.workerId).catch((err) =>
+      console.error('SMS confirmation failed:', err)
+    );
+
     return { success: true };
   } catch (error) {
     console.error('Failed to confirm booking:', error);
@@ -341,6 +347,12 @@ export async function cancelShift(
   try {
     const shift = await db.careShift.findUnique({
       where: { id: shiftId },
+      include: {
+        bookings: {
+          where: { status: { in: ['CONFIRMED', 'PENDING', 'ACCEPTED'] } },
+          select: { workerId: true },
+        },
+      },
     });
 
     if (!shift) {
@@ -366,6 +378,13 @@ export async function cancelShift(
     revalidatePath('/admin/shifts');
     revalidatePath(`/admin/shifts/${shiftId}`);
     revalidatePath(`/admin/clients/${shift.clientId}`);
+
+    // Notify affected workers via SMS (fire-and-forget)
+    for (const booking of shift.bookings) {
+      sendShiftCancellation(shiftId, booking.workerId, reason).catch((err) =>
+        console.error('SMS cancellation failed:', err)
+      );
+    }
 
     return { success: true };
   } catch (error) {

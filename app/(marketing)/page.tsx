@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TestimonialCard } from "@/components/testimonials/testimonial-card";
 import { featuredTestimonials } from "@/data/testimonials";
+import { db } from "@/lib/db";
+import type { Testimonial } from "@/types/cards";
 import {
 	FeatureCarousel,
 	type FeatureSlide,
@@ -158,11 +160,42 @@ const whyChooseUsSlides: FeatureSlide[] = [
 ];
 
 /**
+ * Fetch featured testimonials from DB, falling back to static data.
+ */
+async function getFeaturedTestimonials(): Promise<Testimonial[]> {
+	try {
+		const dbTestimonials = await db.testimonial.findMany({
+			where: { isPublished: true },
+			orderBy: { createdAt: "desc" },
+			take: 3,
+		});
+
+		if (dbTestimonials.length > 0) {
+			return dbTestimonials.map((t) => ({
+				id: t.id,
+				name: t.name,
+				text: t.content,
+				relation: t.role ?? "Client",
+				rating: t.rating ?? undefined,
+				date: t.createdAt.toLocaleDateString("en-US", {
+					month: "long",
+					year: "numeric",
+				}),
+			}));
+		}
+	} catch {
+		// DB unavailable — fall through to static
+	}
+	return featuredTestimonials;
+}
+
+/**
  * Home page - Marketing landing page
  *
  * Sections: Hero, Stats, Services Preview, Why Choose Us, Testimonials, CTA
  */
-export default function HomePage() {
+export default async function HomePage() {
+	const testimonials = await getFeaturedTestimonials();
 	return (
 		<>
 			<JsonLd data={localBusinessSchema} />
@@ -360,7 +393,7 @@ export default function HomePage() {
 				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-					{featuredTestimonials.map((testimonial) => (
+					{testimonials.map((testimonial) => (
 						<TestimonialCard key={testimonial.id} testimonial={testimonial} />
 					))}
 				</div>

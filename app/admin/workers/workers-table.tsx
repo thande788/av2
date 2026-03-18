@@ -1,8 +1,12 @@
 'use client';
 
+import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { IconCheck, IconX, IconLoader2 } from '@tabler/icons-react';
 import { DataTable, type Column } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { approveWorker, rejectWorker } from '@/app/actions/workers';
 import type { Worker, PortalUser, UserStatus, ComplianceStatus } from '@prisma/client';
 import type { Serialized } from '@/lib/utils';
 
@@ -104,11 +108,68 @@ export function WorkersTable({
   workers: WorkerWithUser[];
 }) {
   const router = useRouter();
+  const [loadingId, setLoadingId] = React.useState<string | null>(null);
+
+  const handleApprove = async (e: React.MouseEvent, workerId: string) => {
+    e.stopPropagation();
+    setLoadingId(workerId);
+    const result = await approveWorker(workerId);
+    setLoadingId(null);
+    if (result.success) router.refresh();
+  };
+
+  const handleReject = async (e: React.MouseEvent, workerId: string) => {
+    e.stopPropagation();
+    setLoadingId(workerId);
+    const result = await rejectWorker(workerId);
+    setLoadingId(null);
+    if (result.success) router.refresh();
+  };
+
+  const columnsWithActions: Column<WorkerWithUser>[] = [
+    ...columns,
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (worker) => {
+        if (worker.user.status !== 'PENDING') return null;
+        const isLoading = loadingId === worker.id;
+        return (
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+              onClick={(e) => handleApprove(e, worker.id)}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <IconLoader2 className="mr-1 size-3.5 animate-spin" />
+              ) : (
+                <IconCheck className="mr-1 size-3.5" />
+              )}
+              Approve
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950"
+              onClick={(e) => handleReject(e, worker.id)}
+              disabled={isLoading}
+            >
+              <IconX className="mr-1 size-3.5" />
+              Reject
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <DataTable
       data={workers}
-      columns={columns}
+      columns={columnsWithActions}
       searchKeys={['user.firstName', 'user.lastName', 'user.email', 'employeeId']}
       onRowClick={(worker) => router.push(`/admin/workers/${worker.id}`)}
       emptyMessage="No workers found."
