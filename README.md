@@ -180,6 +180,7 @@ vercel --prod
 
 - [Environment Variables](docs/ENVIRONMENT.md) — Complete env var reference
 - [Deployment Guide](docs/DEPLOYMENT.md) — Production deployment instructions
+- [Authentication & Roles](docs/AUTHENTICATION.md) — Portal access control
 - [API Reference](docs/API.md) — Server actions and API routes
 - [Development Guide](.github/copilot-instructions.md) — Code standards and patterns
 

@@ -114,7 +114,7 @@ export function ClientSidebar() {
 
       {/* Footer */}
       <div className="border-t border-sky-500/20 p-3">
-        <SignOutButton>
+        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
           <button
             className={cn(
               'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
