@@ -7,8 +7,11 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CaregiverCardGrid } from "@/components/caregivers/caregiver-card";
-import { caregivers } from "@/data/caregivers";
+import { caregivers as staticCaregivers } from "@/data/caregivers";
 import { getCanonicalAlternates } from "@/lib/seo";
+import { db } from "@/lib/db";
+import { computeCaregiverRatingsBatch } from "@/lib/ratings";
+import type { Caregiver } from "@/types";
 
 export const metadata: Metadata = {
 	title: "Caregivers",
@@ -31,12 +34,53 @@ export const metadata: Metadata = {
 };
 
 /**
+ * Fetch public caregiver profiles from the database.
+ * Falls back to static data if no approved public profiles exist.
+ */
+async function getCaregivers(): Promise<Caregiver[]> {
+	try {
+		const workers = await db.worker.findMany({
+			where: {
+				isPublicProfile: true,
+				profileStatus: "APPROVED",
+				user: { status: "ACTIVE" },
+			},
+			include: { user: true },
+		});
+
+		if (workers.length === 0) {
+			return staticCaregivers;
+		}
+
+		const workerIds = workers.map((w) => w.id);
+		const ratings = await computeCaregiverRatingsBatch(workerIds);
+
+		return workers.map((w) => ({
+			id: w.id,
+			fullName: `${w.user.firstName} ${w.user.lastName}`,
+			photoUrl: w.marketingPhotoUrl || undefined,
+			bio: w.marketingBio || "",
+			yearsExperience: w.yearsExperience ?? 0,
+			rating: ratings.get(w.id)?.average ?? 5,
+			specialties: w.marketingSpecialties,
+			certifications: w.marketingCertifications,
+			languages: w.marketingLanguages,
+			available: true,
+		}));
+	} catch {
+		return staticCaregivers;
+	}
+}
+
+/**
  * Caregivers page
  *
  * Displays the caregiver team in a responsive grid layout
  * with hero, team grid, and join CTA sections.
  */
-export default function CaregiversPage() {
+export default async function CaregiversPage() {
+	const caregivers = await getCaregivers();
+
 	return (
 		<main className="min-h-screen" aria-label="Meet Our Caregivers">
 			{/* Hero Section */}

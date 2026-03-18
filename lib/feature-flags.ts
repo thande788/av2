@@ -85,6 +85,11 @@ export const featureFlags = {
     clientManagement:
       process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
       process.env.NEXT_PUBLIC_FEATURE_CLIENTS === 'true',
+
+    /** Shift reviews and ratings */
+    reviews:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_REVIEWS === 'true',
   },
 } as const;
 

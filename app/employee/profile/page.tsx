@@ -12,11 +12,11 @@ import {
   IconLanguage,
   IconEdit,
   IconShieldCheck,
-  IconAlertCircle,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { getCurrentWorkerWithProfile } from '@/lib/auth';
+import { MarketingProfileForm } from '@/components/employee/marketing-profile-form';
 
 export const metadata = {
   title: 'My Profile',
@@ -283,6 +283,20 @@ export default async function EmployeeProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Marketing Profile */}
+      <MarketingProfileForm
+        initialData={{
+          marketingBio: worker.marketingBio,
+          marketingSpecialties: worker.marketingSpecialties,
+          marketingLanguages: worker.marketingLanguages,
+          marketingCertifications: worker.marketingCertifications,
+          yearsExperience: worker.yearsExperience,
+          profileStatus: worker.profileStatus,
+          profileRejectionNote: worker.profileRejectionNote,
+          isPublicProfile: worker.isPublicProfile,
+        }}
+      />
     </div>
   );
 }

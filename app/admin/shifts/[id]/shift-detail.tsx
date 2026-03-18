@@ -11,6 +11,7 @@ import {
   IconLoader2,
   IconMapPin,
   IconMessageForward,
+  IconStar,
   IconUser,
   IconUsers,
   IconX,
@@ -55,6 +56,7 @@ import {
   completeShift,
 } from '@/app/actions/shifts';
 import { sendShiftNotification } from '@/app/actions/sms-notifications';
+import { AdminShiftRating } from './admin-shift-rating';
 
 type ShiftWithRelations = CareShift & {
   client: Client & {
@@ -496,6 +498,14 @@ export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Admin Caregiver Rating (completed shifts only) */}
+      {shift.status === 'COMPLETED' && confirmedBooking && (
+        <AdminShiftRating
+          shiftId={shift.id}
+          caregiverName={`${confirmedBooking.worker.user.firstName} ${confirmedBooking.worker.user.lastName}`}
+        />
       )}
     </div>
   );

@@ -12,12 +12,15 @@ import {
   IconCheck,
   IconClock,
   IconEdit,
+  IconEye,
+  IconEyeOff,
   IconId,
   IconLanguage,
   IconLoader2,
   IconMail,
   IconMapPin,
   IconPhone,
+  IconSend,
   IconUser,
   IconX,
 } from '@tabler/icons-react';
@@ -31,6 +34,7 @@ import {
   Client,
   UserStatus,
   ComplianceStatus,
+  ProfileStatus,
 } from '@prisma/client';
 
 import { cn, type Serialized } from '@/lib/utils';
@@ -60,7 +64,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { approveWorker, rejectWorker, updateWorkerStatus, updateWorker } from '@/app/actions/workers';
+import { Textarea } from '@/components/ui/textarea';
+import { approveWorker, rejectWorker, updateWorkerStatus, updateWorker, approveWorkerProfile, rejectWorkerProfile, togglePublicProfile } from '@/app/actions/workers';
 
 type WorkerWithRelations = Worker & {
   user: PortalUser;
@@ -103,6 +108,12 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
   const [editEmployeeId, setEditEmployeeId] = React.useState(worker.employeeId || '');
   const [editError, setEditError] = React.useState<string | null>(null);
   const [isSavingId, setIsSavingId] = React.useState(false);
+
+  // Marketing profile review state
+  const [isApprovingProfile, setIsApprovingProfile] = React.useState(false);
+  const [isRejectingProfile, setIsRejectingProfile] = React.useState(false);
+  const [profileRejectionNote, setProfileRejectionNote] = React.useState('');
+  const [isTogglingPublic, setIsTogglingPublic] = React.useState(false);
 
   const handleSaveEmployeeId = async () => {
     if (!editEmployeeId.trim()) {
@@ -148,6 +159,35 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
 
   const handleReactivate = async () => {
     const result = await updateWorkerStatus(worker.id, 'ACTIVE');
+    if (result.success) {
+      router.refresh();
+    }
+  };
+
+  const handleApproveProfile = async () => {
+    setIsApprovingProfile(true);
+    const result = await approveWorkerProfile(worker.id);
+    setIsApprovingProfile(false);
+    if (result.success) {
+      router.refresh();
+    }
+  };
+
+  const handleRejectProfile = async () => {
+    if (!profileRejectionNote.trim()) return;
+    setIsRejectingProfile(true);
+    const result = await rejectWorkerProfile(worker.id, profileRejectionNote.trim());
+    setIsRejectingProfile(false);
+    if (result.success) {
+      setProfileRejectionNote('');
+      router.refresh();
+    }
+  };
+
+  const handleTogglePublic = async () => {
+    setIsTogglingPublic(true);
+    const result = await togglePublicProfile(worker.id, !worker.isPublicProfile);
+    setIsTogglingPublic(false);
     if (result.success) {
       router.refresh();
     }
@@ -425,6 +465,151 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Marketing Profile Review */}
+      {worker.marketingBio && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <IconUser className="size-5" />
+                Marketing Profile
+                <Badge
+                  className={cn(
+                    'font-medium',
+                    worker.profileStatus === 'APPROVED'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500'
+                      : worker.profileStatus === 'PENDING_REVIEW'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500'
+                        : worker.profileStatus === 'REJECTED'
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                  )}
+                >
+                  {worker.profileStatus === 'PENDING_REVIEW' ? 'Pending Review' : worker.profileStatus}
+                </Badge>
+                {worker.isPublicProfile && (
+                  <Badge className="bg-primary/15 text-primary">
+                    Public
+                  </Badge>
+                )}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                {worker.profileStatus === 'APPROVED' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleTogglePublic}
+                    disabled={isTogglingPublic}
+                  >
+                    {isTogglingPublic ? (
+                      <IconLoader2 className="mr-2 size-4 animate-spin" />
+                    ) : worker.isPublicProfile ? (
+                      <IconEyeOff className="mr-2 size-4" />
+                    ) : (
+                      <IconEye className="mr-2 size-4" />
+                    )}
+                    {worker.isPublicProfile ? 'Hide from Website' : 'Show on Website'}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Bio */}
+            <div>
+              <p className="text-sm font-medium text-muted-foreground mb-1">Bio</p>
+              <p className="text-sm whitespace-pre-wrap">{worker.marketingBio}</p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Experience */}
+              {worker.yearsExperience != null && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Experience</p>
+                  <p className="text-sm">{worker.yearsExperience} years</p>
+                </div>
+              )}
+
+              {/* Specialties */}
+              {worker.marketingSpecialties.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Specialties</p>
+                  <div className="flex flex-wrap gap-1">
+                    {worker.marketingSpecialties.map((s: string) => (
+                      <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Languages */}
+              {worker.marketingLanguages.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Languages</p>
+                  <div className="flex flex-wrap gap-1">
+                    {worker.marketingLanguages.map((l: string) => (
+                      <Badge key={l} variant="outline" className="text-xs">{l}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Certifications */}
+              {worker.marketingCertifications.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Certifications</p>
+                  <div className="flex flex-wrap gap-1">
+                    {worker.marketingCertifications.map((c: string) => (
+                      <Badge key={c} variant="secondary" className="text-xs">{c}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Approval actions */}
+            {worker.profileStatus === 'PENDING_REVIEW' && (
+              <div className="border-t pt-4 space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="rejection-note">Rejection Note (required to reject)</Label>
+                  <Textarea
+                    id="rejection-note"
+                    value={profileRejectionNote}
+                    onChange={(e) => setProfileRejectionNote(e.target.value)}
+                    placeholder="Provide feedback on what needs to be changed..."
+                    rows={2}
+                    className="resize-none"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button onClick={handleApproveProfile} disabled={isApprovingProfile || isRejectingProfile}>
+                    {isApprovingProfile ? (
+                      <IconLoader2 className="mr-2 size-4 animate-spin" />
+                    ) : (
+                      <IconCheck className="mr-2 size-4" />
+                    )}
+                    Approve Profile
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="text-red-600 hover:text-red-700"
+                    onClick={handleRejectProfile}
+                    disabled={isApprovingProfile || isRejectingProfile || !profileRejectionNote.trim()}
+                  >
+                    {isRejectingProfile ? (
+                      <IconLoader2 className="mr-2 size-4 animate-spin" />
+                    ) : (
+                      <IconX className="mr-2 size-4" />
+                    )}
+                    Reject
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Compliance Documents */}
       <Card>

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TestimonialCardGrid } from "@/components/testimonials/testimonial-card";
-import { testimonials } from "@/data/testimonials";
+import { testimonials as staticTestimonials } from "@/data/testimonials";
 import { JsonLdGraph } from "@/components/seo";
 import {
   createReviewSchema,
@@ -15,9 +15,88 @@ import {
   getCanonicalAlternates,
   type TestimonialInput,
 } from "@/lib/seo";
+import { db } from "@/lib/db";
+import type { Testimonial } from "@/types";
+
+/**
+ * Fetch testimonials from the database, combining published shift reviews
+ * with manually-entered testimonials. Falls back to static data.
+ */
+async function getTestimonials(): Promise<Testimonial[]> {
+  try {
+    // Published client reviews
+    const publishedReviews = await db.shiftReview.findMany({
+      where: {
+        isPublished: true,
+        reviewerType: "CLIENT",
+        comment: { not: null },
+      },
+      include: {
+        shift: {
+          include: {
+            client: {
+              include: { user: true },
+            },
+          },
+        },
+      },
+      orderBy: { publishedAt: "desc" },
+    });
+
+    // Manual testimonials from the Testimonial model
+    const manualTestimonials = await db.testimonial.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const combined: Testimonial[] = [];
+
+    // Map published shift reviews to Testimonial shape
+    for (const review of publishedReviews) {
+      const client = review.shift.client;
+      combined.push({
+        id: review.id,
+        name: `${client.user.firstName} ${client.user.lastName}`,
+        text: review.comment!,
+        relation: client.relationship || "Client",
+        rating: review.rating,
+        date: review.publishedAt
+          ? new Date(review.publishedAt).toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })
+          : undefined,
+      });
+    }
+
+    // Map manual testimonials
+    for (const t of manualTestimonials) {
+      combined.push({
+        id: t.id,
+        name: t.name,
+        text: t.content,
+        relation: t.role || "Client",
+        rating: t.rating ?? undefined,
+        avatarUrl: t.imageUrl ?? undefined,
+        date: new Date(t.createdAt).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        }),
+      });
+    }
+
+    if (combined.length === 0) {
+      return staticTestimonials;
+    }
+
+    return combined;
+  } catch {
+    return staticTestimonials;
+  }
+}
 
 // Convert testimonials to schema format and generate review schemas
-const testimonialInputs: TestimonialInput[] = testimonials.map((t) => ({
+const staticTestimonialInputs: TestimonialInput[] = staticTestimonials.map((t) => ({
   id: t.id,
   content: t.text,
   author: t.name,
@@ -25,8 +104,8 @@ const testimonialInputs: TestimonialInput[] = testimonials.map((t) => ({
   relationship: t.relation,
 }));
 
-const reviewSchemas = testimonialInputs.map((t) => createReviewSchema(t));
-const aggregateRatingSchema = createAggregateRatingSchema(testimonialInputs);
+const reviewSchemas = staticTestimonialInputs.map((t) => createReviewSchema(t));
+const aggregateRatingSchema = createAggregateRatingSchema(staticTestimonialInputs);
 
 export const metadata: Metadata = {
   title: "Testimonials",
@@ -54,7 +133,9 @@ export const metadata: Metadata = {
  * Displays client testimonials in a responsive grid layout
  * replacing the legacy carousel with a more accessible approach.
  */
-export default function TestimonialsPage() {
+export default async function TestimonialsPage() {
+  const testimonials = await getTestimonials();
+
   return (
     <>
       <JsonLdGraph schemas={[aggregateRatingSchema, ...reviewSchemas]} />

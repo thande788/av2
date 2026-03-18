@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   Menu,
   LogOut,
+  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -45,6 +46,11 @@ const navItems: NavItem[] = [
     title: 'Invoices',
     href: '/client/invoices',
     icon: FileText,
+  },
+  {
+    title: 'Reviews',
+    href: '/client/reviews',
+    icon: Star,
   },
   {
     title: 'Settings',

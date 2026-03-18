@@ -48,3 +48,18 @@ export {
   type AvailabilityData,
   type AddressInfoData,
 } from "./worker-registration";
+
+// Worker marketing profile
+export {
+  marketingProfileSchema,
+  MARKETING_SPECIALTY_OPTIONS,
+  MARKETING_LANGUAGE_OPTIONS,
+  MARKETING_CERTIFICATION_OPTIONS,
+  type MarketingProfileData,
+} from "./worker-profile";
+
+// Shift reviews
+export {
+  shiftReviewSchema,
+  type ShiftReviewData,
+} from "./shift-review";

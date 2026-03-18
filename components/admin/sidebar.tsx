@@ -76,6 +76,12 @@ const navItems: NavItem[] = [
     icon: FileText,
     demoOnly: true,
   },
+  {
+    title: 'Reviews',
+    href: '/admin/reviews',
+    icon: Star,
+    demoOnly: true,
+  },
   // Standard Items
   {
     title: 'Jobs',

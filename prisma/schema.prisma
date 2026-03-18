@@ -267,6 +267,7 @@ model Worker {
   // Work history
   shiftBookings     ShiftBooking[]
   timesheets        Timesheet[]
+  reviews           ShiftReview[]
   
   // Address (for proximity matching)
   street            String?
@@ -276,6 +277,19 @@ model Worker {
   latitude          Decimal?          @db.Decimal(10, 8)
   longitude         Decimal?          @db.Decimal(11, 8)
   
+  // Marketing profile (employee-authored, admin-approved)
+  marketingBio            String?           @db.Text
+  marketingPhotoUrl       String?
+  marketingSpecialties    String[]
+  marketingLanguages      String[]
+  marketingCertifications String[]
+  yearsExperience         Int?
+  profileStatus           ProfileStatus     @default(DRAFT)
+  profileReviewedBy       String?
+  profileReviewedAt       DateTime?
+  profileRejectionNote    String?
+  isPublicProfile         Boolean           @default(false)
+  
   // Notes
   notes             String?           @db.Text
   
@@ -284,6 +298,8 @@ model Worker {
 
   @@index([complianceStatus])
   @@index([zip])
+  @@index([profileStatus])
+  @@index([isPublicProfile])
 }
 
 enum PayType {
@@ -297,6 +313,13 @@ enum ComplianceStatus {
   PENDING      // Documents submitted, awaiting verification
   COMPLIANT    // All documents verified and current
   EXPIRED      // One or more documents expired
+}
+
+enum ProfileStatus {
+  DRAFT           // Not yet submitted
+  PENDING_REVIEW  // Submitted, awaiting admin approval
+  APPROVED        // Approved by admin
+  REJECTED        // Rejected, needs revision
 }
 
 // =============================================================================
@@ -471,6 +494,7 @@ model CareShift {
   
   // Booking
   bookings        ShiftBooking[]
+  reviews         ShiftReview[]
   
   // Rates
   clientRate      Decimal         @db.Decimal(10, 2) // What client pays
@@ -547,6 +571,44 @@ enum BookingStatus {
   CANCELLED       // Booking cancelled
   COMPLETED       // Shift completed
   NO_SHOW         // Worker didn't show
+}
+
+// =============================================================================
+// SHIFT REVIEWS
+// =============================================================================
+
+model ShiftReview {
+  id              String          @id @default(cuid())
+  shift           CareShift       @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  shiftId         String
+  worker          Worker          @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  workerId        String
+  
+  // Reviewer
+  reviewerType    ReviewerType
+  reviewerId      String          // PortalUser.id of reviewer
+  
+  // Content
+  rating          Int             // 1-5 stars
+  comment         String?         @db.Text
+  
+  // Publishing (admin approves client reviews for public display)
+  isPublished     Boolean         @default(false)
+  publishedAt     DateTime?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([shiftId, reviewerType, reviewerId])
+  @@index([workerId])
+  @@index([shiftId])
+  @@index([reviewerType])
+  @@index([isPublished])
+}
+
+enum ReviewerType {
+  CLIENT
+  ADMIN
 }
 
 // =============================================================================

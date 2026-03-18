@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { UserStatus, ComplianceStatus } from '@prisma/client';
+import { UserStatus, ComplianceStatus, ProfileStatus } from '@prisma/client';
 
 /**
  * Approve a pending worker application
@@ -205,5 +205,121 @@ export async function updateWorker(
   } catch (error) {
     console.error('Failed to update worker:', error);
     return { success: false, error: 'Failed to update worker' };
+  }
+}
+
+/**
+ * Approve a worker's marketing profile for public display.
+ */
+export async function approveWorkerProfile(
+  workerId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const worker = await db.worker.findUnique({
+      where: { id: workerId },
+    });
+
+    if (!worker) {
+      return { success: false, error: 'Worker not found' };
+    }
+
+    if (worker.profileStatus !== 'PENDING_REVIEW') {
+      return { success: false, error: 'Profile is not pending review' };
+    }
+
+    await db.worker.update({
+      where: { id: workerId },
+      data: {
+        profileStatus: ProfileStatus.APPROVED,
+        profileReviewedAt: new Date(),
+        profileRejectionNote: null,
+      },
+    });
+
+    revalidatePath('/admin/workers');
+    revalidatePath(`/admin/workers/${workerId}`);
+    revalidatePath('/employee/profile');
+    revalidatePath('/caregivers');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to approve worker profile:', error);
+    return { success: false, error: 'Failed to approve profile' };
+  }
+}
+
+/**
+ * Reject a worker's marketing profile with feedback.
+ */
+export async function rejectWorkerProfile(
+  workerId: string,
+  note: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const worker = await db.worker.findUnique({
+      where: { id: workerId },
+    });
+
+    if (!worker) {
+      return { success: false, error: 'Worker not found' };
+    }
+
+    if (worker.profileStatus !== 'PENDING_REVIEW') {
+      return { success: false, error: 'Profile is not pending review' };
+    }
+
+    await db.worker.update({
+      where: { id: workerId },
+      data: {
+        profileStatus: ProfileStatus.REJECTED,
+        profileReviewedAt: new Date(),
+        profileRejectionNote: note,
+      },
+    });
+
+    revalidatePath('/admin/workers');
+    revalidatePath(`/admin/workers/${workerId}`);
+    revalidatePath('/employee/profile');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to reject worker profile:', error);
+    return { success: false, error: 'Failed to reject profile' };
+  }
+}
+
+/**
+ * Toggle a worker's public visibility on the marketing caregivers page.
+ */
+export async function togglePublicProfile(
+  workerId: string,
+  isPublic: boolean
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const worker = await db.worker.findUnique({
+      where: { id: workerId },
+    });
+
+    if (!worker) {
+      return { success: false, error: 'Worker not found' };
+    }
+
+    if (isPublic && worker.profileStatus !== 'APPROVED') {
+      return { success: false, error: 'Profile must be approved before making it public' };
+    }
+
+    await db.worker.update({
+      where: { id: workerId },
+      data: { isPublicProfile: isPublic },
+    });
+
+    revalidatePath('/admin/workers');
+    revalidatePath(`/admin/workers/${workerId}`);
+    revalidatePath('/caregivers');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to toggle public profile:', error);
+    return { success: false, error: 'Failed to toggle public profile' };
   }
 }

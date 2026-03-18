@@ -80,6 +80,8 @@ export interface Caregiver {
   yearsExperience: number;
   /** Rating (1-5) */
   rating: number;
+  /** Number of reviews (optional, for DB-sourced data) */
+  reviewCount?: number;
   /** List of specialties */
   specialties: string[];
   /** Certifications */
