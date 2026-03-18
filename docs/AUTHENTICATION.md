@@ -150,6 +150,100 @@ The Clerk webhook may have failed. Check:
 2. Clerk Dashboard → Webhooks → delivery status
 3. The account creation will auto-retry on page refresh
 
+### Local Development: User Redirects to `/portals`
+
+**Problem:** When signing in locally, users are redirected to `/portals` instead of their portal.
+
+**Cause:** Clerk webhooks cannot reach `localhost:3000`, so:
+- No `PortalUser` record is created in the database
+- No role is synced to Clerk `publicMetadata`
+
+**Solutions:**
+
+1. **Manual: Set role in Clerk Dashboard (fastest)**
+   - Clerk Dashboard → Users → Select user → Edit Public Metadata
+   - Add: `{ "role": "caregiver" }` (or admin, manager, client)
+
+2. **Script: Sync role from database or set manually**
+   ```bash
+   # Set role directly
+   pnpm tsx scripts/sync-clerk-role.ts user_XXXXX caregiver
+   
+   # Sync from database (if user exists there)
+   pnpm tsx scripts/sync-clerk-role.ts user_XXXXX
+   ```
+
+3. **ngrok: Enable webhooks locally**
+   ```bash
+   ngrok http 3000
+   # Update Clerk Dashboard → Webhooks → Endpoint URL to ngrok URL
+   ```
+
+## Role vs Route Clarification
+
+> **Important:** The **role** name does not match the **route** name for employees.
+
+| Clerk Role | Database Role | Portal Route | Access |
+|------------|---------------|--------------|--------|
+| `admin` | `ADMIN` | `/admin` | All portals |
+| `manager` | `MANAGER` | `/admin` | All portals |
+| `caregiver` | `CAREGIVER` | `/employee` | Employee portal only |
+| `client` | `CLIENT` | `/client` | Client portal only |
+
+The role stored in Clerk and the database is `caregiver`, but the route is `/employee`. This is intentional - caregivers are employees of the agency.
+
+## Database Queries
+
+### List All Portal Users
+
+```bash
+# List all users
+pnpm tsx scripts/list-users.ts
+
+# Filter by role
+pnpm tsx scripts/list-users.ts caregiver
+
+# Point to production database
+DATABASE_URL="postgresql://..." pnpm tsx scripts/list-users.ts
+```
+
+### Sync Clerk Role
+
+```bash
+# Set role for a user
+pnpm tsx scripts/sync-clerk-role.ts user_2abc123def caregiver
+
+# Sync from database (if user exists)
+pnpm tsx scripts/sync-clerk-role.ts user_2abc123def
+```
+
+### Prisma Studio (GUI)
+
+```bash
+# Local database
+pnpm prisma studio
+
+# Production database
+DATABASE_URL="postgresql://..." pnpm prisma studio
+```
+
+Opens a web UI at `http://localhost:5555` to browse all tables.
+
+### Direct SQL Query
+
+```sql
+-- List all portal users
+SELECT id, "clerkId", email, role, status, "createdAt" 
+FROM "PortalUser" 
+ORDER BY "createdAt" DESC;
+
+-- Find user by email
+SELECT * FROM "PortalUser" WHERE email = 'user@example.com';
+
+-- Count users by role
+SELECT role, COUNT(*) FROM "PortalUser" GROUP BY role;
+```
+
 ## Security Considerations
 
 - Middleware runs on every request to protected routes

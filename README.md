@@ -105,6 +105,19 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 | `pnpm db:studio` | Open Prisma Studio |
 | `pnpm db:seed` | Seed database with sample data |
 
+### Utility Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm tsx scripts/list-users.ts` | List all portal users in database |
+| `pnpm tsx scripts/list-users.ts caregiver` | Filter users by role |
+| `pnpm tsx scripts/sync-clerk-role.ts <clerkId> <role>` | Sync role to Clerk |
+
+For production database queries, prefix with `DATABASE_URL`:
+```bash
+DATABASE_URL="postgresql://..." pnpm tsx scripts/list-users.ts
+```
+
 ## Environment Variables
 
 See [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) for the complete list of required environment variables.
