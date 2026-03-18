@@ -73,13 +73,15 @@ export function EmployeeSidebar() {
       {/* Header */}
       <div className="flex h-16 items-center justify-between border-b border-emerald-500/20 px-4">
         <Link href="/employee" className="flex items-center gap-2">
-          <Image
-            src="/angel_pink.png"
-            alt="Angel Touch"
-            width={36}
-            height={36}
-            className="size-9"
-          />
+          <div className="size-9 overflow-hidden rounded-lg">
+            <Image
+              src="/angel_pink.png"
+              alt="Angel Touch"
+              width={200}
+              height={200}
+              className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+            />
+          </div>
           {!collapsed && (
             <span className="font-semibold text-emerald-600 dark:text-emerald-500">Employee Portal</span>
           )}

@@ -8,6 +8,7 @@ interface LogoWatermarkProps {
 /**
  * A subtle logo watermark for portal backgrounds
  * Positioned in the bottom-right corner with low opacity
+ * Uses CSS overflow clipping to remove whitespace from the source image
  */
 export function LogoWatermark({ className }: LogoWatermarkProps) {
   return (
@@ -18,14 +19,16 @@ export function LogoWatermark({ className }: LogoWatermarkProps) {
       )}
       aria-hidden="true"
     >
-      <Image
-        src="/angel_pink.png"
-        alt=""
-        width={400}
-        height={400}
-        className="size-64 sm:size-80 lg:size-96"
-        priority={false}
-      />
+      <div className="size-64 overflow-hidden sm:size-80 lg:size-96">
+        <Image
+          src="/angel_pink.png"
+          alt=""
+          width={600}
+          height={600}
+          className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+          priority={false}
+        />
+      </div>
     </div>
   );
 }

@@ -48,13 +48,13 @@ export function Footer({
           {/* Brand / Description */}
           <div className="md:col-span-5 lg:col-span-4">
             <div className="flex items-center gap-3 mb-5">
-              <span className="relative inline-flex items-center justify-center w-16 h-16 sm:w-16 sm:h-16 md:w-20 md:h-20">
+              <span className="relative inline-flex items-center justify-center size-12 sm:size-14 md:size-16 overflow-hidden rounded-lg">
                 <Image
                   src="/angel_pink.png"
-                  width={80}
-                  height={80}
+                  width={200}
+                  height={200}
                   alt="Angel Touch Homecare logo"
-                  className="w-16 h-16 md:w-20 md:h-20 object-contain select-none drop-shadow-md"
+                  className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%] select-none drop-shadow-md"
                   loading="lazy"
                 />
               </span>
