@@ -1196,7 +1196,7 @@ const complianceDocsData: Array<{
 
 const portalClients = [
   {
-    clerkId: 'demo_client_1',
+    clerkId: 'user_3B8MuK5WOCreGEgqGa7ONESrgON',
     email: 'robert.anderson@email.demo',
     phone: '(978) 555-4001',
     firstName: 'Robert',
