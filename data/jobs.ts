@@ -9,7 +9,6 @@ import type { Job } from "@/types/job";
 
 export const jobs: Job[] = [
   {
-    id: "clw1abc123",
     slug: "certified-home-health-aide",
     title: "Certified Home Health Aide (HHA)",
     department: "caregiving",
@@ -62,7 +61,6 @@ As a Home Health Aide with Angel Touch, you'll make a meaningful difference in t
     postedAt: new Date("2026-01-15"),
   },
   {
-    id: "clw2def456",
     slug: "certified-nursing-assistant",
     title: "Certified Nursing Assistant (CNA)",
     department: "nursing",
@@ -114,7 +112,6 @@ This role offers the opportunity to build meaningful relationships with clients 
     postedAt: new Date("2026-01-10"),
   },
   {
-    id: "clw3ghi789",
     slug: "part-time-companion-caregiver",
     title: "Part-Time Companion Caregiver",
     department: "caregiving",
@@ -162,7 +159,6 @@ This is an ideal position for individuals who want to make a positive impact whi
     postedAt: new Date("2026-01-20"),
   },
   {
-    id: "clw4jkl012",
     slug: "weekend-live-in-caregiver",
     title: "Weekend Live-In Caregiver",
     department: "caregiving",
@@ -210,7 +206,6 @@ Live-in caregivers stay with clients in their homes, providing care and supervis
     postedAt: new Date("2026-01-18"),
   },
   {
-    id: "clw5mno345",
     slug: "care-coordinator",
     title: "Care Coordinator / Scheduler",
     department: "administrative",

@@ -157,22 +157,29 @@ model ContactSubmission {
 
 // Testimonials (for CMS functionality + client submissions)
 model Testimonial {
-  id            String      @id @default(cuid())
+  id            String           @id @default(cuid())
+  slug          String?          @unique // Stable identifier (e.g. "evelyn-r")
   name          String
-  role          String?     // "Family Member", "Client", etc.
-  content       String      @db.Text
-  rating        Int?        @default(5) // 1-5 stars
+  role          String?          // "Family Member", "Client", etc.
+  content       String           @db.Text
+  rating        Int?             @default(5) // 1-5 stars
   imageUrl      String?
-  isPublished   Boolean     @default(false)
+  isPublished   Boolean          @default(false)
+  
+  // Optional link to a service category (e.g. "Personal Care")
+  serviceCategoryId String?
+  serviceCategory   ServiceCategory? @relation(fields: [serviceCategoryId], references: [id], onDelete: SetNull)
   
   // Client portal submissions — null for admin-created
-  submittedById String?     // PortalUser.id of submitter
+  submittedById String?
+  submittedBy   PortalUser?      @relation(fields: [submittedById], references: [id], onDelete: SetNull)
   
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
   
   @@index([isPublished])
   @@index([submittedById])
+  @@index([serviceCategoryId])
 }
 
 // Service inquiries
@@ -218,6 +225,7 @@ model PortalUser {
   // Relations
   worker          Worker?
   client          Client?
+  testimonials    Testimonial[]
   
   // Timestamps
   createdAt       DateTime   @default(now())
@@ -865,9 +873,10 @@ model ServiceCategory {
   image       String?
   sortOrder   Int           @default(0)
   isActive    Boolean       @default(true)
-  services    ServiceItem[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  services     ServiceItem[]
+  testimonials Testimonial[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@index([isActive, sortOrder])
 }

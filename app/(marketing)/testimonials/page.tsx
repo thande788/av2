@@ -46,6 +46,7 @@ async function getTestimonials(): Promise<Testimonial[]> {
     // Manual testimonials from the Testimonial model
     const manualTestimonials = await db.testimonial.findMany({
       where: { isPublished: true },
+      include: { serviceCategory: { select: { slug: true, name: true } } },
       orderBy: { createdAt: "desc" },
     });
 
@@ -73,6 +74,7 @@ async function getTestimonials(): Promise<Testimonial[]> {
     for (const t of manualTestimonials) {
       combined.push({
         id: t.id,
+        slug: t.slug ?? undefined,
         name: t.name,
         text: t.content,
         relation: t.role || "Client",
@@ -97,7 +99,7 @@ async function getTestimonials(): Promise<Testimonial[]> {
 
 // Convert testimonials to schema format and generate review schemas
 const staticTestimonialInputs: TestimonialInput[] = staticTestimonials.map((t) => ({
-  id: t.id,
+  id: t.slug ?? t.name,
   content: t.text,
   author: t.name,
   rating: t.rating,

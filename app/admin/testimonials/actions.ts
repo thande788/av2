@@ -13,6 +13,7 @@ const testimonialSchema = z.object({
   rating: z.number().min(1).max(5).default(5),
   imageUrl: z.string().url().optional().or(z.literal('')),
   isPublished: z.boolean().default(false),
+  serviceCategoryId: z.string().cuid().optional().or(z.literal('')),
 });
 
 export type TestimonialFormState = {
@@ -37,6 +38,7 @@ export async function createTestimonial(
     rating: parseInt(formData.get('rating') as string) || 5,
     imageUrl: formData.get('imageUrl') || undefined,
     isPublished: formData.get('isPublished') === 'true',
+    serviceCategoryId: formData.get('serviceCategoryId') || undefined,
   };
 
   const result = testimonialSchema.safeParse(rawData);
@@ -52,6 +54,7 @@ export async function createTestimonial(
       ...result.data,
       imageUrl: result.data.imageUrl || null,
       role: result.data.role || null,
+      serviceCategoryId: result.data.serviceCategoryId || null,
     },
   });
 
@@ -76,6 +79,7 @@ export async function updateTestimonial(
     rating: parseInt(formData.get('rating') as string) || 5,
     imageUrl: formData.get('imageUrl') || undefined,
     isPublished: formData.get('isPublished') === 'true',
+    serviceCategoryId: formData.get('serviceCategoryId') || undefined,
   };
 
   const result = testimonialSchema.safeParse(rawData);
@@ -92,6 +96,7 @@ export async function updateTestimonial(
       ...result.data,
       imageUrl: result.data.imageUrl || null,
       role: result.data.role || null,
+      serviceCategoryId: result.data.serviceCategoryId || null,
     },
   });
 

@@ -555,69 +555,85 @@ const contacts = [
 
 const testimonials = [
   {
+    slug: 'margaret-thompson',
     name: 'Margaret Thompson',
     role: 'Family Member',
     content: 'Angel Touch Homecare has been a blessing for our family. After my mother\'s stroke, we didn\'t know how we would manage her care. The caregivers from Angel Touch are compassionate, professional, and have become like extended family. Mom actually looks forward to their visits now!',
     rating: 5,
     isPublished: true,
     createdAt: new Date('2026-01-15'),
+    _serviceCategorySlug: 'personal-care' as string | undefined,
   },
   {
+    slug: 'robert-chen',
     name: 'Robert Chen',
     role: 'Family Member',
     content: 'The care coordinators at Angel Touch went above and beyond to match my father with the perfect caregiver. They took the time to understand his needs, his personality, and his preferences. The attention to detail and genuine care they show is remarkable.',
     rating: 5,
     isPublished: true,
     createdAt: new Date('2026-01-20'),
+    _serviceCategorySlug: undefined as string | undefined,
   },
   {
+    slug: 'elizabeth-warren',
     name: 'Elizabeth Warren',
     role: 'Client',
     content: 'At 85, I was stubborn about accepting help at home. But my caregiver from Angel Touch, Maria, has changed my perspective completely. She respects my independence while helping where I need it. I couldn\'t imagine my days without her now.',
     rating: 5,
     isPublished: true,
     createdAt: new Date('2026-01-25'),
+    _serviceCategorySlug: 'companionship' as string | undefined,
   },
   {
+    slug: 'james-patterson',
     name: 'James Patterson',
     role: 'Family Member',
     content: 'Finding reliable care for someone with dementia is challenging. Angel Touch provided caregivers specially trained in memory care. They are patient, kind, and know how to redirect my wife when she becomes confused. Their support has allowed me to continue working while knowing she is safe.',
     rating: 5,
     isPublished: true,
     createdAt: new Date('2026-02-01'),
+    _serviceCategorySlug: 'personal-care' as string | undefined,
   },
   {
+    slug: 'susan-martinez',
     name: 'Susan Martinez',
     role: 'Healthcare Partner',
     content: 'As a hospital discharge planner, I regularly refer patients to home care agencies. Angel Touch consistently exceeds expectations. They respond quickly, communicate clearly, and most importantly, provide excellent care. They are my first recommendation.',
     rating: 5,
     isPublished: true,
     createdAt: new Date('2026-02-05'),
+    _serviceCategorySlug: undefined as string | undefined,
   },
   {
+    slug: 'david-obrien',
     name: 'David O\'Brien',
     role: 'Family Member',
     content: 'We tried another agency before Angel Touch and the difference is night and day. The reliability, communication, and quality of caregivers is so much better. Highly recommend them to anyone looking for home care services.',
     rating: 4,
     isPublished: true,
     createdAt: new Date('2026-02-08'),
+    _serviceCategorySlug: undefined as string | undefined,
   },
   {
+    slug: 'nancy-williams',
     name: 'Nancy Williams',
     role: 'Client',
     content: 'The companionship care I receive has transformed my life. Living alone was getting lonely and I was becoming depressed. Now I have someone to talk to, go for walks with, and help with errands. Thank you, Angel Touch!',
     rating: 5,
     isPublished: true,
     createdAt: new Date('2026-02-10'),
+    _serviceCategorySlug: 'companionship' as string | undefined,
   },
   {
     // Unpublished testimonial - pending review
+    slug: 'thomas-brown',
     name: 'Thomas Brown',
     role: 'Family Member',
     content: 'Good service overall. The caregiver is nice but sometimes arrives a few minutes late. Communication with the office could be better.',
     rating: 3,
     isPublished: false,
     createdAt: new Date('2026-02-12'),
+    _serviceCategorySlug: undefined as string | undefined,
   },
 ];
 
@@ -1573,10 +1589,33 @@ async function main() {
   }
   console.log(`   Total: ${contacts.length} contacts\n`);
 
-  // Seed Testimonials
+  // Seed Service Categories + Items (before testimonials, since testimonials FK into categories)
+  console.log('🏥 Seeding service categories...');
+  const serviceCategoryIdBySlug = new Map<string, string>();
+  for (const cat of seedServiceCategories) {
+    const { services: svcItems, ...catData } = cat;
+    const created = await prisma.serviceCategory.create({ data: catData });
+    serviceCategoryIdBySlug.set(cat.slug, created.id);
+    for (const svc of svcItems) {
+      await prisma.serviceItem.create({ data: { ...svc, categoryId: created.id } });
+    }
+    console.log(`   ✓ Created category: ${cat.name} (${svcItems.length} services)`);
+  }
+  console.log(`   Total: ${seedServiceCategories.length} categories\n`);
+
+  // Seed Testimonials (with optional service category FK)
   console.log('⭐ Seeding testimonials...');
   for (const testimonial of testimonials) {
-    await prisma.testimonial.create({ data: testimonial });
+    const { _serviceCategorySlug, ...data } = testimonial;
+    const serviceCategoryId = _serviceCategorySlug
+      ? serviceCategoryIdBySlug.get(_serviceCategorySlug)
+      : undefined;
+    await prisma.testimonial.create({
+      data: {
+        ...data,
+        ...(serviceCategoryId ? { serviceCategoryId } : {}),
+      },
+    });
     console.log(`   ✓ Created testimonial: ${testimonial.name} (${testimonial.isPublished ? 'published' : 'draft'})`);
   }
   console.log(`   Total: ${testimonials.length} testimonials\n`);
@@ -1596,18 +1635,6 @@ async function main() {
     console.log(`   ✓ Created FAQ: ${faq.question.slice(0, 40)}...`);
   }
   console.log(`   Total: ${seedFAQs.length} FAQs\n`);
-
-  // Seed Service Categories + Items
-  console.log('🏥 Seeding service categories...');
-  for (const cat of seedServiceCategories) {
-    const { services: svcItems, ...catData } = cat;
-    const created = await prisma.serviceCategory.create({ data: catData });
-    for (const svc of svcItems) {
-      await prisma.serviceItem.create({ data: { ...svc, categoryId: created.id } });
-    }
-    console.log(`   ✓ Created category: ${cat.name} (${svcItems.length} services)`);
-  }
-  console.log(`   Total: ${seedServiceCategories.length} categories\n`);
 
   // Seed Pricing Tiers
   console.log('💰 Seeding pricing tiers...');

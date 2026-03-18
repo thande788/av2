@@ -111,7 +111,7 @@ export function JobsTable({ jobs }: JobsTableProps) {
           <tbody>
             {jobs.map((job) => (
               <tr
-                key={job.id}
+                key={job.slug}
                 className={cn(
                   'border-b border-border/30 last:border-0 transition-colors',
                   isPending && actionJobId === job.id && 'opacity-50',

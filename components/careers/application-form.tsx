@@ -54,7 +54,6 @@ export function ApplicationForm({ job }: ApplicationFormProps) {
   return (
     <form action={formAction} className="space-y-8">
       {/* Hidden fields */}
-      <input type="hidden" name="jobId" value={job.id} />
       <input type="hidden" name="jobSlug" value={job.slug} />
       
       {/* Honeypot field - hidden from users, visible to bots */}

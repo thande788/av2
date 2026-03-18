@@ -166,7 +166,7 @@ export function TestimonialCardGrid({
     >
       {testimonials.map((testimonial) => (
         <TestimonialCard
-          key={testimonial.id}
+          key={testimonial.slug ?? testimonial.id ?? testimonial.name}
           testimonial={testimonial}
           {...props}
         />

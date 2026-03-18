@@ -19,9 +19,9 @@ export interface Qualifications {
 }
 
 export interface Job {
-  /** Unique identifier (cuid in production) */
-  id: string;
-  /** URL-friendly slug for routing */
+  /** Database ID — only present when fetched from DB */
+  id?: string;
+  /** URL-friendly slug for routing (stable identifier) */
   slug: string;
   /** Job title */
   title: string;
@@ -54,8 +54,8 @@ export interface Job {
  */
 export type JobSummary = Pick<
   Job,
-  "id" | "slug" | "title" | "department" | "type" | "location" | "salaryRange" | "isActive" | "postedAt"
->;
+  "slug" | "title" | "department" | "type" | "location" | "salaryRange" | "isActive" | "postedAt"
+> & { id?: string };
 
 /**
  * Props for JobCard component

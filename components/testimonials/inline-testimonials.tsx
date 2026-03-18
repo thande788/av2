@@ -159,7 +159,7 @@ export function InlineTestimonials({
     return (
       <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-3", className)}>
         {displayTestimonials.slice(0, limit).map((testimonial) => (
-          <Card key={testimonial.id} className="p-4 bg-card/50 border-border/50">
+          <Card key={testimonial.slug ?? testimonial.id ?? testimonial.name} className="p-4 bg-card/50 border-border/50">
             <TestimonialQuote testimonial={testimonial} />
           </Card>
         ))}

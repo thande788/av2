@@ -394,7 +394,7 @@ export default async function HomePage() {
 
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 					{testimonials.map((testimonial) => (
-						<TestimonialCard key={testimonial.id} testimonial={testimonial} />
+						<TestimonialCard key={testimonial.slug ?? testimonial.id ?? testimonial.name} testimonial={testimonial} />
 					))}
 				</div>
 

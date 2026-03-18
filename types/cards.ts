@@ -37,8 +37,10 @@ export interface ServiceCardProps {
  * Testimonial card types
  */
 export interface Testimonial {
-  /** Unique identifier */
-  id: string;
+  /** Database ID — only present when fetched from DB */
+  id?: string;
+  /** Stable slug identifier (e.g. "evelyn-r") */
+  slug?: string;
   /** Author name */
   name: string;
   /** Testimonial text/quote */
