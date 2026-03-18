@@ -65,3 +65,6 @@ export { FileUpload } from "./file-upload";
 
 // Error display
 export { ErrorDisplay, type ErrorType } from "./error-display";
+
+// Logo watermark
+export { LogoWatermark } from "./logo-watermark";

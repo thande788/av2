@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { isFeatureEnabled } from '@/lib/feature-flags';
@@ -121,17 +122,24 @@ export function AdminSidebar() {
       )}
     >
       {/* Header */}
-      <div className="flex h-14 items-center justify-between px-4">
-        {!collapsed && (
-          <Link href="/admin" className="font-semibold text-lg text-primary">
-            HermesCare 
-          </Link>
-        )}
+      <div className="flex h-16 items-center justify-between border-b border-primary/20 px-4">
+        <Link href="/admin" className="flex items-center gap-2">
+          <Image
+            src="/angel_pink.png"
+            alt="Angel Touch"
+            width={36}
+            height={36}
+            className="size-9"
+          />
+          {!collapsed && (
+            <span className="font-semibold text-primary">Admin Portal</span>
+          )}
+        </Link>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
-          className={cn('hover:bg-primary/10', collapsed && 'mx-auto')}
+          className={cn('hover:bg-primary/10', collapsed && 'ml-auto')}
         >
           {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
         </Button>

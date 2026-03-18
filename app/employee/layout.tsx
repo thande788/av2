@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { isDemoEnabled } from '@/lib/feature-flags';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { EmployeeSidebar } from '@/components/employee/sidebar';
+import { LogoWatermark } from '@/components/shared/logo-watermark';
 
 export const metadata: Metadata = {
   title: {
@@ -26,8 +27,9 @@ export default function EmployeeLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <EmployeeSidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="container max-w-7xl py-8 px-6 lg:px-8">
+      <main className="relative flex-1 overflow-auto">
+        <LogoWatermark />
+        <div className="container relative z-10 max-w-7xl py-8 px-6 lg:px-8">
           {children}
         </div>
       </main>

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { AdminSidebar } from '@/components/admin/sidebar';
 import { DemoBanner } from '@/components/demo/demo-banner';
+import { LogoWatermark } from '@/components/shared/logo-watermark';
 
 export const metadata = {
   title: 'Admin Dashboard | Angel Touch Homecare',
@@ -88,8 +89,9 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <AdminSidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="container max-w-7xl py-8 px-6 lg:px-8">
+      <main className="relative flex-1 overflow-auto">
+        <LogoWatermark />
+        <div className="container relative z-10 max-w-7xl py-8 px-6 lg:px-8">
           {children}
         </div>
       </main>

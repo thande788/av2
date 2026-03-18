@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
@@ -70,17 +71,24 @@ export function EmployeeSidebar() {
       )}
     >
       {/* Header */}
-      <div className="flex h-14 items-center justify-between px-4">
-        {!collapsed && (
-          <Link href="/employee" className="font-semibold text-lg text-emerald-600 dark:text-emerald-500">
-            Employee Portal
-          </Link>
-        )}
+      <div className="flex h-16 items-center justify-between border-b border-emerald-500/20 px-4">
+        <Link href="/employee" className="flex items-center gap-2">
+          <Image
+            src="/angel_pink.png"
+            alt="Angel Touch"
+            width={36}
+            height={36}
+            className="size-9"
+          />
+          {!collapsed && (
+            <span className="font-semibold text-emerald-600 dark:text-emerald-500">Employee Portal</span>
+          )}
+        </Link>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
-          className={cn('hover:bg-emerald-500/10', collapsed && 'mx-auto')}
+          className={cn('hover:bg-emerald-500/10', collapsed && 'ml-auto')}
         >
           {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
         </Button>

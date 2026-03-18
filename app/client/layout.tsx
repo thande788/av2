@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { isDemoEnabled } from '@/lib/feature-flags';
 import { ClientSidebar } from '@/components/client/sidebar';
 import { DemoBanner } from '@/components/demo/demo-banner';
+import { LogoWatermark } from '@/components/shared/logo-watermark';
 
 export default function ClientPortalLayout({
   children,
@@ -16,8 +17,9 @@ export default function ClientPortalLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <ClientSidebar />
-      <main className="flex-1 overflow-y-auto">
-        <div className="container mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <main className="relative flex-1 overflow-y-auto">
+        <LogoWatermark />
+        <div className="container relative z-10 mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
           {children}
         </div>
       </main>
