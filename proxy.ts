@@ -22,51 +22,62 @@ import { isDemoGatedRoute, isDemoEnabled } from '@/lib/feature-flags';
 import { db } from '@/lib/db';
 
 /**
- * Get user role from Clerk metadata, with database fallback
+ * Get user role and status from Clerk metadata, with database fallback
  * Checks sessionClaims first, then Clerk API, then database
  */
-async function getUserRole(userId: string, sessionClaims: { metadata?: { role?: string } } | null): Promise<string | undefined> {
+async function getUserRoleAndStatus(
+  userId: string,
+  sessionClaims: { metadata?: { role?: string } } | null
+): Promise<{ role?: string; status?: string }> {
+  let role: string | undefined;
+  let status: string | undefined;
+
   // First check Clerk session claims (fastest)
   const clerkRole = (sessionClaims?.metadata as { role?: string })?.role;
   if (clerkRole) {
-    return clerkRole;
+    role = clerkRole;
   }
 
   // Fallback 1: check publicMetadata directly from Clerk user
-  try {
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
-    const metadataRole = (user.publicMetadata as { role?: string })?.role;
-    if (metadataRole) {
-      return metadataRole;
+  if (!role) {
+    try {
+      const client = await clerkClient();
+      const user = await client.users.getUser(userId);
+      const metadataRole = (user.publicMetadata as { role?: string })?.role;
+      if (metadataRole) {
+        role = metadataRole;
+      }
+    } catch {
+      // Clerk API call failed
     }
-  } catch {
-    // Clerk API call failed
   }
 
-  // Fallback 2: check database for role (handles users created before publicMetadata sync)
+  // Always check database for status (and role if not found)
   try {
     const portalUser = await db.portalUser.findUnique({
       where: { clerkId: userId },
-      select: { role: true },
+      select: { role: true, status: true },
     });
-    if (portalUser?.role) {
-      // Sync role to Clerk for future requests
-      try {
-        const client = await clerkClient();
-        await client.users.updateUserMetadata(userId, {
-          publicMetadata: { role: portalUser.role.toLowerCase() },
-        });
-      } catch {
-        // Non-critical, continue
+    if (portalUser) {
+      status = portalUser.status.toLowerCase();
+      if (!role) {
+        role = portalUser.role.toLowerCase();
+        // Sync role to Clerk for future requests
+        try {
+          const client = await clerkClient();
+          await client.users.updateUserMetadata(userId, {
+            publicMetadata: { role: portalUser.role.toLowerCase() },
+          });
+        } catch {
+          // Non-critical, continue
+        }
       }
-      return portalUser.role.toLowerCase();
     }
   } catch {
     // Database lookup failed
   }
 
-  return undefined;
+  return { role, status };
 }
 
 /**
@@ -86,6 +97,7 @@ const isPublicRoute = createRouteMatcher([
   '/resources(.*)',
   '/portals(.*)',
   '/client-portal(.*)',
+  '/account-status(.*)', // Account status page (for pending/inactive/terminated users)
   '/api/webhooks(.*)',
   '/book/(.*)', // SMS booking links - auth checked in page
 ]);
@@ -138,7 +150,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   // If user is signed in and tries to access auth routes, redirect to dashboard
   if (userId && isAuthRoute(req)) {
-    const role = await getUserRole(userId, sessionClaims as { metadata?: { role?: string } } | null);
+    const { role } = await getUserRoleAndStatus(userId, sessionClaims as { metadata?: { role?: string } } | null);
     return NextResponse.redirect(new URL(getDefaultPortalUrl(role), req.url));
   }
 
@@ -147,15 +159,23 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next();
   }
 
-  // Get role for protected routes (only fetch once)
+  // Get role and status for protected routes (only fetch once)
   let role: string | undefined;
+  let status: string | undefined;
   if (isAdminRoute(req) || isEmployeeRoute(req) || isClientRoute(req)) {
     if (!userId) {
       const signInUrl = new URL('/sign-in', req.url);
       signInUrl.searchParams.set('redirect_url', pathname);
       return NextResponse.redirect(signInUrl);
     }
-    role = await getUserRole(userId, sessionClaims as { metadata?: { role?: string } } | null);
+    const userInfo = await getUserRoleAndStatus(userId, sessionClaims as { metadata?: { role?: string } } | null);
+    role = userInfo.role;
+    status = userInfo.status;
+
+    // Check if user account is not active - redirect to account status page
+    if (status && status !== 'active') {
+      return NextResponse.redirect(new URL('/account-status', req.url));
+    }
   }
 
   // Protect admin routes - admin/manager only

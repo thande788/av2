@@ -62,3 +62,6 @@ export { LazyChatWidget } from "./lazy-chat-widget";
 
 // File upload
 export { FileUpload } from "./file-upload";
+
+// Error display
+export { ErrorDisplay, type ErrorType } from "./error-display";
