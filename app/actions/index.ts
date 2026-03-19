@@ -23,11 +23,12 @@ export {
 export {
   sendAdminEmail,
   getEntityEmailHistory,
-  EMAIL_TEMPLATES,
   type AdminEmailData,
   type AdminEmailResult,
-  type EmailTemplate,
 } from "./admin-email";
+
+// Email templates (shared data, not server actions)
+export { EMAIL_TEMPLATES, type EmailTemplate } from "@/data/email-templates";
 
 // Notification actions
 export {

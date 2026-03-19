@@ -21,7 +21,8 @@ import {
 } from '@/components/ui/select';
 import { Mail, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { sendAdminEmail, EMAIL_TEMPLATES } from '@/app/actions/admin-email';
+import { sendAdminEmail } from '@/app/actions/admin-email';
+import { EMAIL_TEMPLATES } from '@/data/email-templates';
 
 interface SendEmailDialogProps {
   toEmail: string;
