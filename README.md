@@ -9,7 +9,7 @@ A modern web application for Angel Touch Homecare Services, a Massachusetts-base
 This application includes:
 
 - **Marketing Website** — Public pages for services, careers, testimonials, and contact
-- **Admin Portal** — Staff dashboard for managing clients, workers, shifts, payroll, and compliance
+- **Admin Portal** — Staff dashboard for managing clients, workers, shifts, payroll, compliance, with audit logging, bulk actions, email integration, and real-time notifications
 - **Employee Portal** — Caregiver interface for shifts, timesheets, and compliance documents
 - **Client Portal** — Family/client interface for care schedules and invoices
 
@@ -154,6 +154,9 @@ The application uses the following core models:
 | `Invoice` | Client billing invoices |
 | `Job` | Career listings |
 | `Application` | Job applications |
+| `AuditLog` | Admin action audit trail |
+| `AdminEmail` | Emails sent from admin portal |
+| `Notification` | In-app and push notifications |
 
 Run `pnpm db:studio` to explore the database visually.
 
@@ -195,6 +198,8 @@ vercel --prod
 - [Deployment Guide](docs/DEPLOYMENT.md) — Production deployment instructions
 - [Authentication & Roles](docs/AUTHENTICATION.md) — Portal access control
 - [API Reference](docs/API.md) — Server actions and API routes
+- [Admin Enhancements](docs/admin-enhancements.md) — Admin dashboard feature roadmap and status
+- [Portal Plan](docs/portal_plan.md) — Portal & scheduling implementation plan
 - [Development Guide](.github/copilot-instructions.md) — Code standards and patterns
 
 ## Contributing

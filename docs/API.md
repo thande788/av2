@@ -558,6 +558,133 @@ Contact and inquiry forms have built-in rate limiting:
 
 ---
 
+### Audit Log
+
+Located in `app/actions/audit-log.ts`. All actions require admin authentication.
+
+#### `logAuditEvent`
+
+Log an admin action to the audit trail.
+
+```typescript
+import { logAuditEvent } from '@/app/actions/audit-log';
+
+await logAuditEvent({
+  action: 'STATUS_CHANGE',
+  entity: 'Application',
+  entityId: 'cuid123',
+  details: { previousStatus: 'PENDING', newStatus: 'REVIEWING' },
+});
+```
+
+#### `getEntityAuditLog`
+
+Retrieve audit history for a specific entity.
+
+```typescript
+const logs = await getEntityAuditLog('Application', 'cuid123');
+```
+
+#### `getFilteredAuditLog`
+
+Retrieve audit logs with optional entity/action filters.
+
+```typescript
+const logs = await getFilteredAuditLog({ entity: 'Application', action: 'STATUS_CHANGE' });
+```
+
+#### Bulk Actions
+
+```typescript
+// Bulk update application statuses
+await bulkUpdateApplicationStatus(ids: string[], status: string);
+
+// Bulk mark contacts as read
+await bulkMarkContactsRead(ids: string[]);
+
+// Bulk update inquiry statuses
+await bulkUpdateInquiryStatus(ids: string[], status: string);
+
+// Bulk delete contacts
+await bulkDeleteContacts(ids: string[]);
+
+// Bulk delete inquiries
+await bulkDeleteInquiries(ids: string[]);
+```
+
+All bulk actions include audit logging and admin auth checks.
+
+---
+
+### Admin Email
+
+Located in `app/actions/admin-email.ts`. Requires admin authentication.
+
+#### `sendAdminEmail`
+
+Send an email from the admin portal and record it.
+
+```typescript
+import { sendAdminEmail } from '@/app/actions/admin-email';
+
+const result = await sendAdminEmail({
+  toEmail: 'applicant@example.com',
+  toName: 'John Doe',
+  subject: 'Interview Invitation',
+  body: 'We would like to schedule an interview...',
+  template: 'interview-schedule',
+  entity: 'Application',
+  entityId: 'cuid123',
+});
+// Returns: { success: boolean; error?: string }
+```
+
+#### `getEntityEmailHistory`
+
+Retrieve email history for a specific entity.
+
+```typescript
+const emails = await getEntityEmailHistory('Application', 'cuid123');
+```
+
+**Email Templates** (defined in `data/email-templates.ts`):
+- `interview-schedule` — Schedule Interview
+- `application-followup` — Application Follow-up
+- `inquiry-followup` — Care Inquiry Follow-up
+- `status-update` — Status Update
+
+---
+
+### Notifications
+
+Located in `app/actions/notifications.ts`. Requires admin authentication.
+
+#### `getUnreadNotificationCount`
+
+```typescript
+const count = await getUnreadNotificationCount();
+```
+
+#### `getRecentNotifications`
+
+```typescript
+const notifications = await getRecentNotifications(limit?: number);
+```
+
+#### `markNotificationRead`
+
+```typescript
+await markNotificationRead(notificationId: string);
+```
+
+#### `markAllNotificationsRead`
+
+```typescript
+await markAllNotificationsRead();
+```
+
+---
+
 ## Validation
 
 All inputs are validated using Zod schemas. Example:

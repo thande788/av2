@@ -1,9 +1,17 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { DataTable, type Column, type TableFilter } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
 import { formatDateUS } from '@/lib/utils';
 import type { AuditLog } from '@prisma/client';
+
+const entityRoutes: Record<string, (id: string) => string> = {
+  Application: (id) => `/admin/applications/${id}`,
+  ContactSubmission: (id) => `/admin/contacts?highlight=${id}`,
+  ServiceInquiry: (id) => `/admin/inquiries?highlight=${id}`,
+  Job: (id) => `/admin/jobs/${id}/edit`,
+};
 
 const actionColors: Record<string, string> = {
   STATUS_CHANGE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
@@ -97,6 +105,15 @@ export function AuditLogTable({
     },
   ];
 
+  const router = useRouter();
+
+  const handleRowClick = (log: AuditLog) => {
+    const routeFn = entityRoutes[log.entity];
+    if (routeFn) {
+      router.push(routeFn(log.entityId));
+    }
+  };
+
   return (
     <DataTable
       data={logs}
@@ -106,6 +123,7 @@ export function AuditLogTable({
       exportable
       exportFilename="audit-log"
       emptyMessage="No audit log entries yet."
+      onRowClick={handleRowClick}
     />
   );
 }

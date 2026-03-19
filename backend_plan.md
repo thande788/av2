@@ -561,8 +561,13 @@ BLOB_READ_WRITE_TOKEN="vercel_blob_xxxxxxxxxxxxxxxx"
 | 5.7 | Build inquiries list view | ✅ |
 | 5.8 | Add testimonials view | ✅ |
 | 5.9 | Build dashboard overview | ✅ |
-| 5.10 | Add search and filtering | ⬜ |
+| 5.10 | Add search and filtering | ✅ |
 | 5.11 | **NEW:** Jobs CRUD (create, edit, delete, toggle) | ✅ |
+| 5.12 | **NEW:** Bulk actions on list views | ✅ |
+| 5.13 | **NEW:** Email integration (send from admin, templates, history) | ✅ |
+| 5.14 | **NEW:** Activity/Audit log (AuditLog model, timeline, admin page) | ✅ |
+| 5.15 | **NEW:** In-app notifications (bell, polling, toasts) | ✅ |
+| 5.16 | **NEW:** CSV export for all tables | ✅ |
 
 ### Route Structure
 
@@ -674,7 +679,11 @@ export default async function AdminDashboard() {
 - [x] **NEW:** Can create/edit/delete jobs
 - [x] **NEW:** Can toggle job active status
 - [x] **NEW:** Brand-consistent UI with rose accents
-- [ ] Search and filter functionality
+- [x] Search and filter functionality
+- [x] **NEW:** Bulk actions (select, update, delete, export)
+- [x] **NEW:** Email integration with templates and history
+- [x] **NEW:** Audit logging with admin page and per-entity timelines
+- [x] **NEW:** In-app notifications with bell icon and polling
 
 ---
 
@@ -686,16 +695,16 @@ export default async function AdminDashboard() {
 
 ### Potential Features
 
-| Feature | Effort | Value |
-|---------|--------|-------|
-| Application status email notifications | 4 hrs | High |
-| Scheduled follow-up reminders | 6 hrs | Medium |
-| Interview scheduling integration | 8 hrs | Medium |
-| Client portal (care plans, scheduling) | 20+ hrs | High |
-| SMS notifications (Twilio) | 4 hrs | Medium |
-| Analytics dashboard | 8 hrs | Medium |
-| Export to CSV/Excel | 2 hrs | Low |
-| Audit logging | 4 hrs | Medium |
+| Feature | Effort | Value | Status |
+|---------|--------|-------|--------|
+| Application status email notifications | 4 hrs | High | ✅ (via admin email integration) |
+| Scheduled follow-up reminders | 6 hrs | Medium | ⬜ |
+| Interview scheduling integration | 8 hrs | Medium | ⬜ |
+| Client portal (care plans, scheduling) | 20+ hrs | High | ✅ (basic portal implemented) |
+| SMS notifications (Twilio) | 4 hrs | Medium | ✅ (basic SMS implemented) |
+| Analytics dashboard | 8 hrs | Medium | ⬜ |
+| Export to CSV/Excel | 2 hrs | Low | ✅ (via DataTable export) |
+| Audit logging | 4 hrs | Medium | ✅ (full implementation) |
 
 ---
 
