@@ -21,14 +21,10 @@ import { formatDateUS } from '@/lib/utils';
 import { bulkUpdateInquiryStatus, bulkDeleteInquiries } from '@/app/actions/audit-log';
 import { SendEmailDialog } from '@/components/admin/send-email-dialog';
 import { toast } from 'sonner';
-import type { ServiceInquiry, InquiryStatus, Worker, PortalUser } from '@prisma/client';
+import type { ServiceInquiry, InquiryStatus } from '@prisma/client';
 import { updateInquiryStatus } from './actions';
-import { Mail, Phone, Calendar, Clock, Save, Loader2, Trash2, CheckCircle, UserRoundCheck } from 'lucide-react';
+import { Mail, Phone, Calendar, Clock, Save, Loader2, Trash2, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-type InquiryWithCaregiver = ServiceInquiry & {
-  preferredCaregiver?: (Worker & { user: PortalUser }) | null;
-};
 
 const statusColors: Record<InquiryStatus, string> = {
   NEW: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
@@ -54,7 +50,7 @@ const statusOptions: InquiryStatus[] = [
   'CLOSED',
 ];
 
-const columns: Column<InquiryWithCaregiver>[] = [
+const columns: Column<ServiceInquiry>[] = [
   {
     key: 'name',
     header: 'Name',
@@ -76,21 +72,6 @@ const columns: Column<InquiryWithCaregiver>[] = [
     render: (inquiry) => (
       <Badge variant="secondary">{inquiry.serviceType}</Badge>
     ),
-  },
-  {
-    key: 'preferredCaregiverId',
-    header: 'Requested Caregiver',
-    hideOnMobile: true,
-    render: (inquiry) => {
-      if (!inquiry.preferredCaregiver) return '-';
-      const name = `${inquiry.preferredCaregiver.user.firstName} ${inquiry.preferredCaregiver.user.lastName}`;
-      return (
-        <div className="flex items-center gap-1.5">
-          <UserRoundCheck className="size-3.5 text-primary" />
-          <span className="text-sm">{name}</span>
-        </div>
-      );
-    },
   },
   {
     key: 'phone',
@@ -121,15 +102,15 @@ const columns: Column<InquiryWithCaregiver>[] = [
   },
 ];
 
-export function InquiriesTable({ inquiries }: { inquiries: InquiryWithCaregiver[] }) {
+export function InquiriesTable({ inquiries }: { inquiries: ServiceInquiry[] }) {
   const router = useRouter();
-  const [selectedInquiry, setSelectedInquiry] = useState<InquiryWithCaregiver | null>(
+  const [selectedInquiry, setSelectedInquiry] = useState<ServiceInquiry | null>(
     null
   );
   const [status, setStatus] = useState<InquiryStatus | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleRowClick = (inquiry: InquiryWithCaregiver) => {
+  const handleRowClick = (inquiry: ServiceInquiry) => {
     setSelectedInquiry(inquiry);
     setStatus(inquiry.status);
   };
@@ -157,7 +138,7 @@ export function InquiriesTable({ inquiries }: { inquiries: InquiryWithCaregiver[
     },
   ];
 
-  const bulkActions: BulkAction<InquiryWithCaregiver>[] = [
+  const bulkActions: BulkAction<ServiceInquiry>[] = [
     {
       label: 'Mark Contacted',
       icon: CheckCircle,
@@ -290,19 +271,6 @@ export function InquiriesTable({ inquiries }: { inquiries: InquiryWithCaregiver[
                   </p>
                   <div className="rounded-lg bg-muted p-4">
                     <p className="whitespace-pre-wrap">{selectedInquiry.message}</p>
-                  </div>
-                </div>
-              )}
-
-              {selectedInquiry.preferredCaregiver && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Requested Caregiver</p>
-                  <div className="mt-1 flex items-center gap-2">
-                    <UserRoundCheck className="size-4 text-primary" />
-                    <span className="font-medium">
-                      {selectedInquiry.preferredCaregiver.user.firstName}{' '}
-                      {selectedInquiry.preferredCaregiver.user.lastName}
-                    </span>
                   </div>
                 </div>
               )}

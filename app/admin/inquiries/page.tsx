@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { InquiriesTable } from './inquiries-table';
+import { CaregiverRequestsCard } from './caregiver-requests';
 
 export const metadata = {
   title: 'Service Inquiries | Admin Dashboard',
@@ -7,12 +8,18 @@ export const metadata = {
 };
 
 export default async function InquiriesPage() {
-  const inquiries = await db.serviceInquiry.findMany({
-    orderBy: { submittedAt: 'desc' },
-    include: {
-      preferredCaregiver: { include: { user: true } },
-    },
-  });
+  const [inquiries, caregiverRequests] = await Promise.all([
+    db.serviceInquiry.findMany({
+      orderBy: { submittedAt: 'desc' },
+    }),
+    db.contactSubmission.findMany({
+      where: { preferredCaregiverId: { not: null } },
+      orderBy: { submittedAt: 'desc' },
+      include: {
+        preferredCaregiver: { include: { user: true } },
+      },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -22,6 +29,10 @@ export default async function InquiriesPage() {
           View and manage care service inquiries
         </p>
       </div>
+
+      {caregiverRequests.length > 0 && (
+        <CaregiverRequestsCard requests={caregiverRequests} />
+      )}
 
       <InquiriesTable inquiries={inquiries} />
     </div>

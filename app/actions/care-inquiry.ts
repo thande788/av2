@@ -95,9 +95,6 @@ export async function submitCareInquiry(
       };
     }
 
-    // Extract optional caregiver reference
-    const caregiverId = formData.get("caregiverId")?.toString() || null;
-
     await db.serviceInquiry.create({
       data: {
         name: result.data.name,
@@ -108,7 +105,6 @@ export async function submitCareInquiry(
         startDate: result.data.startDate,
         hoursNeeded: result.data.hoursNeeded ?? null,
         message: result.data.message ?? null,
-        preferredCaregiverId: caregiverId,
       },
     });
 

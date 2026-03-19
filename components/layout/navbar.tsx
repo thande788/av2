@@ -140,6 +140,7 @@ export function Navbar({
               size="icon"
               aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isOpen}
+              suppressHydrationWarning
             >
               <IconMenu2 className="size-6" />
             </Button>

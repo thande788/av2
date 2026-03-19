@@ -222,14 +222,11 @@ model ServiceInquiry {
   startDate    DateTime?
   hoursNeeded  Int?
   message      String?  @db.Text
-  preferredCaregiverId String?  // If referred from a caregiver profile page
-  preferredCaregiver   Worker?  @relation("ServiceInquiryCaregiver", fields: [preferredCaregiverId], references: [id], onDelete: SetNull)
   submittedAt  DateTime @default(now())
   status       InquiryStatus @default(NEW)
   
   @@index([status])
   @@index([submittedAt])
-  @@index([preferredCaregiverId])
 }
 
 enum InquiryStatus {
@@ -340,7 +337,6 @@ model Worker {
   
   // Contact submissions that requested this caregiver
   contactRequests   ContactSubmission[]
-  serviceInquiries  ServiceInquiry[] @relation("ServiceInquiryCaregiver")
 
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
