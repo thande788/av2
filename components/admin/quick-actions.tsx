@@ -1,51 +1,30 @@
-'use client';
-
-import { Button } from '@/components/ui/button';
-import {
-  IconCalendarPlus,
-  IconUserPlus,
-  IconFileText,
-  IconBriefcase,
-} from '@tabler/icons-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { getVisibleAdminQuickActions } from './navigation-config';
 
 export function QuickActions() {
-  const actions = [
-    {
-      label: 'Create Shift',
-      icon: IconCalendarPlus,
-      href: '/admin/shifts/new',
-      variant: 'default' as const,
-    },
-    {
-      label: 'Add Worker',
-      icon: IconUserPlus,
-      href: '/admin/workers/new',
-      variant: 'outline' as const,
-    },
-    {
-      label: 'Post Job',
-      icon: IconBriefcase,
-      href: '/admin/jobs/new',
-      variant: 'outline' as const,
-    },
-    {
-      label: 'New Inquiry',
-      icon: IconFileText,
-      href: '/admin/inquiries/new',
-      variant: 'outline' as const,
-    },
-  ];
+  const actions = getVisibleAdminQuickActions(isFeatureEnabled).slice(0, 4);
+
+  if (actions.length === 0) {
+    return null;
+  }
 
   return (
     <div className="flex flex-wrap gap-2">
-      {actions.map((action) => {
+      {actions.map((action, index) => {
         const Icon = action.icon;
+
         return (
-          <Button key={action.label} variant={action.variant} size="sm" asChild>
+          <Button
+            key={action.id}
+            variant={index === 0 ? 'default' : 'outline'}
+            size="sm"
+            asChild
+          >
             <Link href={action.href}>
-              <Icon className="size-4 mr-2" />
-              {action.label}
+              <Icon className="mr-2 size-4" />
+              {action.title}
             </Link>
           </Button>
         );

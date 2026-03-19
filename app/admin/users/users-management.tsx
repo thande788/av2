@@ -469,7 +469,7 @@ function InviteDialog({ onClose }: { onClose: () => void }) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="jane@angeltouchhomecare.com"
+            placeholder="jane@angeltouch.services"
           />
         </div>
         <div className="space-y-2">

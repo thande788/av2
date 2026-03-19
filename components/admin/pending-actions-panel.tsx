@@ -1,14 +1,13 @@
-'use client';
-
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import {
-  IconUsers,
-  IconFileCheck,
-  IconClock,
   IconAlertTriangle,
   IconChevronRight,
+  IconClock,
+  IconFileCheck,
+  IconUsers,
 } from '@tabler/icons-react';
-import Link from 'next/link';
+import { DashboardPanel } from './dashboard-panel';
 
 interface PendingActionsPanelProps {
   pendingWorkers: number;
@@ -59,68 +58,66 @@ export function PendingActionsPanel({
     },
   ];
 
-  const totalActions = actions.reduce((sum, a) => sum + a.count, 0);
+  const totalActions = actions.reduce((sum, action) => sum + action.count, 0);
 
   return (
-    <div className="rounded-xl border border-primary/40 bg-primary/5 overflow-hidden">
-      <div className="flex items-center justify-between p-6 pb-4 border-b border-primary/20">
-        <div className="flex items-center gap-2">
-          <IconAlertTriangle className="size-5 text-primary" />
-          <h2 className="text-lg font-semibold">Pending Actions</h2>
-        </div>
-        {totalActions > 0 && (
+    <DashboardPanel
+      title="Pending Actions"
+      icon={IconAlertTriangle}
+      badge={
+        totalActions > 0 ? (
           <Badge variant="secondary" className="bg-primary/20 text-primary">
             {totalActions} items
           </Badge>
-        )}
-      </div>
-      <div className="p-6 pt-4">
-        {totalActions === 0 ? (
-          <p className="text-muted-foreground text-sm py-4 text-center">
-            🎉 All caught up! No pending actions.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {actions
-              .filter((a) => a.count > 0)
-              .map((action) => {
-                const Icon = action.icon;
-                return (
-                  <Link
-                    key={action.title}
-                    href={action.href}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`rounded-lg p-2 ${action.bgColor}`}>
-                        <Icon className={`size-4 ${action.color}`} />
-                      </div>
-                      <div>
-                        <p className="font-medium group-hover:text-primary transition-colors">
-                          {action.title}
+        ) : undefined
+      }
+    >
+      {totalActions === 0 ? (
+        <p className="py-4 text-center text-sm text-muted-foreground">
+          All caught up. No pending actions.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {actions
+            .filter((action) => action.count > 0)
+            .map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <Link
+                  key={action.title}
+                  href={action.href}
+                  className="group flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-accent/50"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`rounded-lg p-2 ${action.bgColor}`}>
+                      <Icon className={`size-4 ${action.color}`} />
+                    </div>
+                    <div>
+                      <p className="font-medium transition-colors group-hover:text-primary">
+                        {action.title}
+                      </p>
+                      {action.urgent && (
+                        <p className="text-xs text-red-500 dark:text-red-400">
+                          Requires immediate attention
                         </p>
-                        {action.urgent && action.count > 0 && (
-                          <p className="text-xs text-red-500 dark:text-red-400">
-                            Requires immediate attention
-                          </p>
-                        )}
-                      </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="secondary"
-                        className={action.urgent ? 'bg-red-500/15 text-red-600 dark:text-red-400' : ''}
-                      >
-                        {action.count}
-                      </Badge>
-                      <IconChevronRight className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                  </Link>
-                );
-              })}
-          </div>
-        )}
-      </div>
-    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="secondary"
+                      className={action.urgent ? 'bg-red-500/15 text-red-600 dark:text-red-400' : ''}
+                    >
+                      {action.count}
+                    </Badge>
+                    <IconChevronRight className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                  </div>
+                </Link>
+              );
+            })}
+        </div>
+      )}
+    </DashboardPanel>
   );
 }

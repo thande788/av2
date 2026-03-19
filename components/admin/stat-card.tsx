@@ -1,17 +1,39 @@
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 
+export type StatCardVariant = 'default' | 'success' | 'warning' | 'info';
+
 interface StatCardProps {
   title: string;
   value: number | string;
   description?: string;
   icon?: LucideIcon;
   highlight?: boolean;
+  variant?: StatCardVariant;
   trend?: {
     value: number;
     isPositive: boolean;
   };
 }
+
+const variantStyles: Record<StatCardVariant, { container: string; accent: string }> = {
+  default: {
+    container: 'border-primary/40 bg-primary/5 hover:bg-primary/10',
+    accent: 'bg-primary/10 text-primary',
+  },
+  success: {
+    container: 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10',
+    accent: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  },
+  warning: {
+    container: 'border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/10',
+    accent: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  },
+  info: {
+    container: 'border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10',
+    accent: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  },
+};
 
 export function StatCard({
   title,
@@ -19,20 +41,20 @@ export function StatCard({
   description,
   icon: Icon,
   highlight,
+  variant,
   trend,
 }: StatCardProps) {
+  const resolvedVariant = variant ?? (highlight ? 'warning' : 'default');
+
   return (
     <div
       className={cn(
         'relative overflow-hidden rounded-xl border p-6 transition-all hover:shadow-md',
-        highlight
-          ? 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10'
-          : 'border-primary/40 bg-primary/5 hover:bg-primary/10'
+        variantStyles[resolvedVariant].container
       )}
     >
-      {/* Subtle gradient accent */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-      
+
       <div className="relative flex items-start justify-between">
         <div className="space-y-2">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
@@ -44,7 +66,9 @@ export function StatCard({
             <p
               className={cn(
                 'text-xs font-medium',
-                trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                trend.isPositive
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
               )}
             >
               {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}% from last month
@@ -52,8 +76,8 @@ export function StatCard({
           )}
         </div>
         {Icon && (
-          <div className="rounded-lg bg-primary/10 p-2.5">
-            <Icon className="size-5 text-primary" />
+          <div className={cn('rounded-lg p-2.5', variantStyles[resolvedVariant].accent)}>
+            <Icon className="size-5" />
           </div>
         )}
       </div>
