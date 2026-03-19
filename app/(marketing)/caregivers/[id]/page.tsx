@@ -253,7 +253,7 @@ export default async function CaregiverProfilePage({
 							{/* CTA */}
 							<div className="flex flex-col sm:flex-row gap-3 pt-2">
 								<Button size="lg" asChild>
-									<Link href={`/contact?caregiver=${encodeURIComponent(caregiver.id)}&caregiverName=${encodeURIComponent(fullName)}`}>
+									<Link href={`/services?caregiver=${encodeURIComponent(caregiver.id)}&caregiverName=${encodeURIComponent(fullName)}#care-inquiry`}>
 										<IconPhone className="mr-2 size-4" />
 										Request This Caregiver
 									</Link>

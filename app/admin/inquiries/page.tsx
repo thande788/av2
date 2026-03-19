@@ -9,6 +9,9 @@ export const metadata = {
 export default async function InquiriesPage() {
   const inquiries = await db.serviceInquiry.findMany({
     orderBy: { submittedAt: 'desc' },
+    include: {
+      preferredCaregiver: { include: { user: true } },
+    },
   });
 
   return (
