@@ -107,6 +107,9 @@ export async function submitContactForm(
       };
     }
 
+    // Extract optional caregiver reference
+    const caregiverId = formData.get("caregiverId")?.toString() || null;
+
     // Save to database
     await db.contactSubmission.create({
       data: {
@@ -118,6 +121,7 @@ export async function submitContactForm(
         preferredContact: result.data.preferredContact,
         message: result.data.message,
         source: formData.get("source")?.toString() ?? "contact-page",
+        preferredCaregiverId: caregiverId,
       },
     });
 

@@ -1,8 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { IconCheck, IconLoader2 } from "@tabler/icons-react";
+import { useSearchParams } from "next/navigation";
+import { IconCheck, IconLoader2, IconUser } from "@tabler/icons-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,6 +46,10 @@ const initialState: ContactFormState = {
 };
 
 export function ContactForm() {
+	const searchParams = useSearchParams();
+	const caregiverId = searchParams.get('caregiver');
+	const caregiverName = searchParams.get('caregiverName');
+
 	const [state, formAction, isPending] = useActionState(
 		submitContactForm,
 		initialState
@@ -70,6 +76,28 @@ export function ContactForm() {
 			</h2>
 
 			<form action={formAction} className="space-y-6">
+				{/* Hidden fields for caregiver tracking */}
+				{caregiverId && (
+					<>
+						<input type="hidden" name="caregiverId" value={caregiverId} />
+						<input type="hidden" name="source" value="caregiver-profile" />
+					</>
+				)}
+
+				{/* Caregiver request banner */}
+				{caregiverName && (
+					<div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
+						<IconUser className="size-5 text-primary shrink-0" />
+						<div>
+							<p className="text-sm font-medium">Requesting Caregiver</p>
+							<p className="text-sm text-muted-foreground">
+								{caregiverName}
+							</p>
+						</div>
+						<Badge className="ml-auto bg-primary/10 text-primary">Preferred</Badge>
+					</div>
+				)}
+
 				{/* Honeypot field - hidden from real users, catches bots */}
 				<div className="absolute -left-[9999px]" aria-hidden="true">
 					<Label htmlFor="website">Website</Label>

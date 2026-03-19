@@ -15,11 +15,15 @@ import { formatDateUS } from '@/lib/utils';
 import { bulkMarkContactsRead, bulkDeleteContacts } from '@/app/actions/audit-log';
 import { SendEmailDialog } from '@/components/admin/send-email-dialog';
 import { toast } from 'sonner';
-import type { ContactSubmission } from '@prisma/client';
+import type { ContactSubmission, Worker, PortalUser } from '@prisma/client';
 import { markContactAsRead } from './actions';
-import { Mail, Phone, Check, Trash2 } from 'lucide-react';
+import { Mail, Phone, Check, Trash2, UserRoundCheck } from 'lucide-react';
 
-const columns: Column<ContactSubmission>[] = [
+type ContactWithCaregiver = ContactSubmission & {
+  preferredCaregiver?: (Worker & { user: PortalUser }) | null;
+};
+
+const columns: Column<ContactWithCaregiver>[] = [
   {
     key: 'name',
     header: 'Name',
@@ -44,6 +48,21 @@ const columns: Column<ContactSubmission>[] = [
     key: 'service',
     header: 'Service',
     render: (contact) => contact.service || '-',
+  },
+  {
+    key: 'preferredCaregiverId',
+    header: 'Requested Caregiver',
+    hideOnMobile: true,
+    render: (contact) => {
+      if (!contact.preferredCaregiver) return '-';
+      const name = `${contact.preferredCaregiver.user.firstName} ${contact.preferredCaregiver.user.lastName}`;
+      return (
+        <div className="flex items-center gap-1.5">
+          <UserRoundCheck className="size-3.5 text-primary" />
+          <span className="text-sm">{name}</span>
+        </div>
+      );
+    },
   },
   {
     key: 'message',
@@ -72,13 +91,13 @@ const columns: Column<ContactSubmission>[] = [
   },
 ];
 
-export function ContactsTable({ contacts }: { contacts: ContactSubmission[] }) {
+export function ContactsTable({ contacts }: { contacts: ContactWithCaregiver[] }) {
   const router = useRouter();
-  const [selectedContact, setSelectedContact] = useState<ContactSubmission | null>(
+  const [selectedContact, setSelectedContact] = useState<ContactWithCaregiver | null>(
     null
   );
 
-  const handleRowClick = async (contact: ContactSubmission) => {
+  const handleRowClick = async (contact: ContactWithCaregiver) => {
     setSelectedContact(contact);
     if (!contact.isRead) {
       await markContactAsRead(contact.id);
@@ -96,7 +115,7 @@ export function ContactsTable({ contacts }: { contacts: ContactSubmission[] }) {
     },
   ];
 
-  const bulkActions: BulkAction<ContactSubmission>[] = [
+  const bulkActions: BulkAction<ContactWithCaregiver>[] = [
     {
       label: 'Mark Read',
       icon: Check,
@@ -194,6 +213,19 @@ export function ContactsTable({ contacts }: { contacts: ContactSubmission[] }) {
                 <div>
                   <p className="text-sm text-muted-foreground">Urgency</p>
                   <p className="font-medium capitalize">{selectedContact.urgency}</p>
+                </div>
+              )}
+
+              {selectedContact.preferredCaregiver && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Requested Caregiver</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <UserRoundCheck className="size-4 text-primary" />
+                    <span className="font-medium">
+                      {selectedContact.preferredCaregiver.user.firstName}{' '}
+                      {selectedContact.preferredCaregiver.user.lastName}
+                    </span>
+                  </div>
                 </div>
               )}
 

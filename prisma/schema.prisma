@@ -148,11 +148,14 @@ model ContactSubmission {
   preferredContact String? // email or phone
   message     String   @db.Text
   source      String?  // Which page the form was submitted from
+  preferredCaregiverId String?  // If referred from a caregiver profile page
+  preferredCaregiver   Worker?  @relation(fields: [preferredCaregiverId], references: [id], onDelete: SetNull)
   submittedAt DateTime @default(now())
   isRead      Boolean  @default(false)
   
   @@index([isRead])
   @@index([submittedAt])
+  @@index([preferredCaregiverId])
 }
 
 // Testimonials (for CMS functionality + client submissions)
@@ -332,6 +335,9 @@ model Worker {
   // Notes
   notes             String?           @db.Text
   
+  // Contact submissions that requested this caregiver
+  contactRequests   ContactSubmission[]
+
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
