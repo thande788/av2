@@ -1,33 +1,19 @@
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  IconUser,
-  IconMail,
-  IconPhone,
-  IconMapPin,
   IconCalendar,
-  IconCertificate,
-  IconLanguage,
   IconShieldCheck,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { formatDateUS } from '@/lib/utils';
 import { getCurrentWorkerWithProfile } from '@/lib/auth';
 import { MarketingProfileForm } from '@/components/employee/marketing-profile-form';
-import { EditProfileDialog } from '@/components/employee/edit-profile-dialog';
+import { EditableProfileSection } from '@/components/employee/editable-profile-section';
 
 export const metadata = {
   title: 'My Profile',
   description: 'View and manage your employee profile',
-};
-
-const complianceStatusColors: Record<string, string> = {
-  COMPLIANT: 'bg-green-500/15 text-green-600 dark:text-green-400',
-  PENDING: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-  INCOMPLETE: 'bg-red-500/15 text-red-600 dark:text-red-400',
-  EXPIRED: 'bg-red-500/15 text-red-600 dark:text-red-400',
 };
 
 export default async function EmployeeProfilePage() {
@@ -42,166 +28,22 @@ export default async function EmployeeProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-          <p className="text-muted-foreground">
-            View and manage your profile information
-          </p>
-        </div>
-        <EditProfileDialog
-          initialData={{
-            phone: worker.user.phone,
-            city: worker.city,
-            state: worker.state,
-            zip: worker.zip,
-            skills: worker.skills,
-            languages: worker.languages,
-          }}
-        />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Profile Card */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <IconUser className="size-5" />
-              Personal Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center gap-6">
-              <div className="flex size-20 items-center justify-center rounded-full bg-primary/10 text-3xl font-bold text-primary">
-                {worker.user.firstName[0]}
-                {worker.user.lastName[0]}
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold">
-                  {worker.user.firstName} {worker.user.lastName}
-                </h2>
-                {worker.employeeId && (
-                  <p className="text-sm text-muted-foreground">
-                    Employee ID: {worker.employeeId}
-                  </p>
-                )}
-                <Badge
-                  variant="secondary"
-                  className={complianceStatusColors[worker.complianceStatus]}
-                >
-                  {worker.complianceStatus === 'COMPLIANT' && (
-                    <IconShieldCheck className="size-3 mr-1" />
-                  )}
-                  {worker.complianceStatus}
-                </Badge>
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-muted p-2">
-                  <IconMail className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="text-sm font-medium">{worker.user.email}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-muted p-2">
-                  <IconPhone className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Phone</p>
-                  <p className="text-sm font-medium">
-                    {worker.user.phone || 'Not provided'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-muted p-2">
-                  <IconMapPin className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Location</p>
-                  <p className="text-sm font-medium">
-                    {worker.city && worker.state
-                      ? `${worker.city}, ${worker.state} ${worker.zip}`
-                      : 'Not provided'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-muted p-2">
-                  <IconCalendar className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Hire Date</p>
-                  <p className="text-sm font-medium">
-                    {worker.hireDate
-                      ? formatDateUS(new Date(worker.hireDate))
-                      : 'Not set'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Stats */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <IconCertificate className="size-4" />
-                Skills & Certifications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {worker.skills.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {worker.skills.map((skill) => (
-                    <Badge key={skill} variant="secondary">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No skills listed
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <IconLanguage className="size-4" />
-                Languages
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {worker.languages.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {worker.languages.map((lang) => (
-                    <Badge key={lang} variant="outline">
-                      {lang}
-                    </Badge>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No languages listed
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <EditableProfileSection
+        data={{
+          firstName: worker.user.firstName,
+          lastName: worker.user.lastName,
+          email: worker.user.email,
+          phone: worker.user.phone,
+          employeeId: worker.employeeId,
+          complianceStatus: worker.complianceStatus,
+          hireDate: worker.hireDate ? String(worker.hireDate) : null,
+          city: worker.city,
+          state: worker.state,
+          zip: worker.zip,
+          skills: worker.skills,
+          languages: worker.languages,
+        }}
+      />
 
       {/* Availability */}
       <Card>
