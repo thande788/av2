@@ -196,16 +196,42 @@ export async function inviteAdminUser(
 
   // Create invitation via Clerk
   const client = await clerkClient();
-  await client.invitations.createInvitation({
-    emailAddress: email,
-    publicMetadata: {
-      role: adminRole === 'SUPER_ADMIN' || adminRole === 'HR_MANAGER' ? 'admin' : 'manager',
-      adminRole,
-    },
-  });
 
-  // Optionally pre-create PortalUser (will be confirmed on sign-up)
-  // Not creating yet — webhook will handle
+  try {
+    // Check if user already exists in Clerk
+    const existingUsers = await client.users.getUserList({ emailAddress: [email] });
+    if (existingUsers.totalCount > 0) {
+      throw new Error('A user with this email already exists in the authentication system');
+    }
+
+    // Revoke any existing pending invitation for this email before creating a new one
+    const existingInvitations = await client.invitations.getInvitationList();
+    const pendingForEmail = existingInvitations.data.filter(
+      (inv) => inv.emailAddress === email && inv.status === 'pending'
+    );
+    for (const inv of pendingForEmail) {
+      await client.invitations.revokeInvitation(inv.id);
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    await client.invitations.createInvitation({
+      emailAddress: email,
+      redirectUrl: `${appUrl}/sign-up`,
+      publicMetadata: {
+        role: adminRole === 'SUPER_ADMIN' || adminRole === 'HR_MANAGER' ? 'admin' : 'manager',
+        adminRole,
+      },
+    });
+  } catch (err: unknown) {
+    // Re-throw our own errors as-is
+    if (err instanceof Error && !('clerkError' in err)) {
+      throw err;
+    }
+    // Extract Clerk-specific error messages
+    const clerkErr = err as { errors?: Array<{ message?: string; longMessage?: string; code?: string }> };
+    const detail = clerkErr.errors?.[0]?.longMessage || clerkErr.errors?.[0]?.message || 'Failed to create invitation';
+    throw new Error(detail);
+  }
 
   revalidatePath('/admin/users');
   return { success: true };
