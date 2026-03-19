@@ -40,17 +40,17 @@ export function DashboardPanel({
         className
       )}
     >
-      <div className="flex items-center justify-between gap-4 border-b border-primary/20 p-6 pb-4">
+      <div className="flex flex-col gap-3 border-b border-primary/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-6 sm:pb-4">
         <div className="flex items-center gap-2">
           {Icon && <Icon className="size-5 text-primary" />}
           <h2 className="text-lg font-semibold">{title}</h2>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           {badge}
           {panelAction}
         </div>
       </div>
-      <div className={cn('p-6 pt-4', contentClassName)}>{children}</div>
+      <div className={cn('px-4 py-4 sm:px-6 sm:pt-4 sm:pb-6', contentClassName)}>{children}</div>
     </section>
   );
 }

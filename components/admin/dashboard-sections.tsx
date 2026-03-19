@@ -238,34 +238,41 @@ export async function RecentActivitySection() {
                 <Link
                   key={application.id}
                   href={`/admin/applications/${application.id}`}
-                  className="group flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-accent/50"
+                  className="group block rounded-lg p-3 transition-colors hover:bg-accent/50"
                 >
-                  <div>
-                    <p className="font-medium transition-colors group-hover:text-primary">
-                      {application.firstName} {application.lastName}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {application.jobTitle}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <Badge
-                      variant="secondary"
-                      className={cn(
-                        application.status === 'PENDING' &&
-                          'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-                        application.status === 'REVIEWING' &&
-                          'bg-blue-500/15 text-blue-600 dark:text-blue-400',
-                        application.status === 'HIRED' &&
-                          'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                      )}
-                    >
-                      {application.status}
-                    </Badge>
-                    <p className="mt-1.5 text-xs text-muted-foreground">
-                      {formatDistanceToNow(application.submittedAt, { addSuffix: true })}
-                    </p>
-                    <p className="mt-1 text-xs font-medium text-primary">Review</p>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium transition-colors group-hover:text-primary">
+                        {application.firstName} {application.lastName}
+                      </p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        {application.jobTitle}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 sm:block sm:text-right">
+                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            application.status === 'PENDING' &&
+                              'bg-amber-500/15 text-amber-600 dark:text-amber-400',
+                            application.status === 'REVIEWING' &&
+                              'bg-blue-500/15 text-blue-600 dark:text-blue-400',
+                            application.status === 'HIRED' &&
+                              'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                          )}
+                        >
+                          {application.status}
+                        </Badge>
+                        <span className="text-xs font-medium text-primary sm:hidden">Review</span>
+                      </div>
+                      <div className="sm:mt-1.5">
+                        <p className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(application.submittedAt, { addSuffix: true })}
+                        </p>
+                        <p className="mt-1 hidden text-xs font-medium text-primary sm:block">Review</p>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -290,34 +297,41 @@ export async function RecentActivitySection() {
                   key={contact.id}
                   href="/admin/contacts"
                   className={cn(
-                    'group flex items-start justify-between rounded-lg p-3 transition-colors hover:bg-accent/50',
+                    'group block rounded-lg p-3 transition-colors hover:bg-accent/50',
                     !contact.isRead && 'border border-primary/10 bg-primary/5'
                   )}
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium transition-colors group-hover:text-primary">
-                        {contact.name}
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate font-medium transition-colors group-hover:text-primary">
+                          {contact.name}
+                        </p>
+                        {!contact.isRead && <span className="size-2 shrink-0 rounded-full bg-primary" />}
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground sm:truncate">
+                        {contact.message}
                       </p>
-                      {!contact.isRead && <span className="size-2 rounded-full bg-primary" />}
+                      {contact.service && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Service: {contact.service}
+                        </p>
+                      )}
                     </div>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {contact.message}
-                    </p>
-                    {contact.service && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Service: {contact.service}
-                      </p>
-                    )}
-                  </div>
-                  <div className="ml-4 text-right">
-                    <Badge variant={contact.isRead ? 'outline' : 'secondary'}>
-                      {contact.isRead ? 'Read' : 'Unread'}
-                    </Badge>
-                    <p className="mt-1.5 text-xs text-muted-foreground">
-                      {formatDistanceToNow(contact.submittedAt, { addSuffix: true })}
-                    </p>
-                    <p className="mt-1 text-xs font-medium text-primary">Open inbox</p>
+                    <div className="flex items-center justify-between gap-3 sm:ml-4 sm:block sm:text-right">
+                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                        <Badge variant={contact.isRead ? 'outline' : 'secondary'}>
+                          {contact.isRead ? 'Read' : 'Unread'}
+                        </Badge>
+                        <span className="text-xs font-medium text-primary sm:hidden">Open inbox</span>
+                      </div>
+                      <div className="sm:mt-1.5">
+                        <p className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(contact.submittedAt, { addSuffix: true })}
+                        </p>
+                        <p className="mt-1 hidden text-xs font-medium text-primary sm:block">Open inbox</p>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}

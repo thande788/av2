@@ -87,31 +87,33 @@ export function PendingActionsPanel({
                 <Link
                   key={action.title}
                   href={action.href}
-                  className="group flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-accent/50"
+                  className="group block rounded-lg p-3 transition-colors hover:bg-accent/50"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`rounded-lg p-2 ${action.bgColor}`}>
-                      <Icon className={`size-4 ${action.color}`} />
-                    </div>
-                    <div>
-                      <p className="font-medium transition-colors group-hover:text-primary">
-                        {action.title}
-                      </p>
-                      {action.urgent && (
-                        <p className="text-xs text-red-500 dark:text-red-400">
-                          Requires immediate attention
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className={`rounded-lg p-2 ${action.bgColor}`}>
+                        <Icon className={`size-4 ${action.color}`} />
+                      </div>
+                      <div>
+                        <p className="font-medium transition-colors group-hover:text-primary">
+                          {action.title}
                         </p>
-                      )}
+                        {action.urgent && (
+                          <p className="text-xs text-red-500 dark:text-red-400">
+                            Requires immediate attention
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant="secondary"
-                      className={action.urgent ? 'bg-red-500/15 text-red-600 dark:text-red-400' : ''}
-                    >
-                      {action.count}
-                    </Badge>
-                    <IconChevronRight className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                    <div className="flex items-center justify-between gap-2 sm:justify-end">
+                      <Badge
+                        variant="secondary"
+                        className={action.urgent ? 'bg-red-500/15 text-red-600 dark:text-red-400' : ''}
+                      >
+                        {action.count}
+                      </Badge>
+                      <IconChevronRight className="size-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                    </div>
                   </div>
                 </Link>
               );
