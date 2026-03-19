@@ -47,6 +47,7 @@ export async function submitClientTestimonial(
         role: client?.relationship ? `${client.relationship} of client` : 'Client',
         content: parsed.data.content,
         rating: parsed.data.rating,
+        status: 'SUBMITTED',
         isPublished: false, // Always queued for admin review
         submittedById: portalUser.id,
       },

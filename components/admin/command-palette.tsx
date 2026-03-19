@@ -32,6 +32,8 @@ import {
   Moon,
   Sun,
   Keyboard,
+  Layers,
+  CircleHelp,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -84,6 +86,8 @@ export function CommandPalette() {
     { id: 'contacts', title: 'Contacts', icon: MessageSquare, action: () => navigate('/admin/contacts'), group: 'Navigation' },
     { id: 'inquiries', title: 'Inquiries', icon: HelpCircle, action: () => navigate('/admin/inquiries'), group: 'Navigation' },
     { id: 'testimonials', title: 'Testimonials', icon: Star, action: () => navigate('/admin/testimonials'), group: 'Navigation' },
+    { id: 'faqs', title: 'FAQs', icon: CircleHelp, action: () => navigate('/admin/faqs'), group: 'Navigation' },
+    { id: 'services', title: 'Services', icon: Layers, action: () => navigate('/admin/services'), group: 'Navigation' },
     { id: 'analytics', title: 'Analytics', icon: BarChart3, action: () => navigate('/admin/analytics'), group: 'Navigation' },
     { id: 'audit-log', title: 'Activity Log', icon: Shield, action: () => navigate('/admin/audit-log'), group: 'Navigation' },
     { id: 'user-management', title: 'User Management', icon: Users, action: () => navigate('/admin/users'), group: 'Navigation' },
@@ -92,6 +96,9 @@ export function CommandPalette() {
   const quickActions: CommandItem[] = [
     { id: 'new-job', title: 'Create New Job', icon: Plus, action: () => navigate('/admin/jobs/new'), group: 'Quick Actions', keywords: ['add', 'create', 'job'] },
     { id: 'new-shift', title: 'Create New Shift', icon: Plus, action: () => navigate('/admin/shifts/new'), group: 'Quick Actions', keywords: ['add', 'schedule'], demoOnly: true },
+    { id: 'new-faq', title: 'Create New FAQ', icon: Plus, action: () => navigate('/admin/faqs/new'), group: 'Quick Actions', keywords: ['add', 'create', 'faq', 'question'] },
+    { id: 'new-testimonial', title: 'Add Testimonial', icon: Plus, action: () => navigate('/admin/testimonials/new'), group: 'Quick Actions', keywords: ['add', 'create', 'testimonial', 'review'] },
+    { id: 'new-service-category', title: 'Add Service Category', icon: Plus, action: () => navigate('/admin/services/new'), group: 'Quick Actions', keywords: ['add', 'create', 'service', 'category'] },
   ];
 
   const themeActions: CommandItem[] = [

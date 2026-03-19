@@ -21,6 +21,8 @@ export const ROLE_PERMISSIONS: Record<AdminRole, string[]> = {
   ],
   CONTENT_MANAGER: [
     'testimonials.read', 'testimonials.write',
+    'faqs.read', 'faqs.write',
+    'services.read', 'services.write',
     'contacts.read', 'contacts.write',
     'inquiries.read', 'inquiries.write',
     'analytics.read',
@@ -31,6 +33,8 @@ export const ROLE_PERMISSIONS: Record<AdminRole, string[]> = {
     'contacts.read',
     'inquiries.read',
     'testimonials.read',
+    'faqs.read',
+    'services.read',
     'workers.read',
     'clients.read',
     'shifts.read',

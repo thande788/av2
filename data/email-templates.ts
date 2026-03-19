@@ -58,4 +58,19 @@ If you have any questions, please don't hesitate to contact us.
 Best regards,
 Angel Touch Homecare Team`,
   },
+  {
+    id: 'testimonial-request',
+    name: 'Testimonial Request',
+    subject: 'Share Your Experience with Angel Touch Homecare',
+    body: `We hope you and your family have been happy with the care provided by Angel Touch Homecare.
+
+Your feedback is incredibly valuable to us and helps other families discover the compassionate care we offer. Would you be willing to share a brief testimonial about your experience?
+
+You can submit your testimonial through our client portal:
+https://angeltouch.services/client/testimonials
+
+If you don't have a portal account, feel free to call us at (978) 856-9358 or email info@angeltouch.services and we'll be happy to help.
+
+Thank you so much for your trust in us!`,
+  },
 ];

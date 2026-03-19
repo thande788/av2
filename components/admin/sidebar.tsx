@@ -22,6 +22,8 @@ import {
   DollarSign,
   Shield,
   BarChart3,
+  Layers,
+  CircleHelp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -117,6 +119,16 @@ const navItems: NavItem[] = [
     title: 'Testimonials',
     href: '/admin/testimonials',
     icon: Star,
+  },
+  {
+    title: 'FAQs',
+    href: '/admin/faqs',
+    icon: CircleHelp,
+  },
+  {
+    title: 'Services',
+    href: '/admin/services',
+    icon: Layers,
   },
   {
     title: 'Analytics',

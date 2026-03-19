@@ -373,43 +373,99 @@ Dedicated admin user management page at `/admin/users`:
 
 ## 📝 Content Management Enhancements
 
-### 14. Testimonial Workflow
+### 14. Testimonial Workflow ✅
 
-- **Request testimonials**: Send email to past clients
-- **Approval workflow**: Submitted → Under Review → Published
-- **Rich text editor** for testimonial content
-- **Video testimonial** support (embed/upload)
+**Status:** Implemented  
+**Implemented:** March 19, 2026
 
-**Effort:** 6-8 hours  
-**Impact:** Medium
+Full testimonial lifecycle management with approval workflow:
 
-### 15. FAQ Management (New Feature)
+- ✅ **Request testimonials**: Send email to past clients directly from admin
+- ✅ **Approval workflow**: Requested → Submitted → Under Review → Published/Rejected
+- ✅ **Status-based filtering** in testimonials table with workflow stat cards
+- ✅ **Video testimonial** support (YouTube, Vimeo, or uploaded URL)
+- ✅ Testimonial request dialog with custom message support
+- ✅ Audit logging on all status changes and actions
+- ✅ Backward-compatible `isPublished` field synced with `status`
 
-Add database-backed FAQs:
+**Key Files:**
+- `app/admin/testimonials/actions.ts` — Enhanced with `updateTestimonialStatus()`, `requestTestimonial()`
+- `app/admin/testimonials/testimonials-table.tsx` — Workflow status badges, status filters
+- `app/admin/testimonials/request-testimonial-dialog.tsx` — Email request dialog
+- `app/admin/testimonials/testimonial-form.tsx` — Video URL fields, status dropdown
+- `data/email-templates.ts` — Added `testimonial-request` template
 
+**Database Changes:**
 ```prisma
-model FAQ {
-  id          String   @id @default(cuid())
-  question    String
-  answer      String   @db.Text
-  category    String
-  order       Int      @default(0)
-  isPublished Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum TestimonialStatus {
+  REQUESTED      // Email sent to client
+  SUBMITTED      // Awaiting review
+  UNDER_REVIEW   // Admin reviewing
+  PUBLISHED      // Approved, visible on site
+  REJECTED       // Rejected by admin
 }
+// Added: status, videoUrl, videoType, requestedAt, requestedBy, requestEmail, reviewedBy, reviewedAt, rejectionNote
 ```
 
 **Effort:** 6-8 hours  
 **Impact:** Medium
 
-### 16. Service Management (New Feature)
+### 15. FAQ Management ✅
 
-Move services to database for CMS-style editing:
+**Status:** Implemented  
+**Implemented:** March 19, 2026
 
-- Add/edit/remove services
-- Reorder services
-- Toggle active/inactive
+Full admin CRUD for database-backed FAQs:
+
+- ✅ FAQ list page with DataTable (search, filter by published status)
+- ✅ Create/Edit FAQ form with category, sort order, publish status
+- ✅ Toggle publish/unpublish from table actions
+- ✅ Delete with confirmation dialog
+- ✅ Audit logging on all FAQ operations
+- ✅ Public FAQ page already reads from DB with static fallback
+
+**Key Files:**
+- `app/admin/faqs/page.tsx` — Server component listing FAQs
+- `app/admin/faqs/actions.ts` — `createFAQ()`, `updateFAQ()`, `toggleFAQPublished()`, `deleteFAQ()`, `reorderFAQs()`
+- `app/admin/faqs/faqs-table.tsx` — Client table with filters/actions
+- `app/admin/faqs/faq-form.tsx` — Create/edit form
+- `app/admin/faqs/[id]/page.tsx` — Edit page
+- `app/admin/faqs/new/page.tsx` — Create page
+
+**Effort:** 6-8 hours  
+**Impact:** Medium
+
+### 16. Service Management ✅
+
+**Status:** Implemented  
+**Implemented:** March 19, 2026
+
+Full CMS-style service management with hierarchical categories:
+
+- ✅ Service category list with card-based UI, icon display, active counts
+- ✅ Create/Edit service categories (name, slug, description, icon, image, sort order)
+- ✅ Category detail view showing all services within that category
+- ✅ Create/Edit individual services (title, features, pricing, icon, status)
+- ✅ Toggle active/inactive for both categories and services
+- ✅ Delete with cascade (deleting category removes its services)
+- ✅ Audit logging on all service operations
+- ✅ Public services page already reads from DB with static fallback
+
+**Key Files:**
+- `app/admin/services/page.tsx` — Category list
+- `app/admin/services/actions.ts` — All CRUD for categories and service items
+- `app/admin/services/services-table.tsx` — Category cards with actions
+- `app/admin/services/category-form.tsx` — Category create/edit form
+- `app/admin/services/[id]/page.tsx` — Category detail with service items table
+- `app/admin/services/[id]/service-items-table.tsx` — Service items table
+- `app/admin/services/[id]/items/service-item-form.tsx` — Service item form
+- `app/admin/services/[id]/items/new/page.tsx` — New service item page
+- `app/admin/services/[id]/items/[itemId]/page.tsx` — Edit service item page
+
+**Additional Changes:**
+- `components/admin/sidebar.tsx` — Added FAQs and Services nav items
+- `components/admin/command-palette.tsx` — Added FAQs, Services navigation + quick actions
+- `lib/rbac.ts` — Added `faqs.read/write` and `services.read/write` permissions for Content Manager and Viewer roles
 
 **Effort:** 8-12 hours  
 **Impact:** Medium
@@ -562,4 +618,4 @@ EFFORT                  │                   EFFORT
 
 ---
 
-*Last updated: March 19, 2026 — UX Improvements (#8-11) and User & Role Management (#12-13) implemented*
+*Last updated: March 19, 2026 — Content Management Enhancements (#14-16) implemented: Testimonial workflow, FAQ management, Service management*

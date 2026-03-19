@@ -19,13 +19,58 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatDateUS } from '@/lib/utils';
 import type { Testimonial } from '@prisma/client';
-import { togglePublishStatus, deleteTestimonial } from './actions';
-import { MoreHorizontal, Edit, Trash2, Eye, EyeOff, Star, UserCircle, ShieldCheck } from 'lucide-react';
+import { updateTestimonialStatus, deleteTestimonial } from './actions';
+import {
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Star,
+  UserCircle,
+  ShieldCheck,
+  Video,
+  Search,
+} from 'lucide-react';
 import Link from 'next/link';
+
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; className: string; icon: typeof Clock }
+> = {
+  REQUESTED: {
+    label: 'Requested',
+    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    icon: Clock,
+  },
+  SUBMITTED: {
+    label: 'Submitted',
+    className: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
+    icon: Clock,
+  },
+  UNDER_REVIEW: {
+    label: 'Under Review',
+    className: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+    icon: Search,
+  },
+  PUBLISHED: {
+    label: 'Published',
+    className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    icon: CheckCircle,
+  },
+  REJECTED: {
+    label: 'Rejected',
+    className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    icon: XCircle,
+  },
+};
 
 export function TestimonialsTable({
   testimonials,
@@ -36,8 +81,11 @@ export function TestimonialsTable({
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleTogglePublish = async (id: string, currentStatus: boolean) => {
-    await togglePublishStatus(id, !currentStatus);
+  const handleStatusChange = async (
+    id: string,
+    status: 'SUBMITTED' | 'UNDER_REVIEW' | 'PUBLISHED' | 'REJECTED'
+  ) => {
+    await updateTestimonialStatus(id, status);
     router.refresh();
   };
 
@@ -59,9 +107,14 @@ export function TestimonialsTable({
       header: 'Name',
       mobileTitle: true,
       render: (t) => (
-        <div>
-          <p className="font-medium">{t.name}</p>
-          {t.role && <p className="text-sm text-muted-foreground">{t.role}</p>}
+        <div className="flex items-center gap-2">
+          <div>
+            <p className="font-medium">{t.name}</p>
+            {t.role && <p className="text-sm text-muted-foreground">{t.role}</p>}
+          </div>
+          {t.videoUrl && (
+            <Video className="size-4 text-primary shrink-0" />
+          )}
         </div>
       ),
     },
@@ -73,6 +126,11 @@ export function TestimonialsTable({
           <Badge variant="outline" className="text-xs gap-1">
             <UserCircle className="size-3" />
             Client Portal
+          </Badge>
+        ) : t.requestEmail ? (
+          <Badge variant="outline" className="text-xs gap-1 border-blue-300">
+            <Clock className="size-3" />
+            Requested
           </Badge>
         ) : (
           <Badge variant="secondary" className="text-xs gap-1">
@@ -87,34 +145,41 @@ export function TestimonialsTable({
       className: 'max-w-md',
       hideOnMobile: true,
       render: (t) => (
-        <p className="truncate text-muted-foreground">{t.content}</p>
+        <p className="truncate text-muted-foreground">
+          {t.content || <span className="italic">Awaiting response...</span>}
+        </p>
       ),
     },
     {
       key: 'rating',
       header: 'Rating',
-      render: (t) => (
-        <div className="flex items-center gap-1">
-          {Array.from({ length: t.rating || 5 }).map((_, i) => (
-            <Star
-              key={i}
-              className="size-4 fill-yellow-400 text-yellow-400"
-            />
-          ))}
-        </div>
-      ),
+      render: (t) =>
+        t.rating ? (
+          <div className="flex items-center gap-1">
+            {Array.from({ length: t.rating }).map((_, i) => (
+              <Star
+                key={i}
+                className="size-4 fill-yellow-400 text-yellow-400"
+              />
+            ))}
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-xs">—</span>
+        ),
     },
     {
-      key: 'isPublished',
+      key: 'status',
       header: 'Status',
-      render: (t) =>
-        t.isPublished ? (
-          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-            Published
+      render: (t) => {
+        const config = STATUS_CONFIG[t.status] || STATUS_CONFIG.SUBMITTED;
+        const StatusIcon = config.icon;
+        return (
+          <Badge className={`${config.className} gap-1`}>
+            <StatusIcon className="size-3" />
+            {config.label}
           </Badge>
-        ) : (
-          <Badge variant="secondary">Draft</Badge>
-        ),
+        );
+      },
     },
     {
       key: 'createdAt',
@@ -141,21 +206,32 @@ export function TestimonialsTable({
                 Edit
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleTogglePublish(t.id, t.isPublished)}
-            >
-              {t.isPublished ? (
-                <>
-                  <EyeOff className="size-4 mr-2" />
-                  Unpublish
-                </>
-              ) : (
-                <>
-                  <Eye className="size-4 mr-2" />
-                  Publish
-                </>
-              )}
-            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {t.status !== 'UNDER_REVIEW' && (
+              <DropdownMenuItem
+                onClick={() => handleStatusChange(t.id, 'UNDER_REVIEW')}
+              >
+                <Search className="size-4 mr-2" />
+                Mark Under Review
+              </DropdownMenuItem>
+            )}
+            {t.status !== 'PUBLISHED' && (
+              <DropdownMenuItem
+                onClick={() => handleStatusChange(t.id, 'PUBLISHED')}
+              >
+                <Eye className="size-4 mr-2" />
+                Publish
+              </DropdownMenuItem>
+            )}
+            {t.status !== 'REJECTED' && (
+              <DropdownMenuItem
+                onClick={() => handleStatusChange(t.id, 'REJECTED')}
+              >
+                <XCircle className="size-4 mr-2" />
+                Reject
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive"
               onClick={() => setDeleteId(t.id)}
@@ -176,6 +252,19 @@ export function TestimonialsTable({
         columns={columns}
         searchKeys={['name', 'content']}
         emptyMessage="No testimonials yet. Add your first testimonial."
+        filters={[
+          {
+            key: 'status',
+            label: 'Status',
+            options: [
+              { label: 'Requested', value: 'REQUESTED' },
+              { label: 'Submitted', value: 'SUBMITTED' },
+              { label: 'Under Review', value: 'UNDER_REVIEW' },
+              { label: 'Published', value: 'PUBLISHED' },
+              { label: 'Rejected', value: 'REJECTED' },
+            ],
+          },
+        ]}
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

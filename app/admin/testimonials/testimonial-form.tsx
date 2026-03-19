@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Video } from 'lucide-react';
 import type { Testimonial } from '@prisma/client';
 import {
   createTestimonial,
@@ -83,7 +83,7 @@ export function TestimonialForm({ testimonial }: TestimonialFormProps) {
             )}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="rating">Rating</Label>
               <Select
@@ -104,19 +104,31 @@ export function TestimonialForm({ testimonial }: TestimonialFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="isPublished">Status</Label>
+              <Label htmlFor="status">Status</Label>
               <Select
-                name="isPublished"
-                defaultValue={testimonial?.isPublished ? 'true' : 'false'}
+                name="status"
+                defaultValue={testimonial?.status || 'SUBMITTED'}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Published</SelectItem>
-                  <SelectItem value="false">Draft</SelectItem>
+                  <SelectItem value="SUBMITTED">Submitted</SelectItem>
+                  <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
+                  <SelectItem value="PUBLISHED">Published</SelectItem>
+                  <SelectItem value="REJECTED">Rejected</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="serviceCategoryId">Service Category</Label>
+              <Input
+                id="serviceCategoryId"
+                name="serviceCategoryId"
+                defaultValue={testimonial?.serviceCategoryId || ''}
+                placeholder="Optional category ID"
+              />
             </div>
           </div>
 
@@ -134,6 +146,49 @@ export function TestimonialForm({ testimonial }: TestimonialFormProps) {
                 {state.errors.imageUrl[0]}
               </p>
             )}
+          </div>
+
+          {/* Video Testimonial Support */}
+          <div className="rounded-lg border border-border/50 p-4 space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Video className="size-4 text-primary" />
+              Video Testimonial (optional)
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="videoUrl">Video URL</Label>
+                <Input
+                  id="videoUrl"
+                  name="videoUrl"
+                  type="url"
+                  defaultValue={testimonial?.videoUrl || ''}
+                  placeholder="https://youtube.com/watch?v=..."
+                />
+                {state.errors?.videoUrl && (
+                  <p className="text-sm text-destructive">
+                    {state.errors.videoUrl[0]}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="videoType">Video Type</Label>
+                <Select
+                  name="videoType"
+                  defaultValue={testimonial?.videoType || ''}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="youtube">YouTube</SelectItem>
+                    <SelectItem value="vimeo">Vimeo</SelectItem>
+                    <SelectItem value="upload">Uploaded</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         </div>
 

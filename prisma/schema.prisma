@@ -157,14 +157,31 @@ model ContactSubmission {
 
 // Testimonials (for CMS functionality + client submissions)
 model Testimonial {
-  id            String           @id @default(cuid())
-  slug          String?          @unique // Stable identifier (e.g. "evelyn-r")
+  id            String              @id @default(cuid())
+  slug          String?             @unique // Stable identifier (e.g. "evelyn-r")
   name          String
-  role          String?          // "Family Member", "Client", etc.
-  content       String           @db.Text
-  rating        Int?             @default(5) // 1-5 stars
+  role          String?             // "Family Member", "Client", etc.
+  content       String              @db.Text
+  rating        Int?                @default(5) // 1-5 stars
   imageUrl      String?
-  isPublished   Boolean          @default(false)
+  
+  // Workflow status: replaces simple isPublished boolean
+  status        TestimonialStatus   @default(SUBMITTED)
+  isPublished   Boolean             @default(false)
+  
+  // Video testimonial support
+  videoUrl      String?             // YouTube/Vimeo embed URL or uploaded video URL
+  videoType     String?             // "youtube" | "vimeo" | "upload"
+  
+  // Testimonial request tracking
+  requestedAt   DateTime?           // When testimonial was requested
+  requestedBy   String?             // Admin who sent the request
+  requestEmail  String?             // Email the request was sent to
+  
+  // Review workflow
+  reviewedBy    String?             // Admin who reviewed
+  reviewedAt    DateTime?
+  rejectionNote String?
   
   // Optional link to a service category (e.g. "Personal Care")
   serviceCategoryId String?
@@ -177,9 +194,18 @@ model Testimonial {
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   
+  @@index([status])
   @@index([isPublished])
   @@index([submittedById])
   @@index([serviceCategoryId])
+}
+
+enum TestimonialStatus {
+  REQUESTED     // Email sent to client requesting testimonial
+  SUBMITTED     // Client or admin submitted, awaiting review
+  UNDER_REVIEW  // Admin is reviewing
+  PUBLISHED     // Approved and visible on site
+  REJECTED      // Rejected by admin
 }
 
 // Service inquiries
