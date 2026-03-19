@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
-import { isDemoEnabled } from '@/lib/feature-flags';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { formatDateUS } from '@/lib/utils';
 import { BookShiftCard } from './book-shift-card';
 
@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: BookingPageProps) {
 }
 
 export default async function BookShiftPage({ params }: BookingPageProps) {
-  // Gate behind demo mode
-  if (!isDemoEnabled()) {
+  // Gate behind shift scheduling feature flag
+  if (!isFeatureEnabled('shiftScheduling')) {
     redirect('/');
   }
 

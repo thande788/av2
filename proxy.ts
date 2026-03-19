@@ -18,7 +18,7 @@
 import { clerkMiddleware, createRouteMatcher, clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-import { isDemoGatedRoute, isDemoEnabled } from '@/lib/feature-flags';
+import { isDemoGatedRoute } from '@/lib/feature-flags';
 import { db } from '@/lib/db';
 
 /**
@@ -138,8 +138,8 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.rewrite(new URL('/portals', req.url));
   }
 
-  // Gate demo routes - redirect to home if demo mode is disabled
-  if (isDemoGatedRoute(pathname) && !isDemoEnabled()) {
+  // Gate feature-flagged routes - redirect to home if the feature is disabled
+  if (isDemoGatedRoute(pathname)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 

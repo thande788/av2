@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { isDemoEnabled } from '@/lib/feature-flags';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { ClientSidebar } from '@/components/client/sidebar';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { LogoWatermark } from '@/components/shared/logo-watermark';
@@ -11,8 +11,8 @@ export default function ClientPortalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Gate the client portal behind demo mode
-  if (!isDemoEnabled()) {
+  // Gate the client portal behind its feature flag
+  if (!isFeatureEnabled('clientPortal')) {
     redirect('/');
   }
 

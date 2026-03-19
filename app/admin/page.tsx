@@ -3,7 +3,7 @@ import { StatCard } from '@/components/admin/stat-card';
 import { TodayScheduleWidget, type ShiftWithDetails } from '@/components/admin/today-schedule-widget';
 import { PendingActionsPanel } from '@/components/admin/pending-actions-panel';
 import { QuickActions } from '@/components/admin/quick-actions';
-import { isDemoEnabled } from '@/lib/feature-flags';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { serialize } from '@/lib/utils';
 import {
   FileText,
@@ -20,7 +20,7 @@ import Link from 'next/link';
 import { formatDistanceToNow, startOfDay, endOfDay } from 'date-fns';
 
 export default async function AdminDashboard() {
-  const demoEnabled = isDemoEnabled();
+  const portalEnabled = isFeatureEnabled('workerManagement');
   const today = new Date();
   const todayStart = startOfDay(today);
   const todayEnd = endOfDay(today);
@@ -71,7 +71,7 @@ export default async function AdminDashboard() {
     todayShifts: [] as unknown[],
   };
 
-  if (demoEnabled) {
+  if (portalEnabled) {
     const [
       totalWorkers,
       activeWorkers,
@@ -148,11 +148,11 @@ export default async function AdminDashboard() {
             Here&apos;s what&apos;s happening at Angel Touch Homecare today
           </p>
         </div>
-        {demoEnabled && <QuickActions />}
+        {portalEnabled && <QuickActions />}
       </div>
 
-      {/* Portal Stats (Demo Mode) */}
-      {demoEnabled && (
+      {/* Portal Stats */}
+      {portalEnabled && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Active Workers"
@@ -327,8 +327,8 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* Portal Widgets (Demo Mode) */}
-      {demoEnabled && (
+      {/* Portal Widgets */}
+      {portalEnabled && (
         <div className="grid gap-6 lg:grid-cols-2">
           <TodayScheduleWidget shifts={serialize(portalStats.todayShifts) as ShiftWithDetails[]} />
           <PendingActionsPanel

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
-import { isDemoEnabled } from '@/lib/feature-flags';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { EmployeeSidebar } from '@/components/employee/sidebar';
 import { LogoWatermark } from '@/components/shared/logo-watermark';
@@ -21,8 +21,8 @@ export default function EmployeeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Gate behind demo mode
-  if (!isDemoEnabled()) {
+  // Gate behind feature flag
+  if (!isFeatureEnabled('employeePortal')) {
     redirect('/');
   }
 

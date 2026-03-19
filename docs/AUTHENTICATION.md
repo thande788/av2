@@ -244,6 +244,73 @@ SELECT * FROM "PortalUser" WHERE email = 'user@example.com';
 SELECT role, COUNT(*) FROM "PortalUser" GROUP BY role;
 ```
 
+## Role Resolution & Fallback Chain
+
+The middleware (`proxy.ts`) and RBAC helpers (`app/actions/rbac.ts`) resolve a user's role using a three-tier fallback chain:
+
+```
+1. Session Claims (sessionClaims.metadata.role)
+   │ fastest — cached in the JWT
+   ▼ (miss)
+2. Clerk publicMetadata.role
+   │ fetched via clerkClient().users.getUser()
+   ▼ (miss)
+3. Database (PortalUser.role)
+   │ queried via Prisma
+   └──► if found, auto-syncs role back to Clerk publicMetadata
+```
+
+This means **you do not need to pre-set Clerk metadata for every user**. If the role exists in the database, the middleware will find it and sync it to Clerk automatically on the user's next request.
+
+### Admin Sub-Roles (RBAC)
+
+Fine-grained admin permissions follow a similar cascade:
+
+| Source | Field | Example |
+|--------|-------|---------|
+| Clerk metadata | `publicMetadata.adminRole` | `SUPER_ADMIN` |
+| Clerk metadata (fallback) | `publicMetadata.role` mapped to admin role | `admin` → `SUPER_ADMIN` |
+| Database (fallback) | `PortalUser.role` | `ADMIN` → `SUPER_ADMIN` |
+
+Sub-roles: `SUPER_ADMIN`, `HR_MANAGER`, `CONTENT_MANAGER`, `VIEWER` (defined in `lib/rbac.ts`).
+
+## Bootstrapping the First Admin (Production)
+
+When deploying to production for the first time, there is a bootstrap problem: no admin user exists to approve other users through the admin portal.
+
+### Option 1: Set Role in Clerk Dashboard (Recommended)
+
+1. Sign up on the production site (creates a `PortalUser` with `status: PENDING`)
+2. Go to [Clerk Dashboard](https://dashboard.clerk.com) → **Users** → select your user
+3. Edit **Public Metadata** and set:
+   ```json
+   {
+     "role": "admin"
+   }
+   ```
+4. Visit `/admin` — you now have full access
+
+### Option 2: Use the Sync Script
+
+```bash
+# Point to your production database and Clerk keys
+CLERK_SECRET_KEY="sk_live_..." DATABASE_URL="postgresql://..." \
+  pnpm tsx scripts/sync-clerk-role.ts user_XXXXX admin
+```
+
+### Option 3: Update the Database Directly
+
+```sql
+-- Set the first user as admin
+UPDATE "PortalUser"
+SET role = 'ADMIN', status = 'ACTIVE'
+WHERE email = 'your-email@example.com';
+```
+
+The middleware will detect the database role on the next request and sync it to Clerk automatically.
+
+> **After the first admin exists**, all subsequent role assignments can be done through the Admin Portal UI (Admin → Users / Workers).
+
 ## Security Considerations
 
 - Middleware runs on every request to protected routes

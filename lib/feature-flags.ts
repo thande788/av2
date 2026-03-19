@@ -125,23 +125,25 @@ export function getEnabledFeatures(): FeatureKey[] {
 }
 
 /**
- * Routes that are gated behind demo mode.
- * Used by middleware to redirect when demo is disabled.
+ * Map of route prefixes to the feature flag that gates them.
+ * Used by middleware to redirect when the corresponding feature is disabled.
  */
-export const DEMO_GATED_ROUTES = [
-  '/employee',
-  '/client',
-  '/admin/shifts',
-  '/admin/workers',
-  '/admin/clients',
-  '/admin/timesheets',
-  '/admin/payroll',
-  '/admin/compliance',
-] as const;
+const ROUTE_FEATURE_MAP: Record<string, FeatureKey> = {
+  '/employee': 'employeePortal',
+  '/client': 'clientPortal',
+  '/admin/shifts': 'shiftScheduling',
+  '/admin/workers': 'workerManagement',
+  '/admin/clients': 'clientManagement',
+  '/admin/timesheets': 'timesheets',
+  '/admin/payroll': 'payrollExport',
+  '/admin/compliance': 'complianceDocs',
+};
 
 /**
- * Check if a pathname is gated behind demo mode.
+ * Check if a pathname is gated behind a feature flag.
  */
 export function isDemoGatedRoute(pathname: string): boolean {
-  return DEMO_GATED_ROUTES.some((route) => pathname.startsWith(route));
+  return Object.entries(ROUTE_FEATURE_MAP).some(
+    ([route, feature]) => pathname.startsWith(route) && !isFeatureEnabled(feature)
+  );
 }
