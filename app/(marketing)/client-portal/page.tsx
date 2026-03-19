@@ -55,8 +55,8 @@ export default function ClientPortalPage() {
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-lg">
-              We're building a secure portal where you can manage schedules, 
-              communicate with caregivers, and stay connected with your loved one's care.
+              We&apos;re building a secure portal where you can manage schedules, 
+              communicate with caregivers, and stay connected with your loved one&apos;s care.
             </p>
           </div>
 

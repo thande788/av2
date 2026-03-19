@@ -8,9 +8,6 @@ import {
   skillsSchema,
   availabilitySchema,
   addressInfoSchema,
-  type SkillsData,
-  type AvailabilityData,
-  type AddressInfoData,
 } from '@/lib/validation/worker-registration';
 import { z } from 'zod';
 

@@ -67,3 +67,11 @@ export type {
   ApplicationFormData,
   ApplicationSubmitResponse,
 } from "./application";
+
+// Email template types
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+}

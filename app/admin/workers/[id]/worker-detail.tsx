@@ -196,6 +196,7 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
   const isPending = worker.user.status === 'PENDING';
   const isActive = worker.user.status === 'ACTIVE';
   const isInactive = worker.user.status === 'INACTIVE';
+  const profileNeedsReview = worker.profileStatus === ProfileStatus.PENDING_REVIEW;
 
   // Parse skills and languages from JSON strings
   const skills = worker.skills || [];
@@ -268,6 +269,11 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          {profileNeedsReview && (
+            <Badge variant="outline" className="border-yellow-500/50 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">
+              Profile Needs Review
+            </Badge>
+          )}
           {isPending && (
             <>
               <AlertDialog>
@@ -313,7 +319,16 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
           )}
 
           {isActive && (
-            <AlertDialog>
+            <>
+              {worker.user.email && (
+                <Button variant="outline" asChild>
+                  <a href={`mailto:${worker.user.email}`}>
+                    <IconSend className="mr-2 size-4" />
+                    Email Worker
+                  </a>
+                </Button>
+              )}
+              <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" className="text-yellow-600 hover:text-yellow-700">
                   Suspend
@@ -335,6 +350,7 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            </>
           )}
 
           {isInactive && (

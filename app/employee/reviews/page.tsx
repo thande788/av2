@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { IconStarFilled, IconMessageCircle, IconTrendingUp } from '@tabler/icons-react';
 import { cn, formatDateUS } from '@/lib/utils';

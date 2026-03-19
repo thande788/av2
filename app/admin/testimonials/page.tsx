@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Send } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { TestimonialsTable } from './testimonials-table';
 import { RequestTestimonialDialog } from './request-testimonial-dialog';
 

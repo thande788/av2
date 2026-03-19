@@ -42,10 +42,9 @@ const SHORTCUTS: Shortcut[] = [
  * Listens for custom `open-shortcuts-help` event dispatched by command palette.
  */
 function useIsMac() {
-  const [isMac, setIsMac] = useState(false);
-  useEffect(() => {
-    setIsMac(navigator.platform.toUpperCase().includes('MAC'));
-  }, []);
+  const [isMac] = useState(
+    () => typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC')
+  );
   return isMac;
 }
 

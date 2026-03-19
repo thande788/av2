@@ -206,7 +206,7 @@ export default async function InvoicesPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p>
-            <strong>Check:</strong> Make payable to "Angel Touch Homecare Services" and mail to our office.
+            <strong>Check:</strong> Make payable to &ldquo;Angel Touch Homecare Services&rdquo; and mail to our office.
           </p>
           <p>
             <strong>Phone:</strong> Call (978) 555-1234 to pay by credit card.

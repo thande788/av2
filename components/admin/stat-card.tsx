@@ -23,7 +23,12 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div
-      className="relative overflow-hidden rounded-xl border border-primary/40 bg-primary/5 p-6 transition-all hover:shadow-md hover:bg-primary/10"
+      className={cn(
+        'relative overflow-hidden rounded-xl border p-6 transition-all hover:shadow-md',
+        highlight
+          ? 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10'
+          : 'border-primary/40 bg-primary/5 hover:bg-primary/10'
+      )}
     >
       {/* Subtle gradient accent */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />

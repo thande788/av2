@@ -59,13 +59,14 @@ export function EmergencyPanel({ shiftId, clientId, emergencyContact }: Emergenc
     }
 
     startTransition(async () => {
-      const result = await reportEmergencyIncident({
+      const incidentData: EmergencyIncidentData = {
         shiftId,
         clientId,
         type,
         description: description.trim(),
         severity,
-      });
+      };
+      const result = await reportEmergencyIncident(incidentData);
 
       if (result.success) {
         toast.success('Incident reported. Office has been notified.');
@@ -153,17 +154,17 @@ export function EmergencyPanel({ shiftId, clientId, emergencyContact }: Emergenc
             <label className="mb-1 block text-xs font-medium text-muted-foreground">Severity</label>
             <div className="flex gap-1.5">
               {severityOptions.map((s) => (
-                <button
+                <Badge
                   key={s.value}
-                  type="button"
+                  variant="outline"
                   className={cn(
-                    'rounded-md border px-3 py-1 text-xs font-medium transition-colors',
+                    'cursor-pointer px-3 py-1 text-xs font-medium transition-colors',
                     severity === s.value ? s.color : 'border-border bg-muted text-muted-foreground'
                   )}
                   onClick={() => setSeverity(s.value)}
                 >
                   {s.label}
-                </button>
+                </Badge>
               ))}
             </div>
           </div>

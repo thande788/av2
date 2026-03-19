@@ -47,7 +47,7 @@ export async function requestShiftSwap(
     const existingSwap = await db.swapRequest.findFirst({
       where: {
         originalBookingId: parsed.bookingId,
-        status: 'PENDING',
+        status: SwapStatus.PENDING,
       },
     });
     if (existingSwap) {
@@ -60,7 +60,7 @@ export async function requestShiftSwap(
         requesterId: booking.workerId,
         targetWorkerId: parsed.targetWorkerId || null,
         reason: parsed.reason,
-        status: 'PENDING',
+        status: SwapStatus.PENDING,
       },
     });
 
@@ -114,7 +114,7 @@ export async function acceptSwapRequest(
     });
 
     if (!swap) return { success: false, error: 'Swap request not found' };
-    if (swap.status !== 'PENDING') return { success: false, error: 'Swap is no longer pending' };
+    if (swap.status !== SwapStatus.PENDING) return { success: false, error: 'Swap is no longer pending' };
 
     // Verify the accepting worker is the target
     const worker = await db.worker.findUnique({ where: { userId: portalUser.id } });
@@ -124,7 +124,7 @@ export async function acceptSwapRequest(
 
     await db.swapRequest.update({
       where: { id: swapId },
-      data: { status: 'ACCEPTED', targetWorkerId: worker.id },
+      data: { status: SwapStatus.ACCEPTED, targetWorkerId: worker.id },
     });
 
     revalidatePath('/employee/shifts');
@@ -159,7 +159,7 @@ export async function approveSwapRequest(
     });
 
     if (!swap) return { success: false, error: 'Swap request not found' };
-    if (!['PENDING', 'ACCEPTED'].includes(swap.status)) {
+    if (swap.status !== SwapStatus.PENDING && swap.status !== SwapStatus.ACCEPTED) {
       return { success: false, error: 'Swap is no longer actionable' };
     }
 
@@ -196,7 +196,7 @@ export async function approveSwapRequest(
     await db.swapRequest.update({
       where: { id: swapId },
       data: {
-        status: 'APPROVED',
+        status: SwapStatus.APPROVED,
         reviewedBy: portalUser.id,
         reviewedAt: new Date(),
         reviewNote: note,
@@ -231,7 +231,7 @@ export async function rejectSwapRequest(
     await db.swapRequest.update({
       where: { id: swapId },
       data: {
-        status: 'REJECTED',
+        status: SwapStatus.REJECTED,
         reviewedBy: portalUser.id,
         reviewedAt: new Date(),
         reviewNote: note,
@@ -253,7 +253,7 @@ export async function rejectSwapRequest(
  */
 export async function getPendingSwapRequests() {
   return db.swapRequest.findMany({
-    where: { status: { in: ['PENDING', 'ACCEPTED'] } },
+    where: { status: { in: [SwapStatus.PENDING, SwapStatus.ACCEPTED] } },
     include: {
       originalBooking: {
         include: {

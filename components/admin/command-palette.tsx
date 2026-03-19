@@ -51,7 +51,7 @@ interface CommandItem {
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  const { setTheme, theme } = useTheme();
+  const { setTheme } = useTheme();
   const demoEnabled = isFeatureEnabled('workerManagement');
 
   // Open with Cmd+K / Ctrl+K
@@ -178,10 +178,7 @@ export function CommandPalette() {
  * Can be placed in sidebar or header.
  */
 export function CommandPaletteTrigger() {
-  const [isMac, setIsMac] = useState(false);
-  useEffect(() => {
-    setIsMac(navigator.platform.toUpperCase().includes('MAC'));
-  }, []);
+  const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC');
 
   return (
     <button

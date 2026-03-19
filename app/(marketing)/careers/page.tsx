@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { JsonLdGraph } from "@/components/seo";
 import { createJobPostingSchema, organizationSchema, getCanonicalAlternates } from "@/lib/seo";
 import { fetchActiveJobs } from "@/lib/jobs";
-import type { Job } from "@/types/job";
 
 export const metadata: Metadata = {
   title: "Careers | Join Our Team | Angel Touch Homecare Services",

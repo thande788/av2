@@ -17,7 +17,6 @@ import {
   ChevronRight,
   X,
   Download,
-  Trash2,
   CheckSquare,
   Filter,
 } from 'lucide-react';
@@ -216,6 +215,18 @@ export function DataTable<T extends { id: string }>({
     setPage(0);
   }, []);
 
+  const getValue = useCallback((item: T, key: string): unknown => {
+    if (key.includes('.')) {
+      const keys = key.split('.');
+      let value: unknown = item;
+      for (const k of keys) {
+        value = (value as Record<string, unknown>)?.[k];
+      }
+      return value;
+    }
+    return (item as Record<string, unknown>)[key];
+  }, []);
+
   // CSV Export
   const handleExport = useCallback(() => {
     const exportData = selectedIds.size > 0 ? selectedItems : sortedData;
@@ -239,19 +250,7 @@ export function DataTable<T extends { id: string }>({
     a.download = `${exportFilename}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [selectedIds, selectedItems, sortedData, columns, exportFilename]);
-
-  const getValue = (item: T, key: string): unknown => {
-    if (key.includes('.')) {
-      const keys = key.split('.');
-      let value: unknown = item;
-      for (const k of keys) {
-        value = (value as Record<string, unknown>)?.[k];
-      }
-      return value;
-    }
-    return (item as Record<string, unknown>)[key];
-  };
+  }, [selectedIds, selectedItems, sortedData, columns, exportFilename, getValue]);
 
   return (
     <div className="space-y-4">

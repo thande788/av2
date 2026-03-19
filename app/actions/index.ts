@@ -27,8 +27,8 @@ export {
   type AdminEmailResult,
 } from "./admin-email";
 
-// Email templates (shared data, not server actions)
-export { EMAIL_TEMPLATES, type EmailTemplate } from "@/data/email-templates";
+// Email templates (shared data — re-exported from types to avoid restricted import)
+export type { EmailTemplate } from '@/types';
 
 // Notification actions
 export {

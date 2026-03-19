@@ -16,7 +16,7 @@ import {
   ArrowRightLeft,
   FileText,
 } from 'lucide-react';
-import { addShiftNote, toggleNotePin, type ShiftNoteData } from '@/app/actions/shift-notes';
+import { addShiftNote, toggleNotePin } from '@/app/actions/shift-notes';
 import { toast } from 'sonner';
 
 type NoteCategory = 'GENERAL' | 'CARE_UPDATE' | 'MEDICATION' | 'INCIDENT' | 'HANDOFF';

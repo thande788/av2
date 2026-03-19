@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getPendingSwapRequests } from '@/app/actions/shift-swaps';
-import { serialize, formatDateUS } from '@/lib/utils';
+import { serialize } from '@/lib/utils';
 import { SwapReviewQueue } from './swap-review-queue';
 
 export const metadata: Metadata = {

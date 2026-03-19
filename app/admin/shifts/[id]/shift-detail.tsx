@@ -435,6 +435,11 @@ export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
             <CardTitle className="flex items-center gap-2">
               <IconUsers className="size-5" />
               Booking Requests ({shift.bookings.length})
+              {pendingBookings.length > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {pendingBookings.length} pending
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -502,10 +507,20 @@ export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
 
       {/* Admin Caregiver Rating (completed shifts only) */}
       {shift.status === 'COMPLETED' && confirmedBooking && (
-        <AdminShiftRating
-          shiftId={shift.id}
-          caregiverName={`${confirmedBooking.worker.user.firstName} ${confirmedBooking.worker.user.lastName}`}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <IconStar className="size-5 text-amber-500" />
+              Caregiver Rating
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AdminShiftRating
+              shiftId={shift.id}
+              caregiverName={`${confirmedBooking.worker.user.firstName} ${confirmedBooking.worker.user.lastName}`}
+            />
+          </CardContent>
+        </Card>
       )}
     </div>
   );

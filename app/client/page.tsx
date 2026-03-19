@@ -12,7 +12,7 @@ import {
   IconClock,
   IconStarFilled,
 } from '@tabler/icons-react';
-import { addDays, isBefore, isToday, isTomorrow } from 'date-fns';
+import { isToday, isTomorrow } from 'date-fns';
 import { getCurrentClient, getCurrentPortalUser } from '@/lib/auth';
 
 export const metadata = {

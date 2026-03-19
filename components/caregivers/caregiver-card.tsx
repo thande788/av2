@@ -23,7 +23,6 @@ import type { CaregiverCardProps, Caregiver } from "@/types/cards";
 export function CaregiverCard({
 	caregiver,
 	className,
-	onSelect,
 }: CaregiverCardProps) {
 	const {
 		id,

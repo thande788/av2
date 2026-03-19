@@ -3,7 +3,7 @@ import { serialize } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShiftRequestsList } from './shift-requests-list';
 import { UpcomingShiftsList } from './upcoming-shifts-list';
-import { IconCalendar, IconClock, IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { IconCalendar, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { getCurrentWorkerWithBookings } from '@/lib/auth';
 
 export const metadata = {

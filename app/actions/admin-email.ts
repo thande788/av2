@@ -159,4 +159,4 @@ function adminEmailTemplate({
 }
 
 // Email templates are in @/data/email-templates.ts (shared with client components)
-export type { EmailTemplate } from '@/data/email-templates';
+export type { EmailTemplate } from '@/types';

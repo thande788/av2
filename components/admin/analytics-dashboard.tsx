@@ -33,6 +33,7 @@ import {
   PieChart as PieIcon,
   Layers,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // ---------- colour palette ----------
 // Concrete colours that are visible in both light and dark mode
@@ -369,15 +370,20 @@ function KPICard({
   highlight?: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-primary/40 bg-primary/5 p-6 transition-all hover:shadow-md hover:bg-primary/10">
+    <div className={cn(
+      'relative overflow-hidden rounded-xl border p-6 transition-all hover:shadow-md',
+      highlight
+        ? 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10'
+        : 'border-primary/40 bg-primary/5 hover:bg-primary/10'
+    )}>
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
       <div className="relative flex items-start justify-between">
         <div className="space-y-2">
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
           <p className="text-3xl font-bold tracking-tight">{value}</p>
         </div>
-        <div className="rounded-lg bg-primary/10 p-2.5">
-          <Icon className="size-5 text-primary" />
+        <div className={cn('rounded-lg p-2.5', highlight ? 'bg-emerald-500/10' : 'bg-primary/10')}>
+          <Icon className={cn('size-5', highlight ? 'text-emerald-600' : 'text-primary')} />
         </div>
       </div>
     </div>

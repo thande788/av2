@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { caregivers as staticCaregivers } from "@/data/caregivers";
 import { db } from "@/lib/db";
 import { computeCaregiverRatingsBatch } from "@/lib/ratings";

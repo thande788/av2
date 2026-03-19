@@ -2,7 +2,7 @@
 
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
-import { subMonths, startOfMonth, endOfMonth, format, startOfDay, getDay, getHours } from 'date-fns';
+import { subMonths, startOfMonth, endOfMonth, format, getDay, getHours } from 'date-fns';
 
 // ---------- helpers ----------
 

@@ -2,11 +2,9 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   IconArrowLeft,
   IconCalendar,
-  IconCash,
   IconHeart,
   IconMail,
   IconMapPin,
@@ -67,8 +65,6 @@ const clientTypeLabels: Record<ClientType, string> = {
 };
 
 export function ClientDetail({ client }: ClientDetailProps) {
-  const router = useRouter();
-
   const fullAddress = [client.street, client.city, client.state, client.zip]
     .filter(Boolean)
     .join(', ');

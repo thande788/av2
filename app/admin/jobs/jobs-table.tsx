@@ -9,7 +9,6 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  MoreHorizontal,
   Users,
   ExternalLink,
 } from 'lucide-react';

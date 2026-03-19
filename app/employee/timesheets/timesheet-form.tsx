@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { parseISO, startOfWeek, addDays } from 'date-fns';
+import { parseISO, addDays } from 'date-fns';
 import { formatDateUS } from '@/lib/utils';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +13,6 @@ import { Badge } from '@/components/ui/badge';
 import {
   IconPlus,
   IconTrash,
-  IconClock,
   IconCalendarWeek,
   IconSend,
   IconDeviceFloppy,
@@ -65,7 +64,7 @@ export function TimesheetForm({ workerId, weekStarting, existingTimesheet }: Tim
   const totalHours = entries.reduce((sum, entry) => {
     const [startH, startM] = entry.startTime.split(':').map(Number);
     const [endH, endM] = entry.endTime.split(':').map(Number);
-    let startMins = startH * 60 + startM;
+    const startMins = startH * 60 + startM;
     let endMins = endH * 60 + endM;
     if (endMins < startMins) endMins += 24 * 60;
     const mins = Math.max(0, endMins - startMins - entry.breakMinutes);

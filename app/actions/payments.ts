@@ -21,12 +21,16 @@ const isStripeConfigured = () => !!process.env.STRIPE_SECRET_KEY;
  * Create a Stripe Checkout Session for an invoice.
  * Returns a URL to redirect the client to for payment.
  */
+const invoiceIdSchema = z.string().min(1, 'Invoice ID is required');
+
 export async function createInvoiceCheckoutSession(
   invoiceId: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
+    const validatedId = invoiceIdSchema.parse(invoiceId);
+
     const invoice = await db.invoice.findUnique({
-      where: { id: invoiceId },
+      where: { id: validatedId },
       include: {
         client: { include: { user: true } },
         lineItems: true,
