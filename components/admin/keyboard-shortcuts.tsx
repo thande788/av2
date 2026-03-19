@@ -11,13 +11,14 @@ import {
 
 interface Shortcut {
   keys: string;
+  macKeys?: string;
   description: string;
   category: string;
 }
 
 const SHORTCUTS: Shortcut[] = [
   // Global
-  { keys: '⌘ K', description: 'Open command palette', category: 'Global' },
+  { keys: 'Ctrl K', macKeys: '⌘ K', description: 'Open command palette', category: 'Global' },
   { keys: '?', description: 'Show keyboard shortcuts', category: 'Global' },
   { keys: 'G D', description: 'Go to Dashboard', category: 'Navigation' },
   { keys: 'G A', description: 'Go to Applications', category: 'Navigation' },
@@ -40,8 +41,17 @@ const SHORTCUTS: Shortcut[] = [
  * Shortcuts help dialog — shows available keyboard shortcuts.
  * Listens for custom `open-shortcuts-help` event dispatched by command palette.
  */
+function useIsMac() {
+  const [isMac, setIsMac] = useState(false);
+  useEffect(() => {
+    setIsMac(navigator.platform.toUpperCase().includes('MAC'));
+  }, []);
+  return isMac;
+}
+
 export function ShortcutsHelp() {
   const [open, setOpen] = useState(false);
+  const isMac = useIsMac();
 
   useEffect(() => {
     const handleOpen = () => setOpen(true);
@@ -77,24 +87,27 @@ export function ShortcutsHelp() {
                 {category}
               </h3>
               <div className="space-y-1">
-                {SHORTCUTS.filter((s) => s.category === category).map((shortcut) => (
-                  <div
-                    key={shortcut.keys}
-                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm"
-                  >
-                    <span className="text-foreground">{shortcut.description}</span>
-                    <div className="flex items-center gap-1">
-                      {shortcut.keys.split(' ').map((key, i) => (
-                        <kbd
-                          key={i}
-                          className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium"
-                        >
-                          {key}
-                        </kbd>
-                      ))}
+                {SHORTCUTS.filter((s) => s.category === category).map((shortcut) => {
+                  const displayKeys = (isMac && shortcut.macKeys) ? shortcut.macKeys : shortcut.keys;
+                  return (
+                    <div
+                      key={shortcut.keys}
+                      className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm"
+                    >
+                      <span className="text-foreground">{shortcut.description}</span>
+                      <div className="flex items-center gap-1">
+                        {displayKeys.split(' ').map((key, i) => (
+                          <kbd
+                            key={i}
+                            className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium"
+                          >
+                            {key}
+                          </kbd>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
