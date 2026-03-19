@@ -15,12 +15,14 @@ import { formatDateUS } from '@/lib/utils';
 import { bulkMarkContactsRead, bulkDeleteContacts } from '@/app/actions/audit-log';
 import { SendEmailDialog } from '@/components/admin/send-email-dialog';
 import { toast } from 'sonner';
-import type { ContactSubmission, Worker, PortalUser } from '@prisma/client';
+import type { ContactSubmission } from '@prisma/client';
 import { markContactAsRead } from './actions';
 import { Mail, Phone, Check, Trash2, UserRoundCheck } from 'lucide-react';
 
+type CaregiverRef = { id: string; user: { firstName: string; lastName: string } };
+
 type ContactWithCaregiver = ContactSubmission & {
-  preferredCaregiver?: (Worker & { user: PortalUser }) | null;
+  preferredCaregiver?: CaregiverRef | null;
 };
 
 const columns: Column<ContactWithCaregiver>[] = [

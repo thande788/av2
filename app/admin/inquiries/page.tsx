@@ -16,7 +16,9 @@ export default async function InquiriesPage() {
       where: { preferredCaregiverId: { not: null } },
       orderBy: { submittedAt: 'desc' },
       include: {
-        preferredCaregiver: { include: { user: true } },
+        preferredCaregiver: {
+          select: { id: true, user: { select: { firstName: true, lastName: true } } },
+        },
       },
     }),
   ]);

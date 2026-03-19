@@ -16,10 +16,12 @@ import { formatDateUS } from '@/lib/utils';
 import { markContactAsRead } from '../contacts/actions';
 import { useRouter } from 'next/navigation';
 import { UserRoundCheck, Mail, Phone, ChevronRight } from 'lucide-react';
-import type { ContactSubmission, Worker, PortalUser } from '@prisma/client';
+import type { ContactSubmission } from '@prisma/client';
+
+type CaregiverRef = { id: string; user: { firstName: string; lastName: string } };
 
 type RequestWithCaregiver = ContactSubmission & {
-  preferredCaregiver: (Worker & { user: PortalUser }) | null;
+  preferredCaregiver: CaregiverRef | null;
 };
 
 export function CaregiverRequestsCard({ requests }: { requests: RequestWithCaregiver[] }) {

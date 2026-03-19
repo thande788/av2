@@ -10,7 +10,9 @@ export default async function ContactsPage() {
   const contacts = await db.contactSubmission.findMany({
     orderBy: { submittedAt: 'desc' },
     include: {
-      preferredCaregiver: { include: { user: true } },
+      preferredCaregiver: {
+        select: { id: true, user: { select: { firstName: true, lastName: true } } },
+      },
     },
   });
 
