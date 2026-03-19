@@ -230,40 +230,92 @@ Dedicated analytics page at `/admin/analytics` with interactive Recharts-powered
 
 ## 🔧 UX Improvements
 
-### 8. Keyboard Shortcuts
+### 8. Keyboard Shortcuts ✅
 
-- `⌘K` or `/` for quick search
-- `j/k` for navigating table rows
-- `e` to edit, `d` to delete selected item
-- `?` to show shortcuts help
+**Status:** Implemented  
+**Implemented:** March 19, 2026
+
+Portal-wide keyboard shortcuts with help dialog:
+
+- ✅ `⌘K` opens command palette
+- ✅ `G + key` navigation sequences (G D → Dashboard, G A → Applications, etc.)
+- ✅ `/` to focus table search input
+- ✅ `?` to show shortcuts help dialog
+- ✅ Category-organized help dialog (Global, Navigation, Table Navigation)
+- ✅ Context-aware — disabled when input fields are focused
+
+**Key Files:**
+- `components/admin/keyboard-shortcuts.tsx` — `AdminShortcuts` component, `ShortcutsHelp` dialog, `useAdminShortcuts` hook
+- `app/admin/layout.tsx` — Shortcuts component integrated
 
 **Effort:** 4-6 hours  
 **Impact:** Medium
 
-### 9. Kanban View for Applications
+### 9. Kanban View for Applications ✅
 
-Alternative to table view showing applications as cards in columns:
+**Status:** Implemented  
+**Implemented:** March 19, 2026
 
-- Pending → Reviewing → Interview → Offered → Hired
-- Drag-and-drop to change status
+Alternative to table view showing applications as cards in Kanban columns:
+
+- ✅ Columns: Pending → Reviewing → Interview → Offered → Hired
+- ✅ Drag-and-drop to change status with instant server update
+- ✅ Cards show applicant name, job title, experience, submission date
+- ✅ Visual drag indicators and drop zone highlighting
+- ✅ Rejected/Withdrawn shown in a separate footer section
+- ✅ Table/Kanban toggle in applications page header
+
+**Key Files:**
+- `components/admin/applications-kanban.tsx` — Kanban board with drag-and-drop
+- `app/admin/applications/applications-view.tsx` — Toggle between Table/Kanban views
+- `app/admin/applications/page.tsx` — Updated to use `ApplicationsView`
 
 **Effort:** 8-12 hours  
 **Impact:** Medium
 
-### 10. Quick Actions/Command Palette
+### 10. Quick Actions/Command Palette ✅
 
-- `⌘K` command palette for fast navigation
-- Quick create: new job, new testimonial
-- Jump to specific records by ID/name
+**Status:** Implemented  
+**Implemented:** March 19, 2026
+
+Full command palette with `⌘K` / `Ctrl+K` for fast navigation and actions:
+
+- ✅ `⌘K` command palette for fast navigation to all admin pages
+- ✅ Quick create actions (New Job, New Shift)
+- ✅ Theme switching (Light/Dark mode) from command palette
+- ✅ Keyboard shortcuts help access
+- ✅ Search trigger button in sidebar with `⌘K` hint
+- ✅ Uses cmdk + shadcn/ui Command component
+
+**Key Files:**
+- `components/admin/command-palette.tsx` — `CommandPalette` and `CommandPaletteTrigger`
+- `components/ui/command.tsx` — shadcn/ui Command component (cmdk)
+- `app/admin/layout.tsx` — Command palette integrated
+
+**Dependencies Added:**
+- `cmdk@1.1.1` — Command menu component
 
 **Effort:** 6-8 hours  
 **Impact:** Medium
 
-### 11. Enhanced Mobile Experience
+### 11. Enhanced Mobile Experience ✅
 
-- Responsive sidebar (already collapsible, but add drawer on mobile)
-- Swipe actions on table rows
-- Bottom navigation bar for mobile
+**Status:** Implemented  
+**Implemented:** March 19, 2026
+
+Full mobile-responsive admin experience:
+
+- ✅ Mobile drawer sidebar using Sheet component (slide from left)
+- ✅ Sticky mobile header bar with hamburger menu, logo, and notification bell
+- ✅ Desktop sidebar hidden on mobile, drawer shown instead
+- ✅ Navigation links close drawer on tap
+- ✅ Command palette trigger in mobile drawer
+- ⬜ Swipe actions on table rows (future)
+- ⬜ Bottom navigation bar (future)
+
+**Key Files:**
+- `components/admin/sidebar.tsx` — Mobile Sheet drawer + desktop sidebar
+- `components/ui/sheet.tsx` — shadcn/ui Sheet component
 
 **Effort:** 6-8 hours  
 **Impact:** Medium
@@ -272,24 +324,47 @@ Alternative to table view showing applications as cards in columns:
 
 ## 👥 User & Role Management
 
-### 12. Role-Based Access Control (RBAC)
+### 12. Role-Based Access Control (RBAC) ✅
 
-Leverage Clerk's metadata to implement:
+**Status:** Implemented  
+**Implemented:** March 19, 2026
 
-- **Super Admin**: Full access
-- **HR Manager**: Applications, jobs access
-- **Content Manager**: Testimonials, FAQs only
-- **Viewer**: Read-only access
+Full RBAC system using Clerk metadata + database:
+
+- ✅ **Super Admin**: Full access (wildcard `*` permissions)
+- ✅ **HR Manager**: Applications, jobs, workers, compliance, timesheets, payroll, analytics
+- ✅ **Content Manager**: Testimonials, contacts, inquiries, analytics
+- ✅ **Viewer**: Read-only access across all entities
+- ✅ Permissions stored in Clerk `publicMetadata.adminRole`
+- ✅ Server-side permission checking via `hasPermission()` and `getCurrentAdminRole()`
+- ✅ Self-demotion prevention for Super Admins
+
+**Key Files:**
+- `lib/rbac.ts` — `AdminRole` type, `ROLE_PERMISSIONS` definitions, `ADMIN_ROLE_LABELS`
+- `app/actions/rbac.ts` — Server actions: `getAdminRole()`, `hasPermission()`, `getCurrentPermissions()`, `getCurrentAdminRole()`, `updateUserAdminRole()`, `inviteAdminUser()`, `deactivateAdminUser()`, `reactivateAdminUser()`
 
 **Effort:** 8-12 hours  
 **Impact:** High (as team grows)
 
-### 13. User Management Page
+### 13. User Management Page ✅
 
-- List admin users
-- Invite new admins
-- Assign/modify roles
-- Activity history per user
+**Status:** Implemented  
+**Implemented:** March 19, 2026
+
+Dedicated admin user management page at `/admin/users`:
+
+- ✅ List all admin/manager portal users with role badges
+- ✅ Invite new admins via Clerk invitations with role assignment
+- ✅ Edit role dialog with permission preview
+- ✅ Deactivate/reactivate admin users
+- ✅ Role legend showing all roles and permission counts
+- ✅ User Management nav item added to admin sidebar
+- ✅ Super Admin-only access restriction
+
+**Key Files:**
+- `app/admin/users/page.tsx` — Server component with access control
+- `app/admin/users/users-management.tsx` — Client component with user cards, invite dialog, edit role dialog
+- `components/admin/sidebar.tsx` — Added User Management nav item
 
 **Effort:** 8-12 hours  
 **Impact:** Medium
@@ -462,21 +537,29 @@ EFFORT                  │                   EFFORT
 1. ✅ Email from Admin — Send emails with templates, history tracking
 2. SMS Integration (8-12 hrs) — Not yet started
 
-### Sprint Next: Analytics & Polish
+### ~~Sprint Next: Analytics & Polish~~ ✅ Complete (March 19, 2026)
 
 1. ✅ Analytics Dashboard (12-16 hrs) — Implemented March 19, 2026
-2. Kanban View (8-12 hrs)
-3. Quick Actions (6-8 hrs)
+2. ✅ Kanban View (8-12 hrs) — Implemented March 19, 2026
+3. ✅ Quick Actions / Command Palette (6-8 hrs) — Implemented March 19, 2026
+4. Breadcrumb navigation (2 hrs) — Not yet started
+5. Inline status edit (2 hrs) — Not yet started
+
+### ~~Sprint +1: UX & Access Control~~ ✅ Partially Complete (March 19, 2026)
+
+1. ✅ Keyboard Shortcuts (4-6 hrs) — Implemented March 19, 2026
+2. ✅ Enhanced Mobile Experience (6-8 hrs) — Implemented March 19, 2026
+3. ✅ RBAC system (8-12 hrs) — Implemented March 19, 2026
+4. ✅ User Management Page (8-12 hrs) — Implemented March 19, 2026
+
+### Sprint Next: Communication & Polish
+
+1. SMS Integration (8-12 hrs)
+2. Global search bar (4-6 hrs)
+3. URL-based filter state (2-4 hrs)
 4. Breadcrumb navigation (2 hrs)
 5. Inline status edit (2 hrs)
 
-### Sprint +1: Communication & Security
-
-1. SMS Integration (8-12 hrs)
-2. RBAC enhancements (8-12 hrs)
-3. Global search bar (4-6 hrs)
-4. URL-based filter state (2-4 hrs)
-
 ---
 
-*Last updated: March 19, 2026*
+*Last updated: March 19, 2026 — UX Improvements (#8-11) and User & Role Management (#12-13) implemented*

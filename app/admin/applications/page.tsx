@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { ApplicationsTable } from './applications-table';
+import { ApplicationsView } from './applications-view';
 
 export const metadata = {
   title: 'Applications | Admin Dashboard',
@@ -28,7 +28,7 @@ export default async function ApplicationsPage() {
         </p>
       </div>
 
-      <ApplicationsTable applications={applications} />
+      <ApplicationsView applications={applications} />
     </div>
   );
 }

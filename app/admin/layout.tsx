@@ -5,6 +5,8 @@ import { AdminSidebar } from '@/components/admin/sidebar';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { LogoWatermark } from '@/components/shared/logo-watermark';
 import { Toaster } from '@/components/ui/sonner';
+import { CommandPalette } from '@/components/admin/command-palette';
+import { AdminShortcuts } from '@/components/admin/keyboard-shortcuts';
 
 export const metadata = {
   title: 'Admin Dashboard | Angel Touch Homecare',
@@ -97,6 +99,8 @@ export default async function AdminLayout({
         </div>
       </main>
       <DemoBanner />
+      <CommandPalette />
+      <AdminShortcuts />
       <Toaster position="top-right" richColors />
     </div>
   );
