@@ -534,10 +534,17 @@ model CareShift {
   // Booking
   bookings        ShiftBooking[]
   reviews         ShiftReview[]
+  shiftNotes      ShiftNote[]
+  survey          SatisfactionSurvey?
   
   // Rates
   clientRate      Decimal         @db.Decimal(10, 2) // What client pays
   workerRate      Decimal?        @db.Decimal(10, 2) // What worker earns
+  
+  // Broadcast controls
+  broadcastFilter Json?           // { skills?, cities?, languages?, minRating? }
+  broadcastSentAt DateTime?       // When last broadcast was sent
+  broadcastCount  Int             @default(0) // Number of workers notified
   
   // Recurrence (optional)
   recurringId     String?         // Links recurring shifts
@@ -592,6 +599,9 @@ model ShiftBooking {
   checkInLng      Decimal?        @db.Decimal(11, 8)
   checkOutLat     Decimal?        @db.Decimal(10, 8)
   checkOutLng     Decimal?        @db.Decimal(11, 8)
+  
+  // Swap requests
+  swapRequests    SwapRequest[]   @relation("OriginalBooking")
   
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -759,6 +769,8 @@ model Invoice {
   paidAmount      Decimal         @db.Decimal(10, 2) @default(0)
   paidAt          DateTime?
   stripeInvoiceId String?
+  stripePaymentIntentId String?   // Stripe PaymentIntent ID
+  stripeCheckoutSessionId String? // Stripe Checkout Session ID
   
   // Files
   pdfUrl          String?
@@ -987,4 +999,178 @@ model AdminEmail {
   @@index([entity, entityId])
   @@index([sentBy])
   @@index([createdAt])
+}
+
+// =============================================================================
+// SHIFT NOTES & HANDOFF
+// =============================================================================
+
+model ShiftNote {
+  id              String        @id @default(cuid())
+  shift           CareShift     @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  shiftId         String
+  
+  // Author
+  authorId        String        // PortalUser.id
+  authorName      String        // Snapshot for display
+  authorRole      ReviewerType  // CLIENT or ADMIN (reuse existing enum; workers use ADMIN conceptually)
+  
+  // Content
+  content         String        @db.Text
+  category        NoteCategory  @default(GENERAL)
+  
+  // Visibility
+  isVisibleToClient Boolean     @default(false) // Filtered notes for client view
+  isPinned          Boolean     @default(false) // Pinned for next caregiver
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([shiftId])
+  @@index([authorId])
+  @@index([category])
+}
+
+enum NoteCategory {
+  GENERAL         // General observations
+  CARE_UPDATE     // Health/care changes
+  MEDICATION      // Medication-related
+  INCIDENT        // Incidents or concerns
+  HANDOFF         // Handoff notes for next caregiver
+}
+
+// =============================================================================
+// SATISFACTION SURVEYS (Client Post-Shift)
+// =============================================================================
+
+model SatisfactionSurvey {
+  id              String        @id @default(cuid())
+  shift           CareShift     @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  shiftId         String        @unique
+  
+  // Client
+  clientId        String
+  
+  // Ratings (1-5)
+  overallRating   Int
+  punctuality     Int?
+  communication   Int?
+  careQuality     Int?
+  
+  // Feedback
+  comment         String?       @db.Text
+  wouldRecommend  Boolean?
+  
+  // Tracking
+  requestedAt     DateTime?     // When SMS survey link was sent
+  completedAt     DateTime?
+  
+  createdAt       DateTime      @default(now())
+
+  @@index([clientId])
+  @@index([overallRating])
+}
+
+// =============================================================================
+// SHIFT SWAP REQUESTS
+// =============================================================================
+
+model SwapRequest {
+  id              String          @id @default(cuid())
+  
+  // Original booking
+  originalBooking ShiftBooking    @relation("OriginalBooking", fields: [originalBookingId], references: [id], onDelete: Cascade)
+  originalBookingId String
+  
+  // Requesting worker (wants to give up)
+  requesterId     String          // Worker.id
+  
+  // Target worker (proposed replacement) — null if open swap
+  targetWorkerId  String?
+  
+  // Reason
+  reason          String          @db.Text
+  
+  // Status
+  status          SwapStatus      @default(PENDING)
+  
+  // Admin review
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  reviewNote      String?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([requesterId])
+  @@index([targetWorkerId])
+  @@index([status])
+}
+
+enum SwapStatus {
+  PENDING         // Awaiting target worker / admin approval
+  ACCEPTED        // Target worker accepted
+  APPROVED        // Admin approved the swap
+  REJECTED        // Admin rejected
+  CANCELLED       // Requester cancelled
+  EXPIRED         // No response in time
+}
+
+// =============================================================================
+// EMERGENCY INCIDENTS
+// =============================================================================
+
+model EmergencyIncident {
+  id              String        @id @default(cuid())
+  
+  // Who reported
+  reporterId      String        // PortalUser.id
+  reporterName    String
+  
+  // Context
+  shiftId         String?       // Related shift, if any
+  clientId        String?       // Related client
+  
+  // Details
+  type            IncidentType
+  description     String        @db.Text
+  severity        IncidentSeverity @default(MEDIUM)
+  
+  // Resolution
+  status          IncidentStatus @default(OPEN)
+  resolvedBy      String?
+  resolvedAt      DateTime?
+  resolution      String?       @db.Text
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([reporterId])
+  @@index([shiftId])
+  @@index([status])
+  @@index([severity])
+}
+
+enum IncidentType {
+  FALL
+  MEDICAL_EMERGENCY
+  BEHAVIORAL
+  SAFETY_CONCERN
+  MISSED_MEDICATION
+  PROPERTY_DAMAGE
+  OTHER
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
 }

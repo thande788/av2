@@ -24,6 +24,8 @@ import {
   BarChart3,
   Layers,
   CircleHelp,
+  ArrowRightLeft,
+  Heart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -92,6 +94,18 @@ const navItems: NavItem[] = [
     title: 'Reviews',
     href: '/admin/reviews',
     icon: Star,
+    demoOnly: true,
+  },
+  {
+    title: 'Satisfaction',
+    href: '/admin/satisfaction',
+    icon: Heart,
+    demoOnly: true,
+  },
+  {
+    title: 'Shift Swaps',
+    href: '/admin/swaps',
+    icon: ArrowRightLeft,
     demoOnly: true,
   },
   // Standard Items

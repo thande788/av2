@@ -700,3 +700,363 @@ const schema = z.object({
 
 // Validation is automatic in server actions
 ```
+
+---
+
+### Availability Management
+
+Located in `app/actions/availability.ts`. Requires employee authentication.
+
+#### `getMyAvailability`
+
+Fetch all availability slots for the currently authenticated worker.
+
+```typescript
+import { getMyAvailability } from '@/app/actions/availability';
+
+const slots = await getMyAvailability();
+// Returns: AvailabilitySlot[] (day, startTime, endTime)
+```
+
+#### `toggleAvailability`
+
+Create or update a single availability block for a worker.
+
+```typescript
+import { toggleAvailability } from '@/app/actions/availability';
+
+await toggleAvailability({
+  day: 'MONDAY',     // Day of week
+  startTime: '09:00',
+  endTime: '17:00',
+});
+```
+
+#### `updateBulkAvailability`
+
+Replace all existing availability slots with a new set.
+
+```typescript
+import { updateBulkAvailability } from '@/app/actions/availability';
+
+await updateBulkAvailability({
+  slots: [
+    { day: 'MONDAY', startTime: '09:00', endTime: '17:00' },
+    { day: 'WEDNESDAY', startTime: '08:00', endTime: '16:00' },
+  ],
+});
+```
+
+#### `checkAvailabilityConflicts`
+
+Identify upcoming shifts that fall outside a worker's defined availability.
+
+```typescript
+import { checkAvailabilityConflicts } from '@/app/actions/availability';
+
+const conflicts = await checkAvailabilityConflicts(workerId);
+```
+
+---
+
+### Caregiver-Client Matching
+
+Located in `app/actions/matching.ts`. Requires admin authentication.
+
+#### `calculateMatchScore`
+
+Calculate a 0–100 compatibility score between a worker and client.
+
+```typescript
+import { calculateMatchScore } from '@/app/actions/matching';
+
+const score = await calculateMatchScore(
+  workerId: string,
+  clientId: string,
+  shiftId?: string,
+  weights?: MatchWeights  // Optional custom weights
+);
+
+// Returns: {
+//   workerId, clientId, score (0-100),
+//   factors: { skills, proximity, availability, history, preference }
+// }
+```
+
+**Default Weights:** skills: 25, proximity: 20, availability: 20, history: 20, preference: 15
+
+#### `getRankedMatches`
+
+Get all active workers ranked by match score for a client.
+
+```typescript
+import { getRankedMatches } from '@/app/actions/matching';
+
+const matches = await getRankedMatches(clientId, shiftId?);
+// Returns: MatchScore[] sorted by score descending
+```
+
+---
+
+### Shift Notes & Handoff
+
+Located in `app/actions/shift-notes.ts`. Requires employee or admin authentication.
+
+#### `addShiftNote`
+
+Create a categorized note attached to a specific shift.
+
+```typescript
+import { addShiftNote } from '@/app/actions/shift-notes';
+
+await addShiftNote({
+  shiftId: string;
+  content: string;
+  category: 'GENERAL' | 'CARE_UPDATE' | 'MEDICATION' | 'INCIDENT' | 'HANDOFF';
+  isPinned?: boolean;       // Pin for handoff visibility
+  isVisible?: boolean;      // Visible to client
+});
+```
+
+#### `getShiftNotes`
+
+Retrieve notes for a shift, filtered by role visibility.
+
+```typescript
+import { getShiftNotes } from '@/app/actions/shift-notes';
+
+const notes = await getShiftNotes(shiftId);
+```
+
+#### `getHandoffNotes`
+
+Fetch pinned notes from previous shifts for the same client.
+
+```typescript
+import { getHandoffNotes } from '@/app/actions/shift-notes';
+
+const handoff = await getHandoffNotes(shiftId);
+```
+
+---
+
+### Emergency Contact & Escalation
+
+Located in `app/actions/emergency.ts`. Requires employee or admin authentication.
+
+#### `reportEmergencyIncident`
+
+Record an incident and send SMS alerts for high/critical severity.
+
+```typescript
+import { reportEmergencyIncident } from '@/app/actions/emergency';
+
+await reportEmergencyIncident({
+  shiftId?: string;
+  clientId: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  description: string;
+  type: 'FALL' | 'MEDICAL' | 'BEHAVIORAL' | 'SAFETY' | 'OTHER';
+});
+```
+
+#### `getIncidents`
+
+Retrieve incidents with optional filtering.
+
+```typescript
+import { getIncidents } from '@/app/actions/emergency';
+
+const incidents = await getIncidents({ status: 'OPEN', severity: 'HIGH' });
+```
+
+#### `resolveIncident`
+
+Mark an incident as resolved with a resolution summary.
+
+```typescript
+import { resolveIncident } from '@/app/actions/emergency';
+
+await resolveIncident(incidentId, 'Resolved by on-call nurse');
+```
+
+#### `getClientEmergencyContacts`
+
+Retrieve emergency contact information for a client.
+
+```typescript
+import { getClientEmergencyContacts } from '@/app/actions/emergency';
+
+const contacts = await getClientEmergencyContacts(clientId);
+```
+
+---
+
+### Client Satisfaction Tracking
+
+Located in `app/actions/satisfaction.ts`. Survey submission is public (via token); metrics require admin auth.
+
+#### `submitSatisfactionSurvey`
+
+Save client feedback for a completed shift. Triggers admin alert for low ratings (≤2 stars).
+
+```typescript
+import { submitSatisfactionSurvey } from '@/app/actions/satisfaction';
+
+await submitSatisfactionSurvey({
+  shiftId: string;
+  rating: number;        // 1-5 stars
+  comment?: string;
+  wouldRecommend?: boolean;
+});
+```
+
+#### `sendSurveyLink`
+
+Send an SMS to the client with a unique link to rate their care visit.
+
+```typescript
+import { sendSurveyLink } from '@/app/actions/satisfaction';
+
+await sendSurveyLink(shiftId);
+```
+
+#### `getSatisfactionMetrics`
+
+Aggregate satisfaction dashboard metrics.
+
+```typescript
+import { getSatisfactionMetrics } from '@/app/actions/satisfaction';
+
+const metrics = await getSatisfactionMetrics(30); // Last 30 days
+// Returns: { averageRating, totalSurveys, recommendationRate, recentSurveys[] }
+```
+
+---
+
+### Shift Swap Requests
+
+Located in `app/actions/shift-swaps.ts`. Requires employee or admin authentication.
+
+#### `requestShiftSwap`
+
+Submit a request to swap a shift with another worker.
+
+```typescript
+import { requestShiftSwap } from '@/app/actions/shift-swaps';
+
+await requestShiftSwap({
+  bookingId: string;
+  targetWorkerId?: string;  // Optional specific replacement
+  reason: string;
+});
+```
+
+#### `acceptSwapRequest`
+
+Worker accepts an incoming swap request.
+
+```typescript
+import { acceptSwapRequest } from '@/app/actions/shift-swaps';
+
+await acceptSwapRequest(swapId);
+```
+
+#### `approveSwapRequest`
+
+Admin approves a swap and reassigns the booking.
+
+```typescript
+import { approveSwapRequest } from '@/app/actions/shift-swaps';
+
+await approveSwapRequest(swapId, 'Approved - coverage confirmed');
+```
+
+---
+
+### Invoice Payments (Stripe)
+
+Located in `app/actions/payments.ts`. Checkout is client-facing; admin actions require admin auth.
+
+#### `createInvoiceCheckoutSession`
+
+Generate a Stripe Checkout URL for a pending invoice (or simulate payment in demo mode).
+
+```typescript
+import { createInvoiceCheckoutSession } from '@/app/actions/payments';
+
+const result = await createInvoiceCheckoutSession(invoiceId);
+// Returns: { success: boolean; checkoutUrl?: string } or simulates payment in demo mode
+```
+
+#### `handlePaymentComplete`
+
+Update invoice status to PAID/PARTIAL after successful transaction.
+
+```typescript
+import { handlePaymentComplete } from '@/app/actions/payments';
+
+await handlePaymentComplete(invoiceId, paymentIntentId, amountPaid);
+```
+
+#### `getClientPaymentHistory`
+
+Retrieve all payments made by a specific client.
+
+```typescript
+import { getClientPaymentHistory } from '@/app/actions/payments';
+
+const payments = await getClientPaymentHistory(clientId);
+```
+
+#### `getClientInvoiceSummary`
+
+Get aggregate counts and totals for outstanding and paid invoices.
+
+```typescript
+import { getClientInvoiceSummary } from '@/app/actions/payments';
+
+const summary = await getClientInvoiceSummary(clientId);
+// Returns: { outstanding: { count, total }, paid: { count, total } }
+```
+
+---
+
+## Cron Jobs
+
+### Shift Reminders
+
+**Route:** `GET /api/cron/shift-reminders`
+
+Sends automated SMS reminders to workers before their shifts. Protected by `CRON_SECRET` header.
+
+**Query Parameters:**
+- `type=day-before` — Sends reminders for shifts starting the next day (run at 6 PM)
+- `type=one-hour` — Sends reminders for shifts starting within the hour
+
+**Vercel Cron Schedule:**
+```json
+{
+  "crons": [
+    { "path": "/api/cron/shift-reminders?type=day-before", "schedule": "0 18 * * *" },
+    { "path": "/api/cron/shift-reminders?type=one-hour", "schedule": "0 * * * *" }
+  ]
+}
+```
+
+---
+
+## Webhooks
+
+### Stripe Webhook
+
+**Route:** `POST /api/webhooks/stripe`
+
+Handles Stripe events for invoice payments.
+
+**Events handled:**
+- `checkout.session.completed` — Marks invoice as paid, records payment amount
+
+**Security:**
+- Validates `STRIPE_WEBHOOK_SECRET` signature
+- Only processes events with valid `invoiceId` metadata

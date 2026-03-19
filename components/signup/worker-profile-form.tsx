@@ -21,8 +21,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
-  IconUser,
-  IconStethoscope,
+   IconStethoscope,
   IconCalendar,
   IconMapPin,
   IconChevronLeft,
@@ -196,7 +195,7 @@ export function WorkerProfileForm({ userName, userEmail }: WorkerProfileFormProp
                 required
               />
               <p className="text-xs text-muted-foreground">
-                We'll send shift notifications via SMS
+                We&apos;ll send shift notifications via SMS
               </p>
             </div>
 
@@ -441,7 +440,7 @@ export function WorkerProfileForm({ userName, userEmail }: WorkerProfileFormProp
             {userName && (
               <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-sm text-muted-foreground">
-                  You're completing this profile as:
+                  You&apos;re completing this profile as:
                 </p>
                 <p className="font-medium">{userName}</p>
                 {userEmail && (

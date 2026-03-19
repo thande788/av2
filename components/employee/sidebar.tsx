@@ -15,6 +15,8 @@ import {
   LogOut,
   FileCheck,
   BarChart3,
+  CalendarClock,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,6 +47,11 @@ const navItems: NavItem[] = [
     icon: Calendar,
   },
   {
+    title: 'Availability',
+    href: '/employee/availability',
+    icon: CalendarClock,
+  },
+  {
     title: 'Timesheets',
     href: '/employee/timesheets',
     icon: Clock,
@@ -53,6 +60,11 @@ const navItems: NavItem[] = [
     title: 'Compliance',
     href: '/employee/compliance',
     icon: FileCheck,
+  },
+  {
+    title: 'Shift Swaps',
+    href: '/employee/swaps',
+    icon: ArrowRightLeft,
   },
   {
     title: 'My Reviews',

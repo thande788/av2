@@ -69,6 +69,35 @@ cp .env.example .env.local
 
 ---
 
+### Payments (Stripe)
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `STRIPE_SECRET_KEY` | Prod | Stripe API secret key | `sk_live_xxx` or `sk_test_xxx` |
+| `STRIPE_WEBHOOK_SECRET` | Prod | Stripe webhook signing secret | `whsec_xxx` |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Prod | Stripe public key (for client-side) | `pk_live_xxx` or `pk_test_xxx` |
+
+**Get from:** [Stripe Dashboard](https://dashboard.stripe.com/apikeys)
+
+**Notes:**
+- Required only when `NEXT_PUBLIC_FEATURE_INVOICE_PAYMENTS=true`
+- Use test keys for development (`sk_test_`, `pk_test_`)
+- Webhook secret from Stripe Dashboard → Developers → Webhooks
+
+---
+
+### Cron Jobs
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `CRON_SECRET` | Prod | Secret for authenticating Vercel Cron requests | Random string |
+
+**Notes:**
+- Used by `/api/cron/shift-reminders` to validate cron invocations
+- Set in Vercel Environment Variables; Vercel auto-sends this header
+
+---
+
 ### File Storage (Vercel Blob)
 
 | Variable | Required | Description | Example |
@@ -111,6 +140,15 @@ All feature flags are optional and default to `false`.
 | `NEXT_PUBLIC_FEATURE_PAYROLL` | `false` | Payroll export features |
 | `NEXT_PUBLIC_FEATURE_WORKERS` | `false` | Worker management |
 | `NEXT_PUBLIC_FEATURE_CLIENTS` | `false` | Client management |
+| `NEXT_PUBLIC_FEATURE_REVIEWS` | `false` | Shift reviews and ratings |
+| `NEXT_PUBLIC_FEATURE_AVAILABILITY_CALENDAR` | `false` | Real-time availability calendar |
+| `NEXT_PUBLIC_FEATURE_SHIFT_BROADCAST` | `false` | Shift broadcast controls (targeted SMS) |
+| `NEXT_PUBLIC_FEATURE_SHIFT_NOTES` | `false` | Shift notes & handoff |
+| `NEXT_PUBLIC_FEATURE_EMERGENCY` | `false` | Emergency contact & escalation |
+| `NEXT_PUBLIC_FEATURE_SHIFT_REMINDERS` | `false` | Automated shift reminders (cron) |
+| `NEXT_PUBLIC_FEATURE_SATISFACTION` | `false` | Client satisfaction tracking |
+| `NEXT_PUBLIC_FEATURE_SHIFT_SWAPS` | `false` | Shift swap requests |
+| `NEXT_PUBLIC_FEATURE_INVOICE_PAYMENTS` | `false` | Invoice payment portal (Stripe) |
 
 **Notes:**
 - `NEXT_PUBLIC_` prefix makes these available in client components
@@ -212,6 +250,22 @@ NEXT_PUBLIC_FEATURE_COMPLIANCE="true"
 NEXT_PUBLIC_FEATURE_PAYROLL="true"
 NEXT_PUBLIC_FEATURE_WORKERS="true"
 NEXT_PUBLIC_FEATURE_CLIENTS="true"
+NEXT_PUBLIC_FEATURE_AVAILABILITY_CALENDAR="true"
+NEXT_PUBLIC_FEATURE_SHIFT_BROADCAST="true"
+NEXT_PUBLIC_FEATURE_SHIFT_NOTES="true"
+NEXT_PUBLIC_FEATURE_EMERGENCY="true"
+NEXT_PUBLIC_FEATURE_SHIFT_REMINDERS="true"
+NEXT_PUBLIC_FEATURE_SATISFACTION="true"
+NEXT_PUBLIC_FEATURE_SHIFT_SWAPS="true"
+NEXT_PUBLIC_FEATURE_INVOICE_PAYMENTS="true"
+
+# Payments (Stripe)
+STRIPE_SECRET_KEY="sk_test_xxx"
+STRIPE_WEBHOOK_SECRET="whsec_xxx"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_xxx"
+
+# Cron
+CRON_SECRET="your-random-cron-secret"
 
 # Security
 REQUIRE_ANTIVIRUS_SCAN="false"

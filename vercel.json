@@ -50,5 +50,14 @@
       ]
     }
   ],
-  "crons": []
+  "crons": [
+    {
+      "path": "/api/cron/shift-reminders?type=day-before",
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/cron/shift-reminders?type=one-hour",
+      "schedule": "0 * * * *"
+    }
+  ]
 }

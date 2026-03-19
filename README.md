@@ -10,8 +10,23 @@ This application includes:
 
 - **Marketing Website** — Public pages for services, careers, testimonials, and contact
 - **Admin Portal** — Staff dashboard for managing clients, workers, shifts, payroll, compliance, with audit logging, bulk actions, email integration, and real-time notifications
-- **Employee Portal** — Caregiver interface for shifts, timesheets, and compliance documents
-- **Client Portal** — Family/client interface for care schedules and invoices
+- **Employee Portal** — Caregiver interface for shifts, timesheets, availability calendar, shift notes, emergency escalation, and compliance documents
+- **Client Portal** — Family/client interface for care schedules, invoices, payment portal, and satisfaction surveys
+- **PWA Support** — Installable mobile experience with offline shift viewing and push notifications
+
+### Key Features
+
+| Feature | Description |
+|---------|-------------|
+| Availability Calendar | Weekly grid for employees to manage availability with conflict detection |
+| Shift Broadcast | Admin can target specific worker groups by skill/location before sending SMS |
+| Caregiver Matching | Weighted scoring algorithm matching caregivers to clients by skills, proximity, availability, and history |
+| Shift Notes & Handoff | Caregivers add notes during/after shifts; visible to next caregiver for continuity |
+| Emergency Escalation | One-tap escalation button with incident logging and office notifications |
+| Automated Reminders | Vercel Cron sends SMS reminders 24h and 1h before shifts via Twilio |
+| Satisfaction Tracking | Post-shift surveys (star rating + comments) with admin dashboard metrics |
+| Shift Swaps | Workers request swaps, system finds coverage, admin approves |
+| Invoice Payments | Clients view and pay invoices online via Stripe Checkout |
 
 ## Tech Stack
 
@@ -26,6 +41,7 @@ This application includes:
 | Auth | Clerk |
 | Email | Resend |
 | SMS | Twilio |
+| Payments | Stripe (Checkout) |
 | File Storage | Vercel Blob |
 | Deployment | Vercel |
 

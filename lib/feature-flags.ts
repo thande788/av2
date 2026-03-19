@@ -90,6 +90,46 @@ export const featureFlags = {
     reviews:
       process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
       process.env.NEXT_PUBLIC_FEATURE_REVIEWS === 'true',
+
+    /** Real-time availability calendar */
+    availabilityCalendar:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_AVAILABILITY_CALENDAR === 'true',
+
+    /** Shift broadcast controls */
+    shiftBroadcast:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_SHIFT_BROADCAST === 'true',
+
+    /** Shift notes & handoff */
+    shiftNotes:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_SHIFT_NOTES === 'true',
+
+    /** Emergency contact & escalation */
+    emergencyEscalation:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_EMERGENCY === 'true',
+
+    /** Automated shift reminders */
+    shiftReminders:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_SHIFT_REMINDERS === 'true',
+
+    /** Client satisfaction tracking */
+    satisfactionTracking:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_SATISFACTION === 'true',
+
+    /** Shift swap requests */
+    shiftSwaps:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_SHIFT_SWAPS === 'true',
+
+    /** Invoice payment portal (Stripe) */
+    invoicePayments:
+      process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+      process.env.NEXT_PUBLIC_FEATURE_INVOICE_PAYMENTS === 'true',
   },
 } as const;
 

@@ -49,6 +49,13 @@ export default function RootLayout({
         suppressHydrationWarning
         {...(brandAccents && { "data-accents": brandAccents })}
       >
+        <head>
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="theme-color" content="#2563eb" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="Angel Touch" />
+        </head>
         <body className={`${inter.variable} ${nunito.variable} ${geistMono.variable} antialiased`}>
           <ThemeProvider>
           <div className="flex min-h-screen flex-col">
@@ -57,6 +64,17 @@ export default function RootLayout({
           </div>
             <LazyChatWidget />
           </ThemeProvider>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js');
+                  });
+                }
+              `,
+            }}
+          />
         </body>
       </html>
     </ClerkProvider>

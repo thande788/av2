@@ -135,3 +135,79 @@ export {
   submitClientTestimonial,
   type ClientTestimonialData,
 } from "./testimonials";
+
+// Availability management
+export {
+  getMyAvailability,
+  toggleAvailability,
+  updateBulkAvailability,
+  checkAvailabilityConflicts,
+  type AvailabilitySlot,
+} from "./availability";
+
+// Shift broadcast controls
+export {
+  previewBroadcast,
+  sendTargetedBroadcast,
+  getBroadcastFilterOptions,
+  type BroadcastFilter,
+  type BroadcastPreview,
+} from "./shift-broadcast";
+
+// Caregiver-client matching
+export {
+  calculateMatchScore,
+  getRankedMatches,
+  type MatchScore,
+} from "./matching";
+
+// Shift notes & handoff
+export {
+  addShiftNote,
+  getShiftNotes,
+  getHandoffNotes,
+  toggleNotePin,
+  searchShiftNotes,
+  type ShiftNoteData,
+} from "./shift-notes";
+
+// Emergency & escalation
+export {
+  reportEmergencyIncident,
+  getIncidents,
+  resolveIncident,
+  getClientEmergencyContacts,
+  type EmergencyIncidentData,
+} from "./emergency";
+
+// Automated shift reminders
+export {
+  sendShiftReminders,
+} from "./shift-reminders";
+
+// Client satisfaction surveys
+export {
+  submitSatisfactionSurvey,
+  sendSurveyLink,
+  getSatisfactionMetrics,
+  type SatisfactionSurveyData,
+} from "./satisfaction";
+
+// Shift swap requests
+export {
+  requestShiftSwap,
+  acceptSwapRequest,
+  approveSwapRequest,
+  rejectSwapRequest,
+  getPendingSwapRequests,
+  getMySwapRequests,
+  type SwapRequestData,
+} from "./shift-swaps";
+
+// Invoice payments
+export {
+  createInvoiceCheckoutSession,
+  handlePaymentComplete,
+  getClientPaymentHistory,
+  getClientInvoiceSummary,
+} from "./payments";

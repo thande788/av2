@@ -845,17 +845,30 @@ function calculateMatchScore(worker: Worker, client: Client, shift: Shift): Matc
 
 - [x] `DEMO_MODE=true` in Vercel environment
 - [x] Demo data seeded in staging database
-- [ ] Twilio test credentials configured
-- [ ] Demo user accounts created (admin, worker, client)
+- [x] Twilio test credentials configured
+- [x] Demo user accounts created (admin, worker, client)
 - [x] Feature flag module implemented
 - [x] Demo banner visible
 
 ### Demo Day Preparation
 
 - [ ] Walk-through script prepared
-- [ ] Sample SMS notifications ready
+- [x] Sample SMS notifications ready
 - [x] Backup plan if Twilio fails (console log fallback)
 - [ ] Screen recording setup
+
+### High-Value Features Implementation ✅
+
+- [x] Real-Time Availability Calendar (employee weekly grid)
+- [x] Shift Broadcast Controls (admin skill/location filtering)
+- [x] Mobile PWA Support (service worker, manifest, offline)
+- [x] Caregiver-Client Matching Score (weighted algorithm)
+- [x] Shift Notes & Handoff (notes per shift, handoff view)
+- [x] Emergency Contact & Escalation (escalation button + logging)
+- [x] Automated Shift Reminders (Vercel Cron at /api/cron/shift-reminders)
+- [x] Client Satisfaction Tracking (post-shift surveys, dashboard)
+- [x] Availability Conflicts & Swaps (swap requests + admin approval)
+- [x] Invoice Payment Portal (Stripe Checkout stub + webhook)
 
 ### Post-Demo
 
@@ -895,13 +908,26 @@ function calculateMatchScore(worker: Worker, client: Client, shift: Shift): Matc
 - [x] Employee portal dashboard
 - [x] Admin dashboard widgets
 
-#### Sprint 1.5 (Extended Demo) — 1 week
+#### Sprint 1.5 (Extended Demo) — 1 week ✅ COMPLETE
 
-- [ ] Timesheet workflow
-- [ ] Compliance documents
-- [ ] Payroll preview
-- [ ] Client portal basic
-- [ ] Polish & testing
+- [x] Timesheet workflow
+- [x] Compliance documents
+- [x] Payroll preview
+- [x] Client portal basic
+- [x] Polish & testing
+
+#### Sprint 2 (High-Value Features) — ✅ COMPLETE
+
+- [x] Real-Time Availability Calendar
+- [x] Shift Broadcast Controls
+- [x] Mobile PWA Support
+- [x] Caregiver-Client Matching Score
+- [x] Shift Notes & Handoff
+- [x] Emergency Contact & Escalation
+- [x] Automated Shift Reminders (Vercel Cron)
+- [x] Client Satisfaction Tracking
+- [x] Availability Conflicts & Swaps
+- [x] Invoice Payment Portal (Stripe stub)
 
 ### Resource Requirements
 
@@ -946,5 +972,5 @@ pnpm dev
 
 ---
 
-*Document Version: 1.0.0*  
-*Last Updated: February 15, 2026*
+*Document Version: 2.0.0*  
+*Last Updated: March 19, 2026*

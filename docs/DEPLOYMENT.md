@@ -135,7 +135,35 @@ NEXT_PUBLIC_FEATURE_COMPLIANCE=true
 NEXT_PUBLIC_FEATURE_PAYROLL=true
 NEXT_PUBLIC_FEATURE_WORKERS=true
 NEXT_PUBLIC_FEATURE_CLIENTS=true
+NEXT_PUBLIC_FEATURE_AVAILABILITY_CALENDAR=true
+NEXT_PUBLIC_FEATURE_SHIFT_BROADCAST=true
+NEXT_PUBLIC_FEATURE_SHIFT_NOTES=true
+NEXT_PUBLIC_FEATURE_EMERGENCY=true
+NEXT_PUBLIC_FEATURE_SHIFT_REMINDERS=true
+NEXT_PUBLIC_FEATURE_SATISFACTION=true
+NEXT_PUBLIC_FEATURE_SHIFT_SWAPS=true
+NEXT_PUBLIC_FEATURE_INVOICE_PAYMENTS=true
 ```
+
+### Stripe (Invoice Payments)
+
+```
+STRIPE_SECRET_KEY=sk_live_xxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxx
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxxxx
+```
+
+In Stripe Dashboard → Developers → Webhooks, create an endpoint:
+- URL: `https://angeltouchhomecare.com/api/webhooks/stripe`
+- Events: `checkout.session.completed`
+
+### Cron Secret
+
+```
+CRON_SECRET=your-random-secret-string
+```
+
+Used by Vercel Cron to authenticate `/api/cron/shift-reminders`.
 
 ### Optional Variables
 
@@ -211,6 +239,31 @@ Add these records:
 - [ ] Verify file uploads work (Vercel Blob)
 - [ ] Check admin portal access
 - [ ] Verify database connectivity
+- [ ] Verify PWA installability (manifest, service worker, icons)
+- [ ] Verify Vercel Cron jobs are running (check Vercel Dashboard → Cron)
+- [ ] Test Stripe webhook delivery (if invoice payments enabled)
+
+## PWA Configuration
+
+The app ships as a Progressive Web App with:
+
+- **Manifest:** `public/manifest.json` — App name, icons, theme color, shortcuts
+- **Service Worker:** `public/sw.js` — Offline caching for shift data
+- **Icons:** Generated from the Angel Touch logo at `public/icons/` (192px, 512px, apple-touch)
+- **Favicon:** File-based metadata at `app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`
+
+No additional configuration needed — the service worker registers automatically via the root layout.
+
+## Vercel Cron Jobs
+
+Automated shift reminders are configured in `vercel.json`:
+
+| Schedule | Path | Description |
+|----------|------|-------------|
+| `0 18 * * *` | `/api/cron/shift-reminders?type=day-before` | Day-before reminders (6 PM) |
+| `0 * * * *` | `/api/cron/shift-reminders?type=one-hour` | One-hour reminders (hourly) |
+
+Cron jobs require `CRON_SECRET` to be set in Vercel Environment Variables.
 
 ## Monitoring
 
