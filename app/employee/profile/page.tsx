@@ -136,6 +136,7 @@ export default async function EmployeeProfilePage() {
       <MarketingProfileForm
         initialData={{
           marketingBio: worker.marketingBio,
+          marketingPhotoUrl: worker.marketingPhotoUrl,
           marketingSpecialties: worker.marketingSpecialties,
           marketingLanguages: worker.marketingLanguages,
           marketingCertifications: worker.marketingCertifications,

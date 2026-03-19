@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { caregivers as staticCaregivers } from "@/data/caregivers";
 import { db } from "@/lib/db";
 import { computeCaregiverRatingsBatch } from "@/lib/ratings";
@@ -145,9 +146,7 @@ export default async function CaregiverProfilePage({
 								/>
 							) : (
 								<div className="w-full h-64 md:h-full bg-muted flex items-center justify-center">
-									<span className="text-4xl font-bold text-muted-foreground/40">
-										{fullName.charAt(0)}
-									</span>
+								<UserAvatar name={fullName} size="2xl" />
 								</div>
 							)}
 							{/* Availability overlay */}

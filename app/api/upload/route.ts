@@ -8,6 +8,7 @@
 import { put, del } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { validateFile } from "@/lib/file-scanner";
 
 // Allowed file types
 const ALLOWED_TYPES: Record<string, string> = {
@@ -75,28 +76,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
-    if (!ALLOWED_TYPES[file.type]) {
-      return NextResponse.json(
-        { error: "Invalid file type. Please upload a PDF or Word document." },
-        { status: 400 }
-      );
-    }
-
-    // Validate file size
-    if (file.size > MAX_SIZE) {
-      return NextResponse.json(
-        { error: "File too large. Maximum size is 5MB." },
-        { status: 400 }
-      );
-    }
-
     // Validate filename
     if (!file.name || file.name.length > 255) {
       return NextResponse.json(
         { error: "Invalid filename." },
         { status: 400 }
       );
+    }
+
+    // Comprehensive validation: size, MIME, magic-bytes, antivirus scan
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const validation = await validateFile(buffer, file.name, file.type, {
+      maxSize: MAX_SIZE,
+      allowedTypes: Object.keys(ALLOWED_TYPES),
+      requireScan: process.env.REQUIRE_ANTIVIRUS_SCAN === "true",
+    });
+
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.errors.join(". ") },
+        { status: 400 }
+      );
+    }
+
+    if (!validation.scanned) {
+      console.warn(`[Upload] Antivirus scan skipped for ${file.name}`);
     }
 
     // Generate safe filename
@@ -112,8 +116,9 @@ export async function POST(request: NextRequest) {
     const filename = `${folder}/${timestamp}-${safeBaseName}-${randomSuffix}${extension}`;
 
     // Upload to Vercel Blob
-    const blob = await put(filename, file, {
+    const blob = await put(filename, buffer, {
       access: "public",
+      contentType: file.type,
       addRandomSuffix: false, // We already added our own suffix
     });
 

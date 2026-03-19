@@ -7,6 +7,7 @@ import { IconStarFilled, IconClock, IconLanguage } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import {
 	Card,
 	CardDescription,
@@ -74,7 +75,9 @@ export function CaregiverCard({
 						sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
 					/>
 				) : (
-					<div className="relative z-20 aspect-[4/3] w-full bg-muted" />
+					<div className="relative z-20 flex aspect-[4/3] w-full items-center justify-center bg-muted">
+						<UserAvatar name={fullName} size="2xl" rounded={false} className="rounded-none size-full border-0" />
+					</div>
 				)}
 
 				{/* Badges overlay */}

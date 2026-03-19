@@ -8,6 +8,7 @@ import {
   IconSend,
   IconDeviceFloppy,
   IconAlertCircle,
+  IconUpload,
 } from '@tabler/icons-react';
 
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import {
   MARKETING_SPECIALTY_OPTIONS,
   MARKETING_LANGUAGE_OPTIONS,
@@ -26,11 +28,13 @@ import {
 import {
   submitMarketingProfile,
   saveMarketingProfileDraft,
+  uploadMarketingPhoto,
 } from '@/app/actions/worker-profile';
 
 interface MarketingProfileFormProps {
   initialData: {
     marketingBio: string | null;
+    marketingPhotoUrl: string | null;
     marketingSpecialties: string[];
     marketingLanguages: string[];
     marketingCertifications: string[];
@@ -82,6 +86,46 @@ export function MarketingProfileForm({ initialData }: MarketingProfileFormProps)
   const canEdit =
     initialData.profileStatus === 'DRAFT' ||
     initialData.profileStatus === 'REJECTED';
+
+  // Photo upload state
+  const [photoUrl, setPhotoUrl] = React.useState(initialData.marketingPhotoUrl);
+  const [isUploadingPhoto, setIsUploadingPhoto] = React.useState(false);
+  const [photoError, setPhotoError] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Client-side pre-validation
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      setPhotoError('Please upload a JPEG or PNG image.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError('Image must be under 5 MB.');
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    setPhotoError(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const result = await uploadMarketingPhoto(formData);
+
+    if (result.success && result.url) {
+      setPhotoUrl(result.url);
+      router.refresh();
+    } else {
+      setPhotoError(result.error ?? 'Upload failed');
+    }
+
+    setIsUploadingPhoto(false);
+    // Reset input so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const status = statusConfig[initialData.profileStatus] || statusConfig.DRAFT;
 
@@ -182,6 +226,44 @@ export function MarketingProfileForm({ initialData }: MarketingProfileFormProps)
             </div>
           </div>
         )}
+
+        {/* Profile Photo */}
+        <div className="space-y-2">
+          <Label>Profile Photo</Label>
+          <div className="flex items-center gap-4">
+            <UserAvatar src={photoUrl} size="lg" />
+            <div className="space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={handlePhotoUpload}
+                className="hidden"
+                disabled={!canEdit || isUploadingPhoto}
+              />
+              {canEdit && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingPhoto}
+                >
+                  {isUploadingPhoto ? (
+                    <IconLoader2 className="mr-1.5 size-4 animate-spin" />
+                  ) : (
+                    <IconUpload className="mr-1.5 size-4" />
+                  )}
+                  {photoUrl ? 'Change Photo' : 'Upload Photo'}
+                </Button>
+              )}
+              <p className="text-xs text-muted-foreground">JPEG or PNG, max 5 MB</p>
+              {photoError && (
+                <p className="text-xs text-destructive">{photoError}</p>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Bio */}
         <div className="space-y-2">

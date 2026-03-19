@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import {
   updatePersonalProfile,
   type PersonalProfileData,
@@ -184,10 +185,10 @@ export function EditableProfileSection({ data }: EditableProfileSectionProps) {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center gap-6">
-              <div className="flex size-20 items-center justify-center rounded-full bg-primary/10 text-3xl font-bold text-primary">
-                {data.firstName[0]}
-                {data.lastName[0]}
-              </div>
+              <UserAvatar
+                name={`${data.firstName} ${data.lastName}`}
+                size="lg"
+              />
               <div>
                 <h2 className="text-xl font-semibold">
                   {data.firstName} {data.lastName}

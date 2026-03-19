@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -21,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import {
   approveWorkerProfile,
   rejectWorkerProfile,
@@ -162,21 +162,11 @@ function ProfileCard({ worker }: { worker: WorkerWithUser }) {
       <CardHeader className="relative pb-3">
         <div className="flex items-start gap-4">
           {/* Profile photo or initials */}
-          {worker.marketingPhotoUrl ? (
-            <div className="relative size-14 shrink-0 overflow-hidden rounded-full border-2 border-primary/20">
-              <Image
-                src={worker.marketingPhotoUrl}
-                alt={`${worker.user.firstName} ${worker.user.lastName}`}
-                fill
-                className="object-cover"
-                sizes="56px"
-              />
-            </div>
-          ) : (
-            <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-              {worker.user.firstName[0]}{worker.user.lastName[0]}
-            </div>
-          )}
+          <UserAvatar
+            src={worker.marketingPhotoUrl}
+            name={`${worker.user.firstName} ${worker.user.lastName}`}
+            size="md"
+          />
 
           <div className="min-w-0 flex-1">
             <CardTitle className="text-base">

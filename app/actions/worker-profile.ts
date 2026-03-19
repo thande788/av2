@@ -2,8 +2,10 @@
 
 import { z } from 'zod';
 import { db } from '@/lib/db';
+import { put, del } from '@vercel/blob';
 import { revalidatePath } from 'next/cache';
 import { getCurrentWorker } from '@/lib/auth';
+import { validateFile } from '@/lib/file-scanner';
 import { marketingProfileSchema, type MarketingProfileData } from '@/lib/validation/worker-profile';
 import { ProfileStatus } from '@prisma/client';
 
@@ -141,27 +143,87 @@ export async function saveMarketingProfileDraft(
 }
 
 /**
- * Update the marketing profile photo URL.
+ * Upload and scan a marketing profile photo, then store the URL.
+ *
+ * Accepts a FormData with a single "file" field (JPEG or PNG, max 5 MB).
+ * The image is validated (size, MIME, magic-bytes) and scanned for malware
+ * via ClamAV before being persisted to Vercel Blob.
  */
-export async function updateMarketingPhoto(
-  photoUrl: string
-): Promise<{ success: boolean; error?: string }> {
+
+const PHOTO_ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+const PHOTO_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+
+export async function uploadMarketingPhoto(
+  formData: FormData
+): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
     const worker = await getCurrentWorker();
     if (!worker) {
       return { success: false, error: 'Not authenticated as a worker' };
     }
 
+    const file = formData.get('file') as File | null;
+    if (!file) {
+      return { success: false, error: 'No file provided' };
+    }
+
+    // Convert to buffer for scanning
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Comprehensive validation + antivirus scan
+    const validation = await validateFile(buffer, file.name, file.type, {
+      maxSize: PHOTO_MAX_SIZE,
+      allowedTypes: PHOTO_ALLOWED_TYPES,
+      requireScan: process.env.REQUIRE_ANTIVIRUS_SCAN === 'true',
+    });
+
+    if (!validation.valid) {
+      return { success: false, error: validation.errors.join('. ') };
+    }
+
+    if (!validation.scanned) {
+      console.warn(`[MarketingPhoto] Antivirus scan skipped for ${file.name} (workerId: ${worker.id})`);
+    }
+
+    // Generate safe blob path
+    const timestamp = Date.now();
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+    const ext = file.type === 'image/png' ? 'png' : 'jpg';
+    const filename = `marketing-photos/${worker.id}/${timestamp}-${randomSuffix}.${ext}`;
+
+    // Delete previous photo if it exists on our blob storage
+    if (
+      worker.marketingPhotoUrl &&
+      (worker.marketingPhotoUrl.includes('vercel-storage.com') ||
+        worker.marketingPhotoUrl.includes('blob.vercel-storage.com'))
+    ) {
+      try {
+        await del(worker.marketingPhotoUrl);
+      } catch {
+        // Non-critical — old blob may already be gone
+      }
+    }
+
+    // Upload to Vercel Blob
+    const blob = await put(filename, buffer, {
+      access: 'public',
+      contentType: file.type,
+      addRandomSuffix: false,
+    });
+
+    // Persist URL
     await db.worker.update({
       where: { id: worker.id },
-      data: { marketingPhotoUrl: photoUrl },
+      data: { marketingPhotoUrl: blob.url },
     });
 
     revalidatePath('/employee/profile');
+    revalidatePath('/admin/caregivers');
+    revalidatePath('/caregivers');
 
-    return { success: true };
+    return { success: true, url: blob.url };
   } catch (error) {
-    console.error('Failed to update marketing photo:', error);
-    return { success: false, error: 'Failed to update photo' };
+    console.error('Failed to upload marketing photo:', error);
+    return { success: false, error: 'Failed to upload photo' };
   }
 }
