@@ -179,7 +179,11 @@ function QuickActionsMenu({
       <Plus className="size-5" />
     </Button>
   ) : (
-    <Button variant="outline" size="sm" className="justify-between gap-2">
+    <Button
+      variant="ghost"
+      size="sm"
+      className="justify-between gap-2 border border-border/50 bg-background/70 hover:bg-primary/8"
+    >
       <Plus className="size-4" />
       <span>New</span>
       <ChevronsUpDown className="size-3.5 text-muted-foreground" />
@@ -225,6 +229,9 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
     section.items.some((item) => item.id === activeItem?.id)
   );
   const routeDetail = activeItem ? getRouteDetailLabel(pathname, activeItem) : null;
+  const activeContextLabel = activeItem
+    ? [activeSection?.title, activeItem.title, routeDetail].filter(Boolean).join(' / ')
+    : null;
 
   const renderNavItem = ({
     item,
@@ -326,9 +333,6 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
                 </Badge>
               )}
             </div>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground/80">
-              {section.description}
-            </p>
           </div>
         )}
         <div className={cn('space-y-1', compact && 'space-y-0.5')}>
@@ -384,7 +388,9 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
                     </div>
                     <div>
                       <span className="block font-semibold text-primary">Admin Portal</span>
-                      <span className="block text-xs text-muted-foreground">Navigate work queues and content</span>
+                      {activeItem && (
+                        <span className="block text-xs text-muted-foreground">{activeItem.title}</span>
+                      )}
                     </div>
                   </Link>
                   <QuickActionsMenu actions={quickActions} compact onNavigate={() => setMobileOpen(false)} />
@@ -398,41 +404,17 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
                 </div>
               </div>
 
-              {activeItem && activeSection && (
+              {activeContextLabel && (
                 <div className="border-b border-primary/10 px-3 py-3">
-                  <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">
-                      {activeSection.title}
+                  <div className="rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2.5">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {activeContextLabel}
                     </p>
-                    <div className="mt-2 flex items-start gap-3">
-                      <div className="rounded-2xl bg-primary/10 p-2.5">
-                        <activeItem.icon className="size-5 text-primary" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-foreground">{activeItem.title}</p>
-                        {routeDetail && (
-                          <p className="text-sm text-muted-foreground">{routeDetail}</p>
-                        )}
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
 
               {navigation({ onNavigate: () => setMobileOpen(false) })}
-
-              <div className="border-t border-primary/10 p-3">
-                <div className="grid grid-cols-2 gap-2">
-                  {quickActions.slice(0, 4).map((action) => (
-                    <Button key={action.id} asChild variant="outline" size="sm" className="justify-start">
-                      <Link href={action.href} onClick={() => setMobileOpen(false)}>
-                        <action.icon className="size-4" />
-                        <span>{action.title}</span>
-                      </Link>
-                    </Button>
-                  ))}
-                </div>
-              </div>
 
               <div className="border-t border-primary/10 p-3">
                 <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
@@ -492,7 +474,9 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
               {!collapsed && (
                 <div className="min-w-0">
                   <span className="block truncate font-semibold text-primary">Admin Portal</span>
-                  <span className="block truncate text-xs text-muted-foreground">Operations workspace</span>
+                  {activeItem && (
+                    <span className="block truncate text-xs text-muted-foreground">{activeItem.title}</span>
+                  )}
                 </div>
               )}
             </Link>
@@ -517,22 +501,11 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
             </div>
           </div>
 
-          {!collapsed && activeItem && activeSection && (
-            <div className="mt-4 rounded-[1.5rem] border border-primary/20 bg-background/80 p-3 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">
-                    {activeSection.title}
-                  </p>
-                  <p className="mt-1 font-semibold text-foreground">{activeItem.title}</p>
-                  {routeDetail && (
-                    <p className="mt-1 text-sm text-muted-foreground">{routeDetail}</p>
-                  )}
-                </div>
-                <div className="rounded-2xl bg-primary/10 p-2.5">
-                  <activeItem.icon className="size-5 text-primary" />
-                </div>
-              </div>
+          {!collapsed && activeContextLabel && (
+            <div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2.5">
+              <p className="truncate text-sm font-medium text-foreground">
+                {activeContextLabel}
+              </p>
             </div>
           )}
 
@@ -544,19 +517,6 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
               </div>
             </SidebarTooltip>
           </div>
-
-          {!collapsed && (
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {quickActions.slice(0, 4).map((action) => (
-                <Button key={action.id} asChild variant="outline" size="sm" className="justify-start">
-                  <Link href={action.href}>
-                    <action.icon className="size-4" />
-                    <span>{action.title}</span>
-                  </Link>
-                </Button>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col">

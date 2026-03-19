@@ -206,13 +206,15 @@ export function CommandPaletteTrigger({
     <button
       onClick={toggleAdminCommandPalette}
       className={cn(
-        'flex w-full items-center gap-2 rounded-2xl border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground',
+        'flex h-11 w-full items-center gap-2 rounded-2xl border border-border/50 bg-muted/30 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground',
         className
       )}
     >
-      <Search className="size-4" />
-      <span className="flex-1 text-left">Search navigation or actions...</span>
-      <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+      <Search className="size-4 shrink-0" />
+      <span className="min-w-0 flex-1 truncate text-left whitespace-nowrap">
+        Search or jump...
+      </span>
+      <kbd className="pointer-events-none hidden h-5 shrink-0 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
         <span className="text-xs">{isMac ? '⌘' : 'Ctrl'}</span>K
       </kbd>
     </button>
