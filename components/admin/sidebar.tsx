@@ -21,6 +21,7 @@ import {
   LogOut,
   DollarSign,
   Shield,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -109,6 +110,11 @@ const navItems: NavItem[] = [
     title: 'Testimonials',
     href: '/admin/testimonials',
     icon: Star,
+  },
+  {
+    title: 'Analytics',
+    href: '/admin/analytics',
+    icon: BarChart3,
   },
   {
     title: 'Activity Log',
