@@ -1,6 +1,7 @@
 'use server';
 
 import { z } from 'zod';
+import sharp from 'sharp';
 import { db } from '@/lib/db';
 import { put, del } from '@vercel/blob';
 import { revalidatePath } from 'next/cache';
@@ -152,6 +153,8 @@ export async function saveMarketingProfileDraft(
 
 const PHOTO_ALLOWED_TYPES = ['image/jpeg', 'image/png'];
 const PHOTO_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const PHOTO_MIN_DIMENSION = 400; // px — ensures quality at 1x for card (400×300) and avatar views
+const PHOTO_MAX_DIMENSION = 4096; // px — prevents absurdly large images
 
 export async function uploadMarketingPhoto(
   formData: FormData
@@ -183,6 +186,24 @@ export async function uploadMarketingPhoto(
 
     if (!validation.scanned) {
       console.warn(`[MarketingPhoto] Antivirus scan skipped for ${file.name} (workerId: ${worker.id})`);
+    }
+
+    // Dimension validation via sharp
+    const metadata = await sharp(buffer).metadata();
+    const width = metadata.width ?? 0;
+    const height = metadata.height ?? 0;
+
+    if (width < PHOTO_MIN_DIMENSION || height < PHOTO_MIN_DIMENSION) {
+      return {
+        success: false,
+        error: `Image must be at least ${PHOTO_MIN_DIMENSION}×${PHOTO_MIN_DIMENSION} pixels. Yours is ${width}×${height}.`,
+      };
+    }
+    if (width > PHOTO_MAX_DIMENSION || height > PHOTO_MAX_DIMENSION) {
+      return {
+        success: false,
+        error: `Image must be no larger than ${PHOTO_MAX_DIMENSION}×${PHOTO_MAX_DIMENSION} pixels. Yours is ${width}×${height}.`,
+      };
     }
 
     // Generate safe blob path

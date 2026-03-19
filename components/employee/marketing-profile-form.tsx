@@ -105,6 +105,31 @@ export function MarketingProfileForm({ initialData }: MarketingProfileFormProps)
       return;
     }
 
+    // Client-side dimension check
+    const dimError = await new Promise<string | null>((resolve) => {
+      const img = new window.Image();
+      img.onload = () => {
+        URL.revokeObjectURL(img.src);
+        if (img.naturalWidth < 400 || img.naturalHeight < 400) {
+          resolve(`Image must be at least 400×400 pixels. Yours is ${img.naturalWidth}×${img.naturalHeight}.`);
+        } else if (img.naturalWidth > 4096 || img.naturalHeight > 4096) {
+          resolve(`Image must be no larger than 4096×4096 pixels. Yours is ${img.naturalWidth}×${img.naturalHeight}.`);
+        } else {
+          resolve(null);
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(img.src);
+        resolve(null); // Let server-side handle corrupt images
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    if (dimError) {
+      setPhotoError(dimError);
+      return;
+    }
+
     setIsUploadingPhoto(true);
     setPhotoError(null);
 
@@ -259,7 +284,7 @@ export function MarketingProfileForm({ initialData }: MarketingProfileFormProps)
                   {photoUrl ? 'Change Photo' : 'Upload Photo'}
                 </Button>
               )}
-              <p className="text-xs text-muted-foreground">JPEG or PNG, max 5 MB</p>
+              <p className="text-xs text-muted-foreground">JPEG or PNG, min 400×400 px, max 5 MB. Square or portrait photos work best.</p>
               {photoError && (
                 <p className="text-xs text-destructive">{photoError}</p>
               )}
