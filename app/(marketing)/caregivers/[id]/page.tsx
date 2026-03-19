@@ -130,7 +130,7 @@ export default async function CaregiverProfilePage({
 
 			{/* Profile Section */}
 			<section className="px-4 md:px-8 max-w-7xl mx-auto mt-4 mb-16">
-				<Card className="overflow-hidden">
+				<Card className="overflow-hidden p-0">
 					<div className="md:flex">
 						{/* Photo */}
 						<div className="relative md:w-1/3 lg:w-1/4 shrink-0">
