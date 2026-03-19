@@ -252,7 +252,7 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
         aria-current={isActive ? 'page' : undefined}
         className={cn(
           'group relative flex w-full items-center overflow-hidden rounded-2xl text-sm font-medium transition-all duration-200',
-          compact ? 'h-11 justify-center px-2' : 'gap-3 px-3 py-2.5',
+          compact ? 'h-12 justify-center rounded-xl px-2' : 'gap-3 px-3 py-2.5',
           isActive
             ? 'bg-primary/12 text-primary shadow-sm ring-1 ring-primary/20'
             : 'text-muted-foreground hover:bg-background/90 hover:text-foreground hover:shadow-sm'
@@ -313,9 +313,9 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
     );
 
     return (
-      <div key={section.id} className={cn('space-y-2', compact && 'space-y-1')}>
+      <div key={section.id} className={cn('space-y-2', compact && 'space-y-2.5')}>
         {compact ? (
-          <div className="mx-auto h-px w-8 bg-border/70" />
+          <div className="mx-auto h-px w-10 bg-border/70" />
         ) : (
           <div className="px-3 pt-1">
             <div className="flex items-center justify-between gap-2">
@@ -335,7 +335,7 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
             </div>
           </div>
         )}
-        <div className={cn('space-y-1', compact && 'space-y-0.5')}>
+        <div className={cn('space-y-1', compact && 'space-y-1.5')}>
           {section.items.map((item) =>
             renderNavItem({ item, compact, onNavigate: options?.onNavigate })
           )}
@@ -351,10 +351,10 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
       <nav
         className={cn(
           'min-h-0 flex-1 overflow-y-auto',
-          compact ? 'px-2 py-3' : 'px-3 py-4'
+            compact ? 'px-3 py-4' : 'px-3 py-4'
         )}
       >
-        <div className={cn('space-y-4', compact && 'space-y-3')}>
+        <div className={cn('space-y-4', compact && 'space-y-5')}>
           {sections.map((section) => renderSection(section, options))}
         </div>
       </nav>
@@ -455,7 +455,7 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
 
       <aside
         className={cn(
-          'sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-primary/40 bg-linear-to-b from-primary/10 via-background to-background transition-all duration-300 lg:flex lg:flex-col',
+          'sticky top-0 hidden h-screen shrink-0 overflow-visible border-r border-primary/40 bg-linear-to-b from-primary/10 via-background to-background transition-all duration-300 lg:flex lg:flex-col',
           collapsed ? 'w-28' : 'w-80'
         )}
       >
@@ -545,19 +545,16 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
             </div>
           )}
 
-          <div
-            className={cn(
-              'mt-4 flex gap-2',
-              collapsed ? 'mt-14 flex-col items-center' : 'flex-col'
-            )}
-          >
-            <CommandPaletteTrigger compact={collapsed} className={cn(!collapsed && 'flex-1')} />
-            <SidebarTooltip label="Quick actions" disabled={!collapsed}>
-              <div className={cn(!collapsed && 'w-full')}>
-                <QuickActionsMenu actions={quickActions} compact={collapsed} />
-              </div>
-            </SidebarTooltip>
-          </div>
+          {!collapsed && (
+            <div className="mt-4 flex flex-col gap-2">
+              <CommandPaletteTrigger className="flex-1" />
+              <SidebarTooltip label="Quick actions" disabled>
+                <div className="w-full">
+                  <QuickActionsMenu actions={quickActions} />
+                </div>
+              </SidebarTooltip>
+            </div>
+          )}
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col">
