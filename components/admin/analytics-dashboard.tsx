@@ -10,7 +10,6 @@ import {
   Cell,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
@@ -36,13 +35,8 @@ import {
 } from 'lucide-react';
 
 // ---------- colour palette ----------
-const COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-];
+// Concrete colours that are visible in both light and dark mode
+const FUNNEL_COLORS = ['#2563eb', '#0ea5e9', '#8b5cf6', '#f59e0b', '#059669'];
 
 const PIE_COLORS = ['#2563eb', '#059669', '#d97706', '#e11d48', '#7c3aed', '#0ea5e9'];
 
@@ -127,11 +121,10 @@ function MonthlyTrendsChart({ data }: { data: MonthlyCount[] }) {
                 <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-            <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'currentColor' }} stroke="currentColor" className="text-muted-foreground" />
+            <YAxis tick={{ fontSize: 12, fill: 'currentColor' }} stroke="currentColor" className="text-muted-foreground" allowDecimals={false} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
+            <Legend wrapperStyle={{ color: 'var(--color-muted-foreground)' }} />
             <Area
               type="monotone"
               dataKey="applications"
@@ -174,13 +167,12 @@ function ConversionFunnelChart({ data }: { data: FunnelStep[] }) {
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis dataKey="stage" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-            <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
-            <Tooltip content={<CustomTooltip />} />
+            <XAxis dataKey="stage" tick={{ fontSize: 12, fill: 'currentColor' }} stroke="currentColor" className="text-muted-foreground" />
+            <YAxis tick={{ fontSize: 12, fill: 'currentColor' }} stroke="currentColor" className="text-muted-foreground" allowDecimals={false} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
             <Bar dataKey="count" name="Applications" radius={[6, 6, 0, 0]}>
               {data.map((_, i) => (
-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                <Cell key={i} fill={FUNNEL_COLORS[i % FUNNEL_COLORS.length]} />
               ))}
             </Bar>
           </BarChart>
@@ -216,9 +208,11 @@ function DepartmentPieChart({ data }: { data: DepartmentSlice[] }) {
               innerRadius={60}
               outerRadius={100}
               paddingAngle={4}
-              label={({ name, percent }) =>
-                `${name ?? ''} (${((percent ?? 0) * 100).toFixed(0)}%)`
-              }
+              label={({ name, percent, x, y }) => (
+                <text x={x} y={y} fill="currentColor" className="text-muted-foreground" fontSize={12} textAnchor="middle">
+                  {`${name ?? ''} (${((percent ?? 0) * 100).toFixed(0)}%)`}
+                </text>
+              )}
             >
               {data.map((_, i) => (
                 <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
@@ -257,16 +251,16 @@ function ServiceSourceChart({ data }: { data: ServiceSourceSlice[] }) {
             layout="vertical"
             margin={{ top: 5, right: 30, left: 20, bottom: 0 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis type="number" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
+            <XAxis type="number" tick={{ fontSize: 12, fill: 'currentColor' }} stroke="currentColor" className="text-muted-foreground" allowDecimals={false} />
             <YAxis
               type="category"
               dataKey="service"
-              tick={{ fontSize: 11 }}
-              stroke="hsl(var(--muted-foreground))"
+              tick={{ fontSize: 11, fill: 'currentColor' }}
+              stroke="currentColor"
+              className="text-muted-foreground"
               width={120}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
             <Bar dataKey="count" name="Inquiries" fill="#059669" radius={[0, 6, 6, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -286,15 +280,15 @@ function PeakHoursChart({ data }: { data: PeakHourData[] }) {
       <div className="h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 10 }}
-              stroke="hsl(var(--muted-foreground))"
+              tick={{ fontSize: 10, fill: 'currentColor' }}
+              stroke="currentColor"
+              className="text-muted-foreground"
               interval={2}
             />
-            <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
-            <Tooltip content={<CustomTooltip />} />
+            <YAxis tick={{ fontSize: 12, fill: 'currentColor' }} stroke="currentColor" className="text-muted-foreground" allowDecimals={false} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
             <Bar dataKey="count" name="Submissions" fill="#7c3aed" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -313,10 +307,9 @@ function PeakDaysChart({ data }: { data: PeakDayData[] }) {
       <div className="h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis dataKey="day" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-            <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
-            <Tooltip content={<CustomTooltip />} />
+            <XAxis dataKey="day" tick={{ fontSize: 12, fill: 'currentColor' }} stroke="currentColor" className="text-muted-foreground" />
+            <YAxis tick={{ fontSize: 12, fill: 'currentColor' }} stroke="currentColor" className="text-muted-foreground" allowDecimals={false} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
             <Bar dataKey="count" name="Submissions" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
