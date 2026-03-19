@@ -27,9 +27,9 @@ export default function EmployeeLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <EmployeeSidebar />
-      <main className="relative flex-1 overflow-auto">
+      <main className="relative min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <LogoWatermark />
-        <div className="container relative z-10 max-w-7xl py-8 px-6 lg:px-8">
+        <div className="app-shell relative z-10 py-5 s375:py-6 md:py-8 lg:py-10">
           {children}
         </div>
       </main>

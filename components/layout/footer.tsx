@@ -43,7 +43,7 @@ export function Footer({
         aria-hidden="true"
       />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
+      <div className="app-shell relative py-14 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-14">
           {/* Brand / Description */}
           <div className="md:col-span-5 lg:col-span-4">
