@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   IconArrowLeft,
@@ -532,6 +533,29 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Profile Photo */}
+            {worker.marketingPhotoUrl ? (
+              <div className="flex items-center gap-4">
+                <div className="relative size-20 shrink-0 overflow-hidden rounded-full border-2 border-primary/20">
+                  <Image
+                    src={worker.marketingPhotoUrl}
+                    alt={`${worker.user.firstName} ${worker.user.lastName} profile photo`}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">Profile photo</p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
+                <div className="flex size-20 shrink-0 items-center justify-center rounded-full bg-muted text-2xl font-bold text-muted-foreground">
+                  {worker.user.firstName[0]}{worker.user.lastName[0]}
+                </div>
+                <p className="text-sm text-muted-foreground">No profile photo uploaded</p>
+              </div>
+            )}
+
             {/* Bio */}
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Bio</p>

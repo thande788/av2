@@ -26,6 +26,7 @@ import {
   CircleHelp,
   ArrowRightLeft,
   Heart,
+  UserRoundCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -106,6 +107,12 @@ const navItems: NavItem[] = [
     title: 'Shift Swaps',
     href: '/admin/swaps',
     icon: ArrowRightLeft,
+    demoOnly: true,
+  },
+  {
+    title: 'Caregivers',
+    href: '/admin/caregivers',
+    icon: UserRoundCheck,
     demoOnly: true,
   },
   // Standard Items

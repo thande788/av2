@@ -238,6 +238,7 @@ export async function approveWorkerProfile(
 
     revalidatePath('/admin/workers');
     revalidatePath(`/admin/workers/${workerId}`);
+    revalidatePath('/admin/caregivers');
     revalidatePath('/employee/profile');
     revalidatePath('/caregivers');
 
@@ -279,6 +280,7 @@ export async function rejectWorkerProfile(
 
     revalidatePath('/admin/workers');
     revalidatePath(`/admin/workers/${workerId}`);
+    revalidatePath('/admin/caregivers');
     revalidatePath('/employee/profile');
 
     return { success: true };
@@ -315,6 +317,7 @@ export async function togglePublicProfile(
 
     revalidatePath('/admin/workers');
     revalidatePath(`/admin/workers/${workerId}`);
+    revalidatePath('/admin/caregivers');
     revalidatePath('/caregivers');
 
     return { success: true };
