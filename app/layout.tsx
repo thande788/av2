@@ -3,7 +3,6 @@ import { Geist_Mono, Inter, Nunito } from "next/font/google";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SkipLink } from "@/components/layout";
-import { LazyChatWidget } from "@/components/shared";
 import { getBrandAccentsAttribute } from "@/data/site-config";
 import { siteMetadata } from "@/lib/seo/site-metadata";
 import "./globals.css";
@@ -62,7 +61,6 @@ export default function RootLayout({
             <SkipLink />
             {children}
           </div>
-            <LazyChatWidget />
           </ThemeProvider>
           <script
             dangerouslySetInnerHTML={{

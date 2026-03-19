@@ -1,4 +1,5 @@
 import { Navbar, Footer } from "@/components/layout";
+import { LazyChatWidget } from "@/components/shared";
 
 /**
  * Marketing layout wrapper for public pages
@@ -18,6 +19,7 @@ export default function MarketingLayout({
         {children}
       </main>
       <Footer />
+      <LazyChatWidget />
     </>
   );
 }
