@@ -158,56 +158,36 @@ export function AdminSidebar() {
     (item) => !item.demoOnly || demoEnabled
   );
 
-  // Shared nav content
-  const navContent = (options?: { onNavigate?: () => void; compact?: boolean }) => (
-    <>
-      {!options?.compact && (
-        <div className="p-3 pb-0">
-          <CommandPaletteTrigger />
-        </div>
-      )}
-
-      <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
+  const navLinks = (options?: { onNavigate?: () => void; compact?: boolean }) => (
+    <nav className={cn('min-h-0 flex-1 overflow-y-auto', options?.compact ? 'px-2 py-3' : 'px-3 py-3')}>
+      <div className="space-y-1.5">
         {filteredNavItems.map((item) => {
-          const isActive = pathname === item.href || 
+          const isActive = pathname === item.href ||
             (item.href !== '/admin' && pathname.startsWith(item.href));
-          
+
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={options?.onNavigate}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                'flex w-full items-center rounded-lg text-sm font-medium transition-all',
                 isActive
-                  ? 'bg-primary/15 text-primary border border-primary/30'
+                  ? 'border border-primary/30 bg-primary/15 text-primary'
                   : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground',
-                options?.compact && 'justify-center px-2'
+                options?.compact
+                  ? 'justify-center px-2'
+                  : 'gap-3 px-3 py-2.5'
               )}
               title={options?.compact ? item.title : undefined}
             >
               <item.icon className={cn('size-5 shrink-0', isActive && 'text-primary')} />
-              {!options?.compact && <span>{item.title}</span>}
+              {!options?.compact && <span className="min-w-0 truncate">{item.title}</span>}
             </Link>
           );
         })}
-      </nav>
-
-      <div className="p-3 mt-auto">
-        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-          <button
-            className={cn(
-              'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500',
-              options?.compact && 'justify-center px-2'
-            )}
-            title={options?.compact ? 'Sign Out' : undefined}
-          >
-            <LogOut className="size-5 shrink-0" />
-            {!options?.compact && <span>Sign Out</span>}
-          </button>
-        </SignOutButton>
       </div>
-    </>
+    </nav>
   );
 
   return (
@@ -223,7 +203,7 @@ export function AdminSidebar() {
           </SheetTrigger>
           <SheetContent side="left" className="w-[min(22rem,92vw)] p-0" showCloseButton={false}>
             <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
-            <div className="flex h-full flex-col">
+            <div className="flex h-full flex-col bg-background">
               <div className="flex h-14 items-center border-b border-primary/20 px-4">
                 <Link href="/admin" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
                   <div className="size-9 overflow-hidden rounded-lg">
@@ -238,7 +218,18 @@ export function AdminSidebar() {
                   <span className="font-semibold text-primary">Admin Portal</span>
                 </Link>
               </div>
-              {navContent({ onNavigate: () => setMobileOpen(false) })}
+              <div className="border-b border-primary/10 p-3">
+                <CommandPaletteTrigger />
+              </div>
+              {navLinks({ onNavigate: () => setMobileOpen(false) })}
+              <div className="border-t border-primary/10 p-3">
+                <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500">
+                    <LogOut className="size-5 shrink-0" />
+                    <span>Sign Out</span>
+                  </button>
+                </SignOutButton>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -265,7 +256,8 @@ export function AdminSidebar() {
           collapsed ? 'w-20' : 'w-72'
         )}
       >
-        <div className={cn('flex h-16 items-center border-b border-primary/20 px-4', collapsed ? 'justify-center' : 'justify-between')}>
+        {/* Header */}
+        <div className={cn('relative flex h-16 items-center border-b border-primary/20 px-4', collapsed ? 'justify-center' : 'justify-between')}>
           <Link href="/admin" className={cn('flex min-w-0 items-center gap-2', collapsed && 'justify-center')}>
             <div className="size-9 overflow-hidden rounded-lg">
               <Image
@@ -276,11 +268,9 @@ export function AdminSidebar() {
                 className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
               />
             </div>
-            {!collapsed && (
-              <span className="truncate font-semibold text-primary">Admin Portal</span>
-            )}
+            {!collapsed && <span className="truncate font-semibold text-primary">Admin Portal</span>}
           </Link>
-          <div className={cn('flex items-center gap-1', collapsed && 'absolute right-3')}>
+          <div className={cn('flex items-center gap-1', collapsed && 'absolute right-2')}>
             {!collapsed && <NotificationBell />}
             <Button
               variant="ghost"
@@ -293,7 +283,33 @@ export function AdminSidebar() {
             </Button>
           </div>
         </div>
-        {navContent({ compact: collapsed })}
+
+        {/* Command Palette - expanded only */}
+        {!collapsed && (
+          <div className="border-b border-primary/10 p-3">
+            <CommandPaletteTrigger />
+          </div>
+        )}
+
+        {/* Navigation + Footer */}
+        <div className="flex min-h-0 flex-1 flex-col">
+          {navLinks({ compact: collapsed })}
+          <div className="border-t border-primary/10 p-3">
+            <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+              <button
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                  'text-muted-foreground hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500',
+                  collapsed && 'justify-center px-2'
+                )}
+                title={collapsed ? 'Sign Out' : undefined}
+              >
+                <LogOut className="size-5 shrink-0" />
+                {!collapsed && <span>Sign Out</span>}
+              </button>
+            </SignOutButton>
+          </div>
+        </div>
       </aside>
     </>
   );

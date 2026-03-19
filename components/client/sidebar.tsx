@@ -76,9 +76,8 @@ export function ClientSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navContent = (onNavigate?: () => void) => (
-    <>
-      <nav className="flex-1 space-y-1.5 overflow-y-auto p-3">
+  const navLinks = (options?: { onNavigate?: () => void; compact?: boolean }) => (
+      <nav className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-3 py-3">
         {navItems.map((item) => {
           const isActive = pathname === item.href ||
             (item.href !== '/client' && pathname.startsWith(item.href));
@@ -87,17 +86,19 @@ export function ClientSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              onClick={onNavigate}
+              onClick={options?.onNavigate}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                 isActive
                   ? 'bg-sky-500/15 text-sky-700 dark:text-sky-400'
-                  : 'text-muted-foreground hover:bg-sky-500/10 hover:text-foreground'
+                  : 'text-muted-foreground hover:bg-sky-500/10 hover:text-foreground',
+                options?.compact && 'justify-center px-2'
               )}
+              title={options?.compact ? item.title : undefined}
             >
               <item.icon className="size-5 shrink-0" />
-              <span className="flex-1">{item.title}</span>
-              {item.badge !== undefined && item.badge > 0 && (
+              {!options?.compact && <span className="flex-1">{item.title}</span>}
+              {!options?.compact && item.badge !== undefined && item.badge > 0 && (
                 <span className="rounded-full bg-sky-500 px-2 py-0.5 text-xs text-white">
                   {item.badge}
                 </span>
@@ -106,18 +107,6 @@ export function ClientSidebar() {
           );
         })}
       </nav>
-
-      <div className="border-t border-sky-500/20 p-3">
-        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-          <button
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600"
-          >
-            <LogOut className="size-5 shrink-0" />
-            <span>Sign Out</span>
-          </button>
-        </SignOutButton>
-      </div>
-    </>
   );
 
   return (
@@ -147,7 +136,15 @@ export function ClientSidebar() {
                   <span className="font-semibold text-sky-600 dark:text-sky-500">Family Portal</span>
                 </Link>
               </div>
-              {navContent(() => setMobileOpen(false))}
+              {navLinks({ onNavigate: () => setMobileOpen(false) })}
+              <div className="border-t border-sky-500/20 p-3">
+                <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600">
+                    <LogOut className="size-5 shrink-0" />
+                    <span>Sign Out</span>
+                  </button>
+                </SignOutButton>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -171,7 +168,7 @@ export function ClientSidebar() {
           collapsed ? 'w-20' : 'w-72'
         )}
       >
-        <div className={cn('flex h-16 items-center border-b border-sky-500/20 px-4', collapsed ? 'justify-center' : 'justify-between')}>
+        <div className={cn('relative flex h-16 items-center border-b border-sky-500/20 px-4', collapsed ? 'justify-center' : 'justify-between')}>
           <Link href="/client" className={cn('flex min-w-0 items-center gap-2', collapsed && 'justify-center')}>
             <div className="size-9 overflow-hidden rounded-lg">
               <Image
@@ -197,50 +194,23 @@ export function ClientSidebar() {
           </Button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1.5">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href ||
-              (item.href !== '/client' && pathname.startsWith(item.href));
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
+        <div className="flex min-h-0 flex-1 flex-col">
+          {navLinks({ compact: collapsed })}
+          <div className="border-t border-sky-500/20 p-3">
+            <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+              <button
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-sky-500/15 text-sky-700 dark:text-sky-400'
-                    : 'text-muted-foreground hover:bg-sky-500/10 hover:text-foreground',
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  'text-muted-foreground hover:bg-red-500/10 hover:text-red-600',
                   collapsed && 'justify-center px-2'
                 )}
-                title={collapsed ? item.title : undefined}
+                title={collapsed ? 'Sign Out' : undefined}
               >
-                <item.icon className="size-5 shrink-0" />
-                {!collapsed && <span className="flex-1">{item.title}</span>}
-                {!collapsed && item.badge !== undefined && item.badge > 0 && (
-                  <span className="rounded-full bg-sky-500 px-2 py-0.5 text-xs text-white">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="border-t border-sky-500/20 p-3">
-          <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-            <button
-              className={cn(
-                'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                'text-muted-foreground hover:bg-red-500/10 hover:text-red-600',
-                collapsed && 'justify-center px-2'
-              )}
-              title={collapsed ? 'Sign Out' : undefined}
-            >
-              <LogOut className="size-5 shrink-0" />
-              {!collapsed && <span>Sign Out</span>}
-            </button>
-          </SignOutButton>
+                <LogOut className="size-5 shrink-0" />
+                {!collapsed && <span>Sign Out</span>}
+              </button>
+            </SignOutButton>
+          </div>
         </div>
       </aside>
     </>

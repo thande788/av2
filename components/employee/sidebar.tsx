@@ -76,9 +76,8 @@ export function EmployeeSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navContent = (options?: { onNavigate?: () => void; compact?: boolean }) => (
-    <>
-      <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
+  const navLinks = (options?: { onNavigate?: () => void; compact?: boolean }) => (
+      <nav className="min-h-0 flex-1 p-3 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || 
             (item.href !== '/employee' && pathname.startsWith(item.href));
@@ -108,23 +107,6 @@ export function EmployeeSidebar() {
           );
         })}
       </nav>
-
-      <div className="p-3 mt-auto">
-        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-          <button
-            className={cn(
-              'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-              'hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500',
-              options?.compact && 'justify-center px-2'
-            )}
-            title={options?.compact ? 'Sign Out' : undefined}
-          >
-            <LogOut className="size-5 shrink-0" />
-            {!options?.compact && <span>Sign Out</span>}
-          </button>
-        </SignOutButton>
-      </div>
-    </>
   );
 
   return (
@@ -154,7 +136,15 @@ export function EmployeeSidebar() {
                   <span className="font-semibold text-emerald-600 dark:text-emerald-500">Employee Portal</span>
                 </Link>
               </div>
-              {navContent({ onNavigate: () => setMobileOpen(false) })}
+              {navLinks({ onNavigate: () => setMobileOpen(false) })}
+              <div className="p-3 mt-auto border-t border-emerald-500/20">
+                <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500">
+                    <LogOut className="size-5 shrink-0" />
+                    <span>Sign Out</span>
+                  </button>
+                </SignOutButton>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -178,7 +168,7 @@ export function EmployeeSidebar() {
           collapsed ? 'w-20' : 'w-72'
         )}
       >
-        <div className={cn('flex h-16 items-center border-b border-emerald-500/20 px-4', collapsed ? 'justify-center' : 'justify-between')}>
+        <div className={cn('relative flex h-16 items-center border-b border-emerald-500/20 px-4', collapsed ? 'justify-center' : 'justify-between')}>
           <Link href="/employee" className={cn('flex items-center gap-2', collapsed && 'justify-center')}>
           <div className="size-9 overflow-hidden rounded-lg">
             <Image
@@ -203,7 +193,25 @@ export function EmployeeSidebar() {
           {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
         </Button>
         </div>
-        {navContent({ compact: collapsed })}
+
+        <div className="flex min-h-0 flex-1 flex-col">
+          {navLinks({ compact: collapsed })}
+          <div className="border-t border-emerald-500/20 p-3">
+            <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+              <button
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                  'hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500',
+                  collapsed && 'justify-center px-2'
+                )}
+                title={collapsed ? 'Sign Out' : undefined}
+              >
+                <LogOut className="size-5 shrink-0" />
+                {!collapsed && <span>Sign Out</span>}
+              </button>
+            </SignOutButton>
+          </div>
+        </div>
       </aside>
     </>
   );
