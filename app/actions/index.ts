@@ -127,7 +127,7 @@ export {
 export {
   submitMarketingProfile,
   saveMarketingProfileDraft,
-  updateMarketingPhoto,
+  uploadMarketingPhoto,
 } from "./worker-profile";
 
 // Client testimonial actions
