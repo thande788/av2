@@ -1,4 +1,4 @@
-import { getAdminUsers, getCurrentAdminRole } from '@/app/actions/rbac';
+import { getAdminUsers, getCurrentAdminRole, getInvitations } from '@/app/actions/rbac';
 import { redirect } from 'next/navigation';
 import { UsersManagement } from './users-management';
 import { StatCard } from '@/components/admin/stat-card';
@@ -34,7 +34,10 @@ export default async function UsersPage() {
     redirect('/admin');
   }
 
-  const users = await getAdminUsers();
+  const [users, invitations] = await Promise.all([
+    getAdminUsers(),
+    getInvitations(),
+  ]);
 
   const activeCount = users.filter((u) => u.status === 'ACTIVE').length;
   const inactiveCount = users.filter((u) => u.status === 'INACTIVE').length;
@@ -163,7 +166,7 @@ export default async function UsersPage() {
             Search, filter, invite, and update admin accounts from a single workspace.
           </p>
         </div>
-        <UsersManagement users={users} />
+        <UsersManagement users={users} invitations={invitations} />
       </section>
     </div>
   );

@@ -280,3 +280,102 @@ export async function reactivateAdminUser(targetClerkId: string) {
 
   revalidatePath('/admin/users');
 }
+
+// =============================================================================
+// INVITATION MANAGEMENT
+// =============================================================================
+
+export type ClerkInvitation = {
+  id: string;
+  emailAddress: string;
+  status: string;
+  publicMetadata: Record<string, unknown>;
+  createdAt: number;
+  updatedAt: number;
+};
+
+/**
+ * List all Clerk invitations
+ */
+export async function getInvitations(): Promise<ClerkInvitation[]> {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const currentRole = await getAdminRole(userId);
+  if (currentRole !== 'SUPER_ADMIN') {
+    throw new Error('Only Super Admins can view invitations');
+  }
+
+  const client = await clerkClient();
+  const result = await client.invitations.getInvitationList();
+
+  return result.data.map((inv) => ({
+    id: inv.id,
+    emailAddress: inv.emailAddress,
+    status: inv.status,
+    publicMetadata: (inv.publicMetadata ?? {}) as Record<string, unknown>,
+    createdAt: inv.createdAt,
+    updatedAt: inv.updatedAt,
+  }));
+}
+
+/**
+ * Revoke a pending invitation
+ */
+export async function revokeInvitation(invitationId: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const currentRole = await getAdminRole(userId);
+  if (currentRole !== 'SUPER_ADMIN') {
+    throw new Error('Only Super Admins can revoke invitations');
+  }
+
+  const client = await clerkClient();
+  await client.invitations.revokeInvitation(invitationId);
+
+  revalidatePath('/admin/users');
+  return { success: true };
+}
+
+/**
+ * Resend an invitation (revokes existing, creates new with same metadata)
+ */
+export async function resendInvitation(invitationId: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const currentRole = await getAdminRole(userId);
+  if (currentRole !== 'SUPER_ADMIN') {
+    throw new Error('Only Super Admins can resend invitations');
+  }
+
+  const client = await clerkClient();
+
+  // Fetch the existing invitation to preserve its metadata
+  const allInvitations = await client.invitations.getInvitationList();
+  const existing = allInvitations.data.find((inv) => inv.id === invitationId);
+  if (!existing) {
+    throw new Error('Invitation not found');
+  }
+  if (existing.status !== 'pending') {
+    throw new Error('Only pending invitations can be resent');
+  }
+
+  const emailAddress = existing.emailAddress;
+  const publicMetadata = existing.publicMetadata;
+
+  // Revoke the old one
+  await client.invitations.revokeInvitation(invitationId);
+
+  // Create a fresh invitation
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  await client.invitations.createInvitation({
+    emailAddress,
+    redirectUrl: `${appUrl}/sign-up`,
+    publicMetadata: publicMetadata ?? undefined,
+  });
+
+  revalidatePath('/admin/users');
+  return { success: true };
+}

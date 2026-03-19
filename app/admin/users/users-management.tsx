@@ -27,6 +27,9 @@ import {
   inviteAdminUser,
   deactivateAdminUser,
   reactivateAdminUser,
+  revokeInvitation,
+  resendInvitation,
+  type ClerkInvitation,
 } from '@/app/actions/rbac';
 import { ROLE_PERMISSIONS, type AdminRole } from '@/lib/rbac';
 import { toast } from 'sonner';
@@ -45,6 +48,10 @@ import {
   Clock,
   CalendarDays,
   ShieldCheck,
+  Send,
+  XCircle,
+  RotateCw,
+  CheckCircle2,
 } from 'lucide-react';
 import { cn, formatDateUS } from '@/lib/utils';
 import type { PortalUser, UserStatus } from '@prisma/client';
@@ -96,7 +103,7 @@ function getAvatarColor(name: string) {
   return avatarColors[Math.abs(hash) % avatarColors.length];
 }
 
-export function UsersManagement({ users }: { users: AdminUser[] }) {
+export function UsersManagement({ users, invitations }: { users: AdminUser[]; invitations: ClerkInvitation[] }) {
   const router = useRouter();
   const [inviteOpen, setInviteOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
@@ -362,6 +369,9 @@ export function UsersManagement({ users }: { users: AdminUser[] }) {
         })}
       </div>
 
+      {/* Pending Invitations Section */}
+      <InvitationsSection invitations={invitations} />
+
       {/* Edit Role Dialog */}
       <Dialog
         open={editingUser !== null}
@@ -595,5 +605,167 @@ function EditRoleDialog({
         </Button>
       </DialogFooter>
     </DialogContent>
+  );
+}
+
+// =============================================================================
+// Invitations Section
+// =============================================================================
+
+const invitationStatusConfig: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; color: string }> = {
+  pending: { label: 'Pending', icon: Clock, color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
+  accepted: { label: 'Accepted', icon: CheckCircle2, color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' },
+  revoked: { label: 'Revoked', icon: XCircle, color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
+};
+
+function InvitationsSection({ invitations }: { invitations: ClerkInvitation[] }) {
+  const router = useRouter();
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'revoked'>('all');
+
+  const filtered = useMemo(() => {
+    if (filter === 'all') return invitations;
+    return invitations.filter((inv) => inv.status === filter);
+  }, [invitations, filter]);
+
+  const pendingCount = invitations.filter((i) => i.status === 'pending').length;
+
+  const handleRevoke = async (id: string) => {
+    setLoadingId(id);
+    try {
+      await revokeInvitation(id);
+      toast.success('Invitation revoked');
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to revoke');
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleResend = async (id: string) => {
+    setLoadingId(id);
+    try {
+      await resendInvitation(id);
+      toast.success('Invitation resent');
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to resend');
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  if (invitations.length === 0) return null;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Send className="size-4 text-primary" />
+          <h3 className="text-lg font-semibold tracking-tight">Invitations</h3>
+          {pendingCount > 0 && (
+            <Badge variant="secondary" className="text-xs">
+              {pendingCount} pending
+            </Badge>
+          )}
+        </div>
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
+          <TabsList className="bg-transparent border border-border">
+            <TabsTrigger value="all">
+              All
+              <Badge variant="secondary" className="ml-1.5 text-xs">{invitations.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="pending">Pending</TabsTrigger>
+            <TabsTrigger value="accepted">Accepted</TabsTrigger>
+            <TabsTrigger value="revoked">Revoked</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-border/50">
+        <table className="w-full">
+          <thead className="bg-muted/50">
+            <tr>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Email</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground hidden sm:table-cell">Role</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground hidden md:table-cell">Sent</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
+              <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/50">
+            {filtered.map((inv) => {
+              const statusInfo = invitationStatusConfig[inv.status] ?? invitationStatusConfig.pending;
+              const StatusIcon = statusInfo.icon;
+              const assignedRole = inv.publicMetadata?.adminRole as string | undefined;
+              const isLoading = loadingId === inv.id;
+
+              return (
+                <tr key={inv.id} className="transition-colors hover:bg-muted/30">
+                  <td className="px-4 py-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Mail className="size-3.5 text-muted-foreground shrink-0" />
+                      <span className="truncate max-w-[200px]">{inv.emailAddress}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm hidden sm:table-cell">
+                    {assignedRole && assignedRole in roleLabels ? (
+                      <Badge className={roleColors[assignedRole as AdminRole]} variant="secondary">
+                        {roleLabels[assignedRole as AdminRole]}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground hidden md:table-cell">
+                    {formatDateUS(new Date(inv.createdAt))}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <Badge className={cn(statusInfo.color, 'gap-1')} variant="secondary">
+                      <StatusIcon className="size-3" />
+                      {statusInfo.label}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-right">
+                    {inv.status === 'pending' && (
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={isLoading}
+                          onClick={() => handleResend(inv.id)}
+                          className="text-primary hover:text-primary"
+                        >
+                          <RotateCw className={cn('mr-1 size-3.5', isLoading && 'animate-spin')} />
+                          Resend
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={isLoading}
+                          onClick={() => handleRevoke(inv.id)}
+                          className="text-red-600 hover:bg-red-500/10 hover:text-red-700"
+                        >
+                          <XCircle className="mr-1 size-3.5" />
+                          Revoke
+                        </Button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/50 p-8 text-center">
+          <Mail className="size-8 text-muted-foreground/30 mb-2" />
+          <p className="text-sm text-muted-foreground">No {filter === 'all' ? '' : filter} invitations found.</p>
+        </div>
+      )}
+    </div>
   );
 }
