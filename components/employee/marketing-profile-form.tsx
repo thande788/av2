@@ -79,13 +79,11 @@ export function MarketingProfileForm({ initialData }: MarketingProfileFormProps)
     initialData.yearsExperience ?? 0
   );
 
-  const isPendingOrApproved =
-    initialData.profileStatus === 'PENDING_REVIEW' ||
-    initialData.profileStatus === 'APPROVED';
+  const profileStatus = initialData.profileStatus;
+  const isPending = profileStatus === 'PENDING_REVIEW';
+  const isApproved = profileStatus === 'APPROVED';
 
-  const canEdit =
-    initialData.profileStatus === 'DRAFT' ||
-    initialData.profileStatus === 'REJECTED';
+  const canEdit = profileStatus !== 'PENDING_REVIEW';
 
   // Photo upload state
   const [photoUrl, setPhotoUrl] = React.useState(initialData.marketingPhotoUrl);
@@ -202,11 +200,15 @@ export function MarketingProfileForm({ initialData }: MarketingProfileFormProps)
               )}
             </CardTitle>
             <CardDescription>
-              {canEdit
-                ? 'Create your public profile that will appear on our website. An admin will review it before publishing.'
-                : isPendingOrApproved
-                  ? 'Your profile has been submitted. An admin will review it shortly.'
-                  : 'Your profile information for the public caregivers page.'}
+              {isPending
+                ? 'Your profile has been submitted and is awaiting admin review. You can make changes once the review is complete.'
+                : isApproved
+                  ? initialData.isPublicProfile
+                    ? 'Your profile is approved and live on the website. Changes will require re-approval before going live again.'
+                    : 'Your profile is approved. You can make changes, which will require re-approval.'
+                  : profileStatus === 'REJECTED'
+                    ? 'Please revise your profile based on the admin feedback below and resubmit.'
+                    : 'Create your public profile that will appear on our website. An admin will review it before publishing.'}
             </CardDescription>
           </div>
         </div>
@@ -392,16 +394,18 @@ export function MarketingProfileForm({ initialData }: MarketingProfileFormProps)
               ) : (
                 <IconSend className="mr-2 size-4" />
               )}
-              Submit for Review
+              {isApproved ? 'Submit Changes for Review' : 'Submit for Review'}
             </Button>
-            <Button variant="outline" onClick={handleSaveDraft} disabled={isSubmitting || isSaving}>
-              {isSaving ? (
-                <IconLoader2 className="mr-2 size-4 animate-spin" />
-              ) : (
-                <IconDeviceFloppy className="mr-2 size-4" />
-              )}
-              Save Draft
-            </Button>
+            {!isApproved && (
+              <Button variant="outline" onClick={handleSaveDraft} disabled={isSubmitting || isSaving}>
+                {isSaving ? (
+                  <IconLoader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <IconDeviceFloppy className="mr-2 size-4" />
+                )}
+                Save Draft
+              </Button>
+            )}
           </div>
         )}
       </CardContent>
