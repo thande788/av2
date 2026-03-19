@@ -27,6 +27,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { siteMetadata } from "@/lib/seo/site-metadata";
+import { submitChatMessage } from "@/app/actions/chat-widget";
 
 // Types
 interface QuickAction {
@@ -95,22 +96,31 @@ function ChatWidgetContent({
   const [showMessageForm, setShowMessageForm] = useState(false);
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
 
-  const handleSubmitMessage = useCallback((e: React.FormEvent) => {
+  const handleSubmitMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
-    
-    // In a real app, this would send to an API
-    console.log("Quick message:", message);
-    setSubmitted(true);
-    
-    // Reset after delay
-    setTimeout(() => {
-      setMessage("");
-      setSubmitted(false);
-      setShowMessageForm(false);
-    }, 3000);
-  }, [message]);
+    if (!message.trim() || isSending) return;
+
+    setIsSending(true);
+    setError(null);
+
+    const result = await submitChatMessage(message.trim());
+
+    if (result.success) {
+      setSubmitted(true);
+      setTimeout(() => {
+        setMessage("");
+        setSubmitted(false);
+        setShowMessageForm(false);
+      }, 3000);
+    } else {
+      setError(result.error ?? "Failed to send");
+    }
+
+    setIsSending(false);
+  }, [message, isSending]);
 
   return (
     <Card className="w-80 sm:w-96 overflow-hidden shadow-2xl border-border/50">
@@ -217,11 +227,13 @@ function ChatWidgetContent({
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={!message.trim() || submitted}
+                  disabled={!message.trim() || submitted || isSending}
                   className="flex-1"
                 >
                   {submitted ? (
                     "Message Sent!"
+                  ) : isSending ? (
+                    "Sending..."
                   ) : (
                     <>
                       <IconSend className="size-4 mr-2" />
@@ -230,6 +242,9 @@ function ChatWidgetContent({
                   )}
                 </Button>
               </div>
+              {error && (
+                <p className="text-xs text-destructive">{error}</p>
+              )}
             </form>
           )}
         </div>

@@ -5,6 +5,7 @@
 export { submitContactForm, type ContactFormState } from "./contact";
 export { submitApplication, type ApplicationFormState } from "./application";
 export { submitCareInquiry, type CareInquiryFormState } from "./care-inquiry";
+export { submitChatMessage } from "./chat-widget";
 
 // Audit log actions
 export {
