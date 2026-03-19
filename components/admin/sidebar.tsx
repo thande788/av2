@@ -182,7 +182,7 @@ function QuickActionsMenu({
     <Button
       variant="ghost"
       size="sm"
-      className="justify-between gap-2 border border-border/50 bg-background/70 hover:bg-primary/8"
+      className="w-full justify-between gap-2 border border-border/50 bg-background/70 hover:bg-primary/8"
     >
       <Plus className="size-4" />
       <span>New</span>
@@ -509,10 +509,15 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
             </div>
           )}
 
-          <div className={cn('mt-4 flex gap-2', collapsed && 'mt-14 flex-col items-center')}>
+          <div
+            className={cn(
+              'mt-4 flex gap-2',
+              collapsed ? 'mt-14 flex-col items-center' : 'flex-col'
+            )}
+          >
             <CommandPaletteTrigger compact={collapsed} className={cn(!collapsed && 'flex-1')} />
             <SidebarTooltip label="Quick actions" disabled={!collapsed}>
-              <div>
+              <div className={cn(!collapsed && 'w-full')}>
                 <QuickActionsMenu actions={quickActions} compact={collapsed} />
               </div>
             </SidebarTooltip>
