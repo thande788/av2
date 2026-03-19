@@ -1,220 +1,365 @@
 'use client';
 
-import Link from 'next/link';
+import { SignOutButton } from '@clerk/nextjs';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { isFeatureEnabled } from '@/lib/feature-flags';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useSyncExternalStore } from 'react';
 import {
-  LayoutDashboard,
-  FileText,
-  MessageSquare,
-  HelpCircle,
-  Star,
-  Briefcase,
   ChevronLeft,
-  Menu,
-  Users,
-  UserCheck,
-  Calendar,
-  ClipboardCheck,
+  ChevronRight,
+  ChevronsUpDown,
   LogOut,
-  DollarSign,
-  Shield,
-  BarChart3,
-  Layers,
-  CircleHelp,
-  ArrowRightLeft,
-  Heart,
-  UserRoundCheck,
+  Menu,
+  Plus,
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
   SheetTitle,
+  SheetTrigger,
 } from '@/components/ui/sheet';
-import { useState } from 'react';
-import { SignOutButton } from '@clerk/nextjs';
-import { NotificationBell } from './notification-bell';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { cn } from '@/lib/utils';
 import { CommandPaletteTrigger } from './command-palette';
+import {
+  getActiveAdminNavItem,
+  getVisibleAdminNavSections,
+  getVisibleAdminQuickActions,
+  isAdminNavItemActive,
+  type AdminBadgeCounts,
+  type AdminNavItem,
+  type VisibleAdminNavSection,
+} from './navigation-config';
+import { NotificationBell } from './notification-bell';
 
-interface NavItem {
-  title: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
-  demoOnly?: boolean;
+const SIDEBAR_STORAGE_KEY = 'admin-sidebar-collapsed';
+const SIDEBAR_STORAGE_EVENT = 'admin-sidebar-preference-change';
+
+interface AdminSidebarProps {
+  badgeCounts?: AdminBadgeCounts;
 }
 
-const navItems: NavItem[] = [
-  {
-    title: 'Dashboard',
-    href: '/admin',
-    icon: LayoutDashboard,
-  },
-  // Demo Portal Items
-  {
-    title: 'Workers',
-    href: '/admin/workers',
-    icon: Users,
-    demoOnly: true,
-  },
-  {
-    title: 'Clients',
-    href: '/admin/clients',
-    icon: UserCheck,
-    demoOnly: true,
-  },
-  {
-    title: 'Shifts',
-    href: '/admin/shifts',
-    icon: Calendar,
-    demoOnly: true,
-  },
-  {
-    title: 'Timesheets',
-    href: '/admin/timesheets',
-    icon: ClipboardCheck,
-    demoOnly: true,
-  },
-  {
-    title: 'Payroll',
-    href: '/admin/payroll',
-    icon: DollarSign,
-    demoOnly: true,
-  },
-  {
-    title: 'Compliance',
-    href: '/admin/compliance',
-    icon: FileText,
-    demoOnly: true,
-  },
-  {
-    title: 'Reviews',
-    href: '/admin/reviews',
-    icon: Star,
-    demoOnly: true,
-  },
-  {
-    title: 'Satisfaction',
-    href: '/admin/satisfaction',
-    icon: Heart,
-    demoOnly: true,
-  },
-  {
-    title: 'Shift Swaps',
-    href: '/admin/swaps',
-    icon: ArrowRightLeft,
-    demoOnly: true,
-  },
-  {
-    title: 'Caregivers',
-    href: '/admin/caregivers',
-    icon: UserRoundCheck,
-    demoOnly: true,
-  },
-  // Standard Items
-  {
-    title: 'Jobs',
-    href: '/admin/jobs',
-    icon: Briefcase,
-  },
-  {
-    title: 'Applications',
-    href: '/admin/applications',
-    icon: FileText,
-  },
-  {
-    title: 'Contacts',
-    href: '/admin/contacts',
-    icon: MessageSquare,
-  },
-  {
-    title: 'Inquiries',
-    href: '/admin/inquiries',
-    icon: HelpCircle,
-  },
-  {
-    title: 'Testimonials',
-    href: '/admin/testimonials',
-    icon: Star,
-  },
-  {
-    title: 'FAQs',
-    href: '/admin/faqs',
-    icon: CircleHelp,
-  },
-  {
-    title: 'Services',
-    href: '/admin/services',
-    icon: Layers,
-  },
-  {
-    title: 'Analytics',
-    href: '/admin/analytics',
-    icon: BarChart3,
-  },
-  {
-    title: 'Activity Log',
-    href: '/admin/audit-log',
-    icon: Shield,
-  },
-  {
-    title: 'User Management',
-    href: '/admin/users',
-    icon: Users,
-  },
-];
+function formatBadgeCount(value: number): string {
+  if (value > 99) {
+    return '99+';
+  }
 
-export function AdminSidebar() {
-  const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  
-  // Filter demo-only items based on feature flag
-  const demoEnabled = isFeatureEnabled('workerManagement');
-  const filteredNavItems = navItems.filter(
-    (item) => !item.demoOnly || demoEnabled
+  return String(value);
+}
+
+function subscribeToSidebarPreference(onStoreChange: () => void): () => void {
+  if (typeof window === 'undefined') {
+    return () => undefined;
+  }
+
+  const handleChange = () => onStoreChange();
+
+  window.addEventListener('storage', handleChange);
+  window.addEventListener(SIDEBAR_STORAGE_EVENT, handleChange);
+
+  return () => {
+    window.removeEventListener('storage', handleChange);
+    window.removeEventListener(SIDEBAR_STORAGE_EVENT, handleChange);
+  };
+}
+
+function getSidebarCollapsedSnapshot(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
+}
+
+function updateSidebarCollapsedPreference(value: boolean) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(value));
+  window.dispatchEvent(new Event(SIDEBAR_STORAGE_EVENT));
+}
+
+function isDynamicPathSegment(segment: string): boolean {
+  return /^[a-z0-9]{8,}$/i.test(segment);
+}
+
+function titleCaseSegment(segment: string): string {
+  if (segment === 'new') {
+    return 'Create';
+  }
+
+  if (segment === 'edit') {
+    return 'Edit';
+  }
+
+  return segment
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function getRouteDetailLabel(pathname: string, item: AdminNavItem): string | null {
+  const pathnameSegments = pathname.split('/').filter(Boolean);
+  const itemSegments = item.href.split('/').filter(Boolean);
+  const trailingSegments = pathnameSegments.slice(itemSegments.length);
+
+  if (trailingSegments.length === 0) {
+    return null;
+  }
+
+  const descriptiveSegments = trailingSegments.filter(
+    (segment) => !isDynamicPathSegment(segment)
   );
 
-  const navLinks = (options?: { onNavigate?: () => void; compact?: boolean }) => (
-    <nav className={cn('min-h-0 flex-1 overflow-y-auto', options?.compact ? 'px-2 py-3' : 'px-3 py-3')}>
-      <div className="space-y-1.5">
-        {filteredNavItems.map((item) => {
-          const isActive = pathname === item.href ||
-            (item.href !== '/admin' && pathname.startsWith(item.href));
+  if (descriptiveSegments.length === 0) {
+    return 'Details';
+  }
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={options?.onNavigate}
-              className={cn(
-                'flex w-full items-center rounded-lg text-sm font-medium transition-all',
-                isActive
-                  ? 'border border-primary/30 bg-primary/15 text-primary'
-                  : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground',
-                options?.compact
-                  ? 'justify-center px-2'
-                  : 'gap-3 px-3 py-2.5'
-              )}
-              title={options?.compact ? item.title : undefined}
-            >
-              <item.icon className={cn('size-5 shrink-0', isActive && 'text-primary')} />
-              {!options?.compact && <span className="min-w-0 truncate">{item.title}</span>}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+  return descriptiveSegments.map(titleCaseSegment).join(' / ');
+}
+
+function SidebarTooltip({
+  children,
+  label,
+  disabled,
+}: {
+  children: React.ReactNode;
+  label: string;
+  disabled?: boolean;
+}) {
+  if (disabled) {
+    return <>{children}</>;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side="right" sideOffset={10}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function QuickActionsMenu({
+  actions,
+  compact = false,
+  onNavigate,
+}: {
+  actions: ReturnType<typeof getVisibleAdminQuickActions>;
+  compact?: boolean;
+  onNavigate?: () => void;
+}) {
+  const router = useRouter();
+
+  const trigger = compact ? (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="hover:bg-primary/10"
+      aria-label="Open quick actions"
+    >
+      <Plus className="size-5" />
+    </Button>
+  ) : (
+    <Button variant="outline" size="sm" className="justify-between gap-2">
+      <Plus className="size-4" />
+      <span>New</span>
+      <ChevronsUpDown className="size-3.5 text-muted-foreground" />
+    </Button>
   );
 
   return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent align={compact ? 'end' : 'start'} className="w-64">
+        <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {actions.map((action) => (
+          <DropdownMenuItem
+            key={action.id}
+            onSelect={() => {
+              onNavigate?.();
+              router.push(action.href);
+            }}
+          >
+            <action.icon className="size-4" />
+            <span>{action.title}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
+  const pathname = usePathname();
+  const collapsed = useSyncExternalStore(
+    subscribeToSidebarPreference,
+    getSidebarCollapsedSnapshot,
+    () => false
+  );
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const sections = getVisibleAdminNavSections(isFeatureEnabled);
+  const quickActions = getVisibleAdminQuickActions(isFeatureEnabled);
+  const activeItem = getActiveAdminNavItem(pathname, sections);
+  const activeSection = sections.find((section) =>
+    section.items.some((item) => item.id === activeItem?.id)
+  );
+  const routeDetail = activeItem ? getRouteDetailLabel(pathname, activeItem) : null;
+
+  const renderNavItem = ({
+    item,
+    compact,
+    onNavigate,
+  }: {
+    item: AdminNavItem;
+    compact: boolean;
+    onNavigate?: () => void;
+  }) => {
+    const isActive = isAdminNavItemActive(item, pathname);
+    const badgeCount = item.badgeKey ? badgeCounts[item.badgeKey] ?? 0 : 0;
+
+    const link = (
+      <Link
+        href={item.href}
+        onClick={onNavigate}
+        aria-current={isActive ? 'page' : undefined}
+        className={cn(
+          'group relative flex w-full items-center overflow-hidden rounded-2xl text-sm font-medium transition-all duration-200',
+          compact ? 'h-11 justify-center px-2' : 'gap-3 px-3 py-2.5',
+          isActive
+            ? 'bg-primary/12 text-primary shadow-sm ring-1 ring-primary/20'
+            : 'text-muted-foreground hover:bg-background/90 hover:text-foreground hover:shadow-sm'
+        )}
+      >
+        <span
+          className={cn(
+            'absolute left-0 top-2 bottom-2 w-1 rounded-r-full transition-colors',
+            isActive ? 'bg-primary' : 'bg-transparent group-hover:bg-primary/20'
+          )}
+        />
+        <div className="relative shrink-0">
+          <item.icon className={cn('size-5', isActive && 'text-primary')} />
+          {compact && badgeCount > 0 && (
+            <span className="absolute -right-1.5 -top-1.5 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+              {badgeCount > 9 ? '9+' : badgeCount}
+            </span>
+          )}
+        </div>
+        {!compact && (
+          <>
+            <div className="min-w-0 flex-1">
+              <span className="block truncate">{item.title}</span>
+            </div>
+            {badgeCount > 0 && (
+              <Badge variant={item.badgeVariant ?? 'secondary'}>
+                {formatBadgeCount(badgeCount)}
+              </Badge>
+            )}
+            {isActive && <ChevronRight className="size-4 text-primary/80" />}
+          </>
+        )}
+      </Link>
+    );
+
+    return (
+      <SidebarTooltip
+        key={item.id}
+        label={
+          badgeCount > 0
+            ? `${item.title} (${formatBadgeCount(badgeCount)})`
+            : item.title
+        }
+        disabled={!compact}
+      >
+        {link}
+      </SidebarTooltip>
+    );
+  };
+
+  const renderSection = (
+    section: VisibleAdminNavSection,
+    options?: { compact?: boolean; onNavigate?: () => void }
+  ) => {
+    const compact = options?.compact ?? false;
+    const sectionIsActive = section.items.some((item) =>
+      isAdminNavItemActive(item, pathname)
+    );
+
+    return (
+      <div key={section.id} className={cn('space-y-2', compact && 'space-y-1')}>
+        {compact ? (
+          <div className="mx-auto h-px w-8 bg-border/70" />
+        ) : (
+          <div className="px-3 pt-1">
+            <div className="flex items-center justify-between gap-2">
+              <p
+                className={cn(
+                  'text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/85',
+                  sectionIsActive && 'text-primary'
+                )}
+              >
+                {section.title}
+              </p>
+              {section.badgeLabel && (
+                <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                  {section.badgeLabel}
+                </Badge>
+              )}
+            </div>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground/80">
+              {section.description}
+            </p>
+          </div>
+        )}
+        <div className={cn('space-y-1', compact && 'space-y-0.5')}>
+          {section.items.map((item) =>
+            renderNavItem({ item, compact, onNavigate: options?.onNavigate })
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const navigation = (options?: { compact?: boolean; onNavigate?: () => void }) => {
+    const compact = options?.compact ?? false;
+
+    return (
+      <nav
+        className={cn(
+          'min-h-0 flex-1 overflow-y-auto',
+          compact ? 'px-2 py-3' : 'px-3 py-4'
+        )}
+      >
+        <div className={cn('space-y-4', compact && 'space-y-3')}>
+          {sections.map((section) => renderSection(section, options))}
+        </div>
+      </nav>
+    );
+  };
+
+  return (
     <>
-      {/* Mobile Header Bar */}
-      <div className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-primary/20 bg-primary/5 px-4 lg:hidden">
+      <div className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-primary/20 bg-background/95 px-4 backdrop-blur lg:hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="hover:bg-primary/10">
@@ -225,27 +370,73 @@ export function AdminSidebar() {
           <SheetContent side="left" className="w-[min(22rem,92vw)] p-0" showCloseButton={false}>
             <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
             <div className="flex h-full flex-col bg-background">
-              <div className="flex h-14 items-center border-b border-primary/20 px-4">
-                <Link href="/admin" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
-                  <div className="size-9 overflow-hidden rounded-lg">
-                    <Image
-                      src="/angel_pink.png"
-                      alt="Angel Touch"
-                      width={200}
-                      height={200}
-                      className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
-                    />
+              <div className="border-b border-primary/20 px-4 py-4">
+                <div className="flex items-center justify-between gap-3">
+                  <Link href="/admin" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
+                    <div className="size-9 overflow-hidden rounded-lg">
+                      <Image
+                        src="/angel_pink.png"
+                        alt="Angel Touch"
+                        width={200}
+                        height={200}
+                        className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                      />
+                    </div>
+                    <div>
+                      <span className="block font-semibold text-primary">Admin Portal</span>
+                      <span className="block text-xs text-muted-foreground">Navigate work queues and content</span>
+                    </div>
+                  </Link>
+                  <QuickActionsMenu actions={quickActions} compact onNavigate={() => setMobileOpen(false)} />
+                </div>
+              </div>
+
+              <div className="border-b border-primary/10 px-3 py-3">
+                <div className="flex items-center gap-2">
+                  <CommandPaletteTrigger className="flex-1" />
+                  <NotificationBell />
+                </div>
+              </div>
+
+              {activeItem && activeSection && (
+                <div className="border-b border-primary/10 px-3 py-3">
+                  <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">
+                      {activeSection.title}
+                    </p>
+                    <div className="mt-2 flex items-start gap-3">
+                      <div className="rounded-2xl bg-primary/10 p-2.5">
+                        <activeItem.icon className="size-5 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground">{activeItem.title}</p>
+                        {routeDetail && (
+                          <p className="text-sm text-muted-foreground">{routeDetail}</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <span className="font-semibold text-primary">Admin Portal</span>
-                </Link>
+                </div>
+              )}
+
+              {navigation({ onNavigate: () => setMobileOpen(false) })}
+
+              <div className="border-t border-primary/10 p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  {quickActions.slice(0, 4).map((action) => (
+                    <Button key={action.id} asChild variant="outline" size="sm" className="justify-start">
+                      <Link href={action.href} onClick={() => setMobileOpen(false)}>
+                        <action.icon className="size-4" />
+                        <span>{action.title}</span>
+                      </Link>
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <div className="border-b border-primary/10 p-3">
-                <CommandPaletteTrigger />
-              </div>
-              {navLinks({ onNavigate: () => setMobileOpen(false) })}
+
               <div className="border-t border-primary/10 p-3">
                 <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500">
+                  <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500">
                     <LogOut className="size-5 shrink-0" />
                     <span>Sign Out</span>
                   </button>
@@ -254,6 +445,7 @@ export function AdminSidebar() {
             </div>
           </SheetContent>
         </Sheet>
+
         <Link href="/admin" className="flex min-w-0 items-center gap-2">
           <div className="size-8 overflow-hidden rounded-lg">
             <Image
@@ -264,71 +456,126 @@ export function AdminSidebar() {
               className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
             />
           </div>
-          <span className="truncate font-semibold text-primary text-sm">Admin Portal</span>
+          <div className="min-w-0">
+            <span className="block truncate text-sm font-semibold text-primary">Admin Portal</span>
+            {activeItem && (
+              <span className="block truncate text-xs text-muted-foreground">{activeItem.title}</span>
+            )}
+          </div>
         </Link>
-        <div className="ml-auto">
+
+        <div className="ml-auto flex items-center gap-1">
+          <CommandPaletteTrigger compact />
+          <QuickActionsMenu actions={quickActions} compact />
           <NotificationBell />
         </div>
       </div>
 
       <aside
         className={cn(
-          'sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-primary/40 bg-primary/5 transition-all duration-300 lg:flex lg:flex-col',
-          collapsed ? 'w-20' : 'w-72'
+          'sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-primary/40 bg-linear-to-b from-primary/10 via-background to-background transition-all duration-300 lg:flex lg:flex-col',
+          collapsed ? 'w-24' : 'w-80'
         )}
       >
-        {/* Header */}
-        <div className={cn('relative flex h-16 items-center border-b border-primary/20 px-4', collapsed ? 'justify-center' : 'justify-between')}>
-          <Link href="/admin" className={cn('flex min-w-0 items-center gap-2', collapsed && 'justify-center')}>
-            <div className="size-9 overflow-hidden rounded-lg">
-              <Image
-                src="/angel_pink.png"
-                alt="Angel Touch"
-                width={200}
-                height={200}
-                className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
-              />
+        <div className={cn('border-b border-primary/20 px-4 py-4', collapsed && 'px-3')}>
+          <div className={cn('flex items-center gap-3', collapsed ? 'justify-center' : 'justify-between')}>
+            <Link href="/admin" className={cn('flex min-w-0 items-center gap-3', collapsed && 'justify-center')}>
+              <div className="size-10 overflow-hidden rounded-xl ring-1 ring-primary/10">
+                <Image
+                  src="/angel_pink.png"
+                  alt="Angel Touch"
+                  width={200}
+                  height={200}
+                  className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                />
+              </div>
+              {!collapsed && (
+                <div className="min-w-0">
+                  <span className="block truncate font-semibold text-primary">Admin Portal</span>
+                  <span className="block truncate text-xs text-muted-foreground">Operations workspace</span>
+                </div>
+              )}
+            </Link>
+
+            <div className={cn('flex items-center gap-1', collapsed && 'absolute right-3 top-3')}>
+              <SidebarTooltip label="Notifications" disabled={!collapsed}>
+                <div>
+                  <NotificationBell />
+                </div>
+              </SidebarTooltip>
+              <SidebarTooltip label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} disabled={!collapsed}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => updateSidebarCollapsedPreference(!collapsed)}
+                  className="hover:bg-primary/10"
+                  aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                >
+                  {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
+                </Button>
+              </SidebarTooltip>
             </div>
-            {!collapsed && <span className="truncate font-semibold text-primary">Admin Portal</span>}
-          </Link>
-          <div className={cn('flex items-center gap-1', collapsed && 'absolute right-2')}>
-            {!collapsed && <NotificationBell />}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCollapsed(!collapsed)}
-              className="hover:bg-primary/10"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
-            </Button>
           </div>
+
+          {!collapsed && activeItem && activeSection && (
+            <div className="mt-4 rounded-[1.5rem] border border-primary/20 bg-background/80 p-3 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">
+                    {activeSection.title}
+                  </p>
+                  <p className="mt-1 font-semibold text-foreground">{activeItem.title}</p>
+                  {routeDetail && (
+                    <p className="mt-1 text-sm text-muted-foreground">{routeDetail}</p>
+                  )}
+                </div>
+                <div className="rounded-2xl bg-primary/10 p-2.5">
+                  <activeItem.icon className="size-5 text-primary" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className={cn('mt-4 flex gap-2', collapsed && 'mt-14 flex-col items-center')}>
+            <CommandPaletteTrigger compact={collapsed} className={cn(!collapsed && 'flex-1')} />
+            <SidebarTooltip label="Quick actions" disabled={!collapsed}>
+              <div>
+                <QuickActionsMenu actions={quickActions} compact={collapsed} />
+              </div>
+            </SidebarTooltip>
+          </div>
+
+          {!collapsed && (
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {quickActions.slice(0, 4).map((action) => (
+                <Button key={action.id} asChild variant="outline" size="sm" className="justify-start">
+                  <Link href={action.href}>
+                    <action.icon className="size-4" />
+                    <span>{action.title}</span>
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Command Palette - expanded only */}
-        {!collapsed && (
-          <div className="border-b border-primary/10 p-3">
-            <CommandPaletteTrigger />
-          </div>
-        )}
-
-        {/* Navigation + Footer */}
         <div className="flex min-h-0 flex-1 flex-col">
-          {navLinks({ compact: collapsed })}
+          {navigation({ compact: collapsed })}
           <div className="border-t border-primary/10 p-3">
-            <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-              <button
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-                  'text-muted-foreground hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500',
-                  collapsed && 'justify-center px-2'
-                )}
-                title={collapsed ? 'Sign Out' : undefined}
-              >
-                <LogOut className="size-5 shrink-0" />
-                {!collapsed && <span>Sign Out</span>}
-              </button>
-            </SignOutButton>
+            <SidebarTooltip label="Sign Out" disabled={!collapsed}>
+              <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+                <button
+                  className={cn(
+                    'flex w-full items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition-all',
+                    collapsed ? 'justify-center' : 'gap-3',
+                    'text-muted-foreground hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500'
+                  )}
+                >
+                  <LogOut className="size-5 shrink-0" />
+                  {!collapsed && <span>Sign Out</span>}
+                </button>
+              </SignOutButton>
+            </SidebarTooltip>
           </div>
         </div>
       </aside>

@@ -1,7 +1,7 @@
 import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
-import { AdminSidebar } from '@/components/admin/sidebar';
+import { AdminSidebarShell } from '@/components/admin/sidebar-shell';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { LogoWatermark } from '@/components/shared/logo-watermark';
 import { Toaster } from '@/components/ui/sonner';
@@ -93,7 +93,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background lg:h-screen lg:overflow-hidden lg:flex-row">
-      <AdminSidebar />
+      <AdminSidebarShell />
       <main className="relative min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <LogoWatermark />
         <div className="relative z-10 mx-auto w-full max-w-[160rem] px-5 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-10 lg:py-10">

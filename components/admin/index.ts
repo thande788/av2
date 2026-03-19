@@ -1,4 +1,4 @@
-export { AdminSidebar } from './sidebar';
+export { AdminSidebarShell as AdminSidebar } from './sidebar-shell';
 export { StatCard } from './stat-card';
 export { DataTable, StatusBadge, type Column } from './data-table';
 export { TodayScheduleWidget } from './today-schedule-widget';

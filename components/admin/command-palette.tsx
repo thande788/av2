@@ -1,7 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Keyboard, Moon, Search, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
 import {
   CommandDialog,
   CommandEmpty,
@@ -12,32 +15,14 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import {
-  LayoutDashboard,
-  FileText,
-  MessageSquare,
-  HelpCircle,
-  Star,
-  Briefcase,
-  Users,
-  UserCheck,
-  Calendar,
-  ClipboardCheck,
-  DollarSign,
-  Shield,
-  BarChart3,
-  Plus,
-  Search,
-  Moon,
-  Sun,
-  Keyboard,
-  Layers,
-  CircleHelp,
-} from 'lucide-react';
-import { useTheme } from 'next-themes';
+  getVisibleAdminNavSections,
+  getVisibleAdminQuickActions,
+} from './navigation-config';
 
-interface CommandItem {
+interface PaletteItem {
   id: string;
   title: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -45,68 +30,80 @@ interface CommandItem {
   group: string;
   keywords?: string[];
   shortcut?: string;
-  demoOnly?: boolean;
+}
+
+function isMacPlatform(): boolean {
+  return typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC');
+}
+
+export function toggleAdminCommandPalette() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  document.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: 'k',
+      metaKey: isMacPlatform(),
+      ctrlKey: !isMacPlatform(),
+      bubbles: true,
+    })
+  );
 }
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { setTheme } = useTheme();
-  const demoEnabled = isFeatureEnabled('workerManagement');
 
-  // Open with Cmd+K / Ctrl+K
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
+    const down = (event: KeyboardEvent) => {
+      if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
         setOpen((prev) => !prev);
       }
     };
+
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
   }, []);
 
-  const navigate = useCallback(
-    (href: string) => {
-      setOpen(false);
-      router.push(href);
-    },
-    [router]
+  const navigate = (href: string) => {
+    setOpen(false);
+    router.push(href);
+  };
+
+  const navigationSections = getVisibleAdminNavSections(isFeatureEnabled);
+  const navigationItems: PaletteItem[] = navigationSections.flatMap((section) =>
+    section.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      icon: item.icon,
+      action: () => navigate(item.href),
+      group: section.title,
+      keywords: item.keywords,
+      shortcut: item.shortcut,
+    }))
   );
 
-  const navigationItems: CommandItem[] = [
-    { id: 'dashboard', title: 'Dashboard', icon: LayoutDashboard, action: () => navigate('/admin'), group: 'Navigation', shortcut: 'G D' },
-    { id: 'workers', title: 'Workers', icon: Users, action: () => navigate('/admin/workers'), group: 'Navigation', demoOnly: true },
-    { id: 'clients', title: 'Clients', icon: UserCheck, action: () => navigate('/admin/clients'), group: 'Navigation', demoOnly: true },
-    { id: 'shifts', title: 'Shifts', icon: Calendar, action: () => navigate('/admin/shifts'), group: 'Navigation', demoOnly: true },
-    { id: 'timesheets', title: 'Timesheets', icon: ClipboardCheck, action: () => navigate('/admin/timesheets'), group: 'Navigation', demoOnly: true },
-    { id: 'payroll', title: 'Payroll', icon: DollarSign, action: () => navigate('/admin/payroll'), group: 'Navigation', demoOnly: true },
-    { id: 'jobs', title: 'Jobs', icon: Briefcase, action: () => navigate('/admin/jobs'), group: 'Navigation' },
-    { id: 'applications', title: 'Applications', icon: FileText, action: () => navigate('/admin/applications'), group: 'Navigation' },
-    { id: 'contacts', title: 'Contacts', icon: MessageSquare, action: () => navigate('/admin/contacts'), group: 'Navigation' },
-    { id: 'inquiries', title: 'Inquiries', icon: HelpCircle, action: () => navigate('/admin/inquiries'), group: 'Navigation' },
-    { id: 'testimonials', title: 'Testimonials', icon: Star, action: () => navigate('/admin/testimonials'), group: 'Navigation' },
-    { id: 'faqs', title: 'FAQs', icon: CircleHelp, action: () => navigate('/admin/faqs'), group: 'Navigation' },
-    { id: 'services', title: 'Services', icon: Layers, action: () => navigate('/admin/services'), group: 'Navigation' },
-    { id: 'analytics', title: 'Analytics', icon: BarChart3, action: () => navigate('/admin/analytics'), group: 'Navigation' },
-    { id: 'audit-log', title: 'Activity Log', icon: Shield, action: () => navigate('/admin/audit-log'), group: 'Navigation' },
-    { id: 'user-management', title: 'User Management', icon: Users, action: () => navigate('/admin/users'), group: 'Navigation' },
-  ];
+  const quickActions: PaletteItem[] = getVisibleAdminQuickActions(isFeatureEnabled).map((action) => ({
+    id: action.id,
+    title: action.title,
+    icon: action.icon,
+    action: () => navigate(action.href),
+    group: 'Quick Actions',
+    keywords: action.keywords,
+  }));
 
-  const quickActions: CommandItem[] = [
-    { id: 'new-job', title: 'Create New Job', icon: Plus, action: () => navigate('/admin/jobs/new'), group: 'Quick Actions', keywords: ['add', 'create', 'job'] },
-    { id: 'new-shift', title: 'Create New Shift', icon: Plus, action: () => navigate('/admin/shifts/new'), group: 'Quick Actions', keywords: ['add', 'schedule'], demoOnly: true },
-    { id: 'new-faq', title: 'Create New FAQ', icon: Plus, action: () => navigate('/admin/faqs/new'), group: 'Quick Actions', keywords: ['add', 'create', 'faq', 'question'] },
-    { id: 'new-testimonial', title: 'Add Testimonial', icon: Plus, action: () => navigate('/admin/testimonials/new'), group: 'Quick Actions', keywords: ['add', 'create', 'testimonial', 'review'] },
-    { id: 'new-service-category', title: 'Add Service Category', icon: Plus, action: () => navigate('/admin/services/new'), group: 'Quick Actions', keywords: ['add', 'create', 'service', 'category'] },
-  ];
-
-  const themeActions: CommandItem[] = [
+  const themeActions: PaletteItem[] = [
     {
       id: 'light-mode',
       title: 'Switch to Light Mode',
       icon: Sun,
-      action: () => { setTheme('light'); setOpen(false); },
+      action: () => {
+        setTheme('light');
+        setOpen(false);
+      },
       group: 'Appearance',
       keywords: ['theme', 'light', 'bright'],
     },
@@ -114,13 +111,16 @@ export function CommandPalette() {
       id: 'dark-mode',
       title: 'Switch to Dark Mode',
       icon: Moon,
-      action: () => { setTheme('dark'); setOpen(false); },
+      action: () => {
+        setTheme('dark');
+        setOpen(false);
+      },
       group: 'Appearance',
       keywords: ['theme', 'dark', 'night'],
     },
   ];
 
-  const helpActions: CommandItem[] = [
+  const helpActions: PaletteItem[] = [
     {
       id: 'shortcuts',
       title: 'Keyboard Shortcuts',
@@ -134,22 +134,28 @@ export function CommandPalette() {
     },
   ];
 
-  const allItems = [...navigationItems, ...quickActions, ...themeActions, ...helpActions]
-    .filter((item) => !item.demoOnly || demoEnabled);
-
-  const groups = ['Navigation', 'Quick Actions', 'Appearance', 'Help'];
+  const allItems = [...navigationItems, ...quickActions, ...themeActions, ...helpActions];
+  const groups = [
+    ...navigationSections.map((section) => section.title),
+    'Quick Actions',
+    'Appearance',
+    'Help',
+  ];
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen} title="Command Palette">
       <CommandInput placeholder="Type a command or search..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        {groups.map((group, i) => {
+        {groups.map((group, index) => {
           const items = allItems.filter((item) => item.group === group);
-          if (items.length === 0) return null;
+          if (items.length === 0) {
+            return null;
+          }
+
           return (
             <div key={group}>
-              {i > 0 && <CommandSeparator />}
+              {index > 0 && <CommandSeparator />}
               <CommandGroup heading={group}>
                 {items.map((item) => (
                   <CommandItem
@@ -173,20 +179,39 @@ export function CommandPalette() {
   );
 }
 
-/**
- * Trigger button to open the command palette.
- * Can be placed in sidebar or header.
- */
-export function CommandPaletteTrigger() {
-  const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC');
+export function CommandPaletteTrigger({
+  compact = false,
+  className,
+}: {
+  compact?: boolean;
+  className?: string;
+}) {
+  const isMac = isMacPlatform();
+
+  if (compact) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleAdminCommandPalette}
+        className={cn('hover:bg-primary/10', className)}
+        aria-label="Open command palette"
+      >
+        <Search className="size-5" />
+      </Button>
+    );
+  }
 
   return (
     <button
-      onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: isMac, ctrlKey: !isMac }))}
-      className="flex w-full items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+      onClick={toggleAdminCommandPalette}
+      className={cn(
+        'flex w-full items-center gap-2 rounded-2xl border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground',
+        className
+      )}
     >
       <Search className="size-4" />
-      <span className="flex-1 text-left">Search...</span>
+      <span className="flex-1 text-left">Search navigation or actions...</span>
       <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
         <span className="text-xs">{isMac ? '⌘' : 'Ctrl'}</span>K
       </kbd>
