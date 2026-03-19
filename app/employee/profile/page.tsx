@@ -10,13 +10,13 @@ import {
   IconCalendar,
   IconCertificate,
   IconLanguage,
-  IconEdit,
   IconShieldCheck,
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { formatDateUS } from '@/lib/utils';
 import { getCurrentWorkerWithProfile } from '@/lib/auth';
 import { MarketingProfileForm } from '@/components/employee/marketing-profile-form';
+import { EditProfileDialog } from '@/components/employee/edit-profile-dialog';
 
 export const metadata = {
   title: 'My Profile',
@@ -49,10 +49,16 @@ export default async function EmployeeProfilePage() {
             View and manage your profile information
           </p>
         </div>
-        <Button variant="outline" disabled>
-          <IconEdit className="size-4 mr-2" />
-          Edit Profile
-        </Button>
+        <EditProfileDialog
+          initialData={{
+            phone: worker.user.phone,
+            city: worker.city,
+            state: worker.state,
+            zip: worker.zip,
+            skills: worker.skills,
+            languages: worker.languages,
+          }}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
