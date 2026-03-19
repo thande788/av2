@@ -100,7 +100,8 @@ In Vercel Dashboard → Settings → Environment Variables, add:
 ### Required Variables
 
 ```
-DATABASE_URL=postgresql://user:password@host.neon.tech/neondb?sslmode=require
+DATABASE_URL=postgresql://user:password@host-pooler.neon.tech/neondb?sslmode=require
+DIRECT_URL=postgresql://user:password@host.neon.tech/neondb?sslmode=require
 
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_xxxxx
 CLERK_SECRET_KEY=sk_live_xxxxx
@@ -145,15 +146,43 @@ ANALYZE=false
 
 ## Step 8: Database Migration
 
-After deploying, run the database migration:
+Migrations run automatically during `pnpm build` via `prisma migrate deploy`. For this to work, `DIRECT_URL` must be set in your Vercel environment variables (the non-pooled Neon connection string).
+
+### Initial Setup (First Deploy)
+
+If the database was previously set up with `prisma db push` (no migration history), you need to baseline existing migrations:
 
 ```bash
-# Push schema to production database
-DATABASE_URL="your-production-url" pnpm db:push
+# 1. Push the current schema to create all tables
+DATABASE_URL="your-direct-url" pnpm prisma db push --accept-data-loss
 
-# Optional: Seed with initial data
-DATABASE_URL="your-production-url" pnpm db:seed
+# 2. Mark all existing migrations as applied (baseline)
+DATABASE_URL="your-pooled-url" pnpm prisma migrate resolve --applied <migration_name>
+# Repeat for each migration in prisma/migrations/
 ```
+
+After baselining, future migrations will apply automatically on deploy.
+
+### Manual Migration (if needed)
+
+```bash
+# Check migration status
+DATABASE_URL="your-pooled-url" pnpm prisma migrate status
+
+# Apply pending migrations
+DIRECT_URL="your-direct-url" pnpm prisma migrate deploy
+```
+
+### Creating New Migrations (Development)
+
+```bash
+# After editing prisma/schema.prisma:
+pnpm db:migrate
+# This creates a migration file and applies it locally
+```
+
+> **Important:** Never use `prisma db push` in production after adopting migrations.
+> Use `prisma migrate deploy` (runs automatically in the build step).
 
 ## Step 9: Configure Domain
 
@@ -212,16 +241,20 @@ To rollback to a previous deployment:
 
 ### Build Fails with Prisma Error
 
-Ensure `prisma generate` runs during build:
+Ensure `prisma generate` and `prisma migrate deploy` run during build:
 
 ```json
 {
   "scripts": {
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
     "postinstall": "prisma generate"
   }
 }
 ```
+
+If migrations fail with table/column errors, the database may need baselining (see Step 8).
+
+Ensure `DIRECT_URL` is set in Vercel — migrations require a non-pooled connection.
 
 ### Clerk Webhook 401 Errors
 
@@ -230,8 +263,10 @@ Ensure `prisma generate` runs during build:
 
 ### Database Connection Issues
 
-- Verify `DATABASE_URL` includes `?sslmode=require` for Neon
+- Verify `DATABASE_URL` (pooled) includes `?sslmode=require` for Neon
+- Verify `DIRECT_URL` (non-pooled) is set for migrations
 - Check Neon compute is not suspended (auto-suspends after inactivity)
+- The pooled URL contains `-pooler` in the hostname; the direct URL does not
 
 ### File Upload Fails
 

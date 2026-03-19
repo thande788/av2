@@ -113,7 +113,9 @@ async function main() {
   }
 
   // 2. Delete testimonials by demo users
-  await prisma.testimonial.deleteMany({ where: { submittedById: { in: demoUserIds } } });
+  await prisma.testimonial.deleteMany({ where: { submittedById: { in: demoUserIds } } }).catch(() => {
+    console.log(`   Skipped testimonials cleanup (column not found)`);
+  });
 
   // 3. Now delete the portal users (cascades to Worker/Client)
   const deleted = await prisma.portalUser.deleteMany({
