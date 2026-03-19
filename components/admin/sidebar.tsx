@@ -456,50 +456,86 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
       <aside
         className={cn(
           'sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-primary/40 bg-linear-to-b from-primary/10 via-background to-background transition-all duration-300 lg:flex lg:flex-col',
-          collapsed ? 'w-24' : 'w-80'
+          collapsed ? 'w-28' : 'w-80'
         )}
       >
         <div className={cn('border-b border-primary/20 px-4 py-4', collapsed && 'px-3')}>
-          <div className={cn('flex items-center gap-3', collapsed ? 'justify-center' : 'justify-between')}>
-            <Link href="/admin" className={cn('flex min-w-0 items-center gap-3', collapsed && 'justify-center')}>
-              <div className="size-10 overflow-hidden rounded-xl ring-1 ring-primary/10">
-                <Image
-                  src="/angel_pink.png"
-                  alt="Angel Touch"
-                  width={200}
-                  height={200}
-                  className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
-                />
+          {collapsed ? (
+            <div className="flex flex-col items-center gap-3">
+              <Link href="/admin" className="flex justify-center">
+                <div className="size-12 overflow-hidden rounded-2xl border border-primary/15 bg-background/80 shadow-sm ring-1 ring-primary/10">
+                  <Image
+                    src="/angel_pink.png"
+                    alt="Angel Touch"
+                    width={200}
+                    height={200}
+                    className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                  />
+                </div>
+              </Link>
+
+              <div className="grid w-full grid-cols-2 gap-2 rounded-2xl border border-border/50 bg-background/60 p-1.5">
+                <SidebarTooltip label="Notifications">
+                  <div className="flex justify-center">
+                    <NotificationBell />
+                  </div>
+                </SidebarTooltip>
+                <SidebarTooltip label="Expand sidebar">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => updateSidebarCollapsedPreference(!collapsed)}
+                    className="hover:bg-primary/10"
+                    aria-label="Expand sidebar"
+                  >
+                    <Menu className="size-5" />
+                  </Button>
+                </SidebarTooltip>
               </div>
-              {!collapsed && (
+
+              <div className="grid w-full grid-cols-2 gap-2 rounded-2xl border border-border/50 bg-background/60 p-1.5">
+                <CommandPaletteTrigger compact />
+                <SidebarTooltip label="Quick actions">
+                  <div className="flex justify-center">
+                    <QuickActionsMenu actions={quickActions} compact />
+                  </div>
+                </SidebarTooltip>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-3">
+              <Link href="/admin" className="flex min-w-0 items-center gap-3">
+                <div className="size-10 overflow-hidden rounded-xl ring-1 ring-primary/10">
+                  <Image
+                    src="/angel_pink.png"
+                    alt="Angel Touch"
+                    width={200}
+                    height={200}
+                    className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                  />
+                </div>
                 <div className="min-w-0">
                   <span className="block truncate font-semibold text-primary">Admin Portal</span>
                   {activeItem && (
                     <span className="block truncate text-xs text-muted-foreground">{activeItem.title}</span>
                   )}
                 </div>
-              )}
-            </Link>
+              </Link>
 
-            <div className={cn('flex items-center gap-1', collapsed && 'absolute right-3 top-3')}>
-              <SidebarTooltip label="Notifications" disabled={!collapsed}>
-                <div>
-                  <NotificationBell />
-                </div>
-              </SidebarTooltip>
-              <SidebarTooltip label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} disabled={!collapsed}>
+              <div className="flex items-center gap-1">
+                <NotificationBell />
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => updateSidebarCollapsedPreference(!collapsed)}
                   className="hover:bg-primary/10"
-                  aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                  aria-label="Collapse sidebar"
                 >
-                  {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
+                  <ChevronLeft className="size-5" />
                 </Button>
-              </SidebarTooltip>
+              </div>
             </div>
-          </div>
+          )}
 
           {!collapsed && activeContextLabel && (
             <div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2.5">
