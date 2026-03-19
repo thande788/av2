@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DataTable, type Column } from '@/components/admin/data-table';
+import { DataTable, type Column, type TableFilter, type BulkAction } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,9 +18,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { formatDateUS } from '@/lib/utils';
+import { bulkUpdateInquiryStatus, bulkDeleteInquiries } from '@/app/actions/audit-log';
+import { SendEmailDialog } from '@/components/admin/send-email-dialog';
+import { toast } from 'sonner';
 import type { ServiceInquiry, InquiryStatus } from '@prisma/client';
 import { updateInquiryStatus } from './actions';
-import { Mail, Phone, Calendar, Clock, Save, Loader2 } from 'lucide-react';
+import { Mail, Phone, Calendar, Clock, Save, Loader2, Trash2, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const statusColors: Record<InquiryStatus, string> = {
@@ -117,14 +120,54 @@ export function InquiriesTable({ inquiries }: { inquiries: ServiceInquiry[] }) {
     setIsSaving(true);
     try {
       await updateInquiryStatus(selectedInquiry.id, status);
+      toast.success(`Status updated to ${statusLabels[status]}`);
       router.refresh();
       setSelectedInquiry(null);
-    } catch (error) {
-      console.error('Failed to update inquiry:', error);
+    } catch {
+      toast.error('Failed to update inquiry');
     } finally {
       setIsSaving(false);
     }
   };
+
+  const filters: TableFilter[] = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: statusOptions.map((s) => ({ label: statusLabels[s], value: s })),
+    },
+  ];
+
+  const bulkActions: BulkAction<ServiceInquiry>[] = [
+    {
+      label: 'Mark Contacted',
+      icon: CheckCircle,
+      action: async (ids) => {
+        try {
+          await bulkUpdateInquiryStatus(ids, 'CONTACTED');
+          toast.success(`${ids.length} inquiry(ies) marked as Contacted`);
+          router.refresh();
+        } catch {
+          toast.error('Failed to update inquiries');
+        }
+      },
+    },
+    {
+      label: 'Delete',
+      icon: Trash2,
+      variant: 'destructive',
+      action: async (ids) => {
+        if (!confirm(`Delete ${ids.length} inquiry(ies)? This cannot be undone.`)) return;
+        try {
+          await bulkDeleteInquiries(ids);
+          toast.success(`${ids.length} inquiry(ies) deleted`);
+          router.refresh();
+        } catch {
+          toast.error('Failed to delete inquiries');
+        }
+      },
+    },
+  ];
 
   return (
     <>
@@ -134,6 +177,11 @@ export function InquiriesTable({ inquiries }: { inquiries: ServiceInquiry[] }) {
         searchKeys={['name', 'email', 'phone', 'serviceType']}
         onRowClick={handleRowClick}
         emptyMessage="No service inquiries yet."
+        filters={filters}
+        selectable
+        bulkActions={bulkActions}
+        exportable
+        exportFilename="inquiries"
       />
 
       <Dialog
@@ -265,6 +313,18 @@ export function InquiriesTable({ inquiries }: { inquiries: ServiceInquiry[] }) {
                 >
                   Close
                 </Button>
+                <SendEmailDialog
+                  toEmail={selectedInquiry.email}
+                  toName={selectedInquiry.name}
+                  entity="ServiceInquiry"
+                  entityId={selectedInquiry.id}
+                  trigger={
+                    <Button variant="outline">
+                      <Mail className="size-4 mr-2" />
+                      Email
+                    </Button>
+                  }
+                />
                 <Button asChild>
                   <a href={`tel:${selectedInquiry.phone}`}>
                     <Phone className="size-4 mr-2" />

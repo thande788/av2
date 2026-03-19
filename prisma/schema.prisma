@@ -921,31 +921,44 @@ model PricingTier {
 }
 
 // =============================================================================
-// NOTES FOR IMPLEMENTATION
+// AUDIT LOG — tracks all admin actions for compliance
 // =============================================================================
-//
-// 1. File Uploads:
-//    - Use cloud storage (AWS S3, Cloudflare R2, or Vercel Blob)
-//    - Store URLs in resumeUrl, coverLetterUrl fields
-//    - Implement signed URLs for security
-//
-// 2. Email Integration:
-//    - Use Resend, SendGrid, or AWS SES for transactional emails
-//    - Send confirmation to applicants on submission
-//    - Send notification to HR team
-//
-// 3. Authentication (Future Sprint):
-//    - Consider NextAuth.js or Clerk for admin portal
-//    - Add User model for HR staff
-//    - Track reviewedBy with User relation
-//
-// 4. Search & Filtering:
-//    - Consider adding full-text search for job listings
-//    - PostgreSQL: Use ts_vector for search
-//    - Alternative: Algolia or Typesense integration
-//
-// 5. Audit Trail:
-//    - Consider adding ApplicationEvent model
-//    - Track status changes, notes, communications
-//
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String   // Clerk user ID
+  userName  String?  // Display name snapshot
+  action    String   // "STATUS_CHANGE", "EMAIL_SENT", "BULK_UPDATE", etc.
+  entity    String   // "Application", "Contact", "ServiceInquiry", etc.
+  entityId  String
+  details   Json?    // Before/after state, additional context
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
 // =============================================================================
+// ADMIN EMAILS — tracks emails sent from the admin portal
+// =============================================================================
+
+model AdminEmail {
+  id          String   @id @default(cuid())
+  sentBy      String   // Clerk user ID
+  sentByName  String?  // Snapshot of admin name
+  toEmail     String
+  toName      String?
+  subject     String
+  body        String   @db.Text
+  template    String?  // Template key used, if any
+  entity      String?  // Related entity type
+  entityId    String?  // Related entity ID
+  resendId    String?  // Resend message ID
+  status      String   @default("SENT") // SENT, FAILED
+  createdAt   DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([sentBy])
+  @@index([createdAt])
+}

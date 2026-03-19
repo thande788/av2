@@ -27,8 +27,12 @@ import {
   Loader2,
 } from 'lucide-react';
 import { formatDateUS } from '@/lib/utils';
+import { toast } from 'sonner';
 import type { Application, Job, ApplicationStatus } from '@prisma/client';
 import { updateApplicationStatus } from './actions';
+import { AuditTimeline } from '@/components/admin/audit-timeline';
+import { EmailHistory } from '@/components/admin/email-history';
+import { SendEmailDialog } from '@/components/admin/send-email-dialog';
 
 type ApplicationWithJob = Application & { job: Job };
 
@@ -66,9 +70,10 @@ export function ApplicationDetail({
     setIsSaving(true);
     try {
       await updateApplicationStatus(application.id, status, notes);
+      toast.success('Application updated successfully');
       router.refresh();
-    } catch (error) {
-      console.error('Failed to update application:', error);
+    } catch {
+      toast.error('Failed to update application');
     } finally {
       setIsSaving(false);
     }
@@ -97,6 +102,12 @@ export function ApplicationDetail({
         <Badge className={statusColors[application.status]} variant="secondary">
           {application.status}
         </Badge>
+        <SendEmailDialog
+          toEmail={application.email}
+          toName={`${application.firstName} ${application.lastName}`}
+          entity="Application"
+          entityId={application.id}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -334,6 +345,15 @@ export function ApplicationDetail({
                 </div>
               )}
             </div>
+            {/* Audit log activity */}
+            <div className="mt-4 pt-4 border-t">
+              <AuditTimeline entity="Application" entityId={application.id} />
+            </div>
+          </Card>
+
+          {/* Email History */}
+          <Card className="p-6">
+            <EmailHistory entity="Application" entityId={application.id} />
           </Card>
 
           {/* Job Details */}

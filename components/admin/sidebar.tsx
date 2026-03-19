@@ -20,10 +20,12 @@ import {
   ClipboardCheck,
   LogOut,
   DollarSign,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { SignOutButton } from '@clerk/nextjs';
+import { NotificationBell } from './notification-bell';
 
 interface NavItem {
   title: string;
@@ -108,6 +110,11 @@ const navItems: NavItem[] = [
     href: '/admin/testimonials',
     icon: Star,
   },
+  {
+    title: 'Activity Log',
+    href: '/admin/audit-log',
+    icon: Shield,
+  },
 ];
 
 export function AdminSidebar() {
@@ -143,14 +150,17 @@ export function AdminSidebar() {
             <span className="font-semibold text-primary">Admin Portal</span>
           )}
         </Link>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className={cn('hover:bg-primary/10', collapsed && 'ml-auto')}
-        >
-          {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
-        </Button>
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+            className={cn('hover:bg-primary/10', collapsed && 'ml-auto')}
+          >
+            {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
+          </Button>
+        </div>
       </div>
 
       {/* Navigation */}

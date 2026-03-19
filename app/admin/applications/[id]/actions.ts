@@ -3,6 +3,7 @@
 import { db } from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
+import { logAuditEvent } from '@/app/actions/audit-log';
 import type { ApplicationStatus } from '@prisma/client';
 
 export async function updateApplicationStatus(
@@ -16,6 +17,11 @@ export async function updateApplicationStatus(
     throw new Error('Unauthorized');
   }
 
+  const existing = await db.application.findUnique({
+    where: { id: applicationId },
+    select: { status: true },
+  });
+
   await db.application.update({
     where: { id: applicationId },
     data: {
@@ -23,6 +29,17 @@ export async function updateApplicationStatus(
       internalNotes: internalNotes || null,
       reviewedBy: userId,
       reviewedAt: new Date(),
+    },
+  });
+
+  await logAuditEvent({
+    action: 'STATUS_CHANGE',
+    entity: 'Application',
+    entityId: applicationId,
+    details: {
+      previousStatus: existing?.status,
+      newStatus: status,
+      hasNotes: !!internalNotes,
     },
   });
 

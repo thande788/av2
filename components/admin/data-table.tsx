@@ -3,8 +3,25 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Download,
+  Trash2,
+  CheckSquare,
+  Filter,
+} from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface Column<T> {
@@ -19,6 +36,24 @@ export interface Column<T> {
   mobileTitle?: boolean;
 }
 
+export interface FilterOption {
+  label: string;
+  value: string;
+}
+
+export interface TableFilter {
+  key: string;
+  label: string;
+  options: FilterOption[];
+}
+
+export interface BulkAction<T> {
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  variant?: 'default' | 'destructive';
+  action: (selectedIds: string[], selectedItems: T[]) => void | Promise<void>;
+}
+
 interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
@@ -29,6 +64,16 @@ interface DataTableProps<T> {
   emptyMessage?: string;
   /** Custom mobile card renderer - if not provided, uses default card layout */
   mobileCard?: (item: T) => React.ReactNode;
+  /** Filter definitions for the table */
+  filters?: TableFilter[];
+  /** Enable row selection for bulk actions */
+  selectable?: boolean;
+  /** Bulk actions available when items are selected */
+  bulkActions?: BulkAction<T>[];
+  /** Enable CSV export */
+  exportable?: boolean;
+  /** Filename for exported CSV (without extension) */
+  exportFilename?: string;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -40,11 +85,19 @@ export function DataTable<T extends { id: string }>({
   onRowClick,
   emptyMessage = 'No data found.',
   mobileCard,
+  filters = [],
+  selectable = false,
+  bulkActions = [],
+  exportable = false,
+  exportFilename = 'export',
 }: DataTableProps<T>) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showFilters, setShowFilters] = useState(false);
 
   // Helper to get nested values like 'user.firstName'
   const getNestedValue = (obj: unknown, path: string): unknown => {
@@ -57,19 +110,34 @@ export function DataTable<T extends { id: string }>({
   };
 
   const filteredData = useMemo(() => {
-    if (!search || searchKeys.length === 0) return data;
+    let result = data;
 
-    const searchLower = search.toLowerCase();
-    return data.filter((item) =>
-      searchKeys.some((key) => {
-        const value = getNestedValue(item, key);
-        if (typeof value === 'string') {
-          return value.toLowerCase().includes(searchLower);
-        }
-        return false;
-      })
-    );
-  }, [data, search, searchKeys]);
+    // Apply search filter
+    if (search && searchKeys.length > 0) {
+      const searchLower = search.toLowerCase();
+      result = result.filter((item) =>
+        searchKeys.some((key) => {
+          const value = getNestedValue(item, key);
+          if (typeof value === 'string') {
+            return value.toLowerCase().includes(searchLower);
+          }
+          return false;
+        })
+      );
+    }
+
+    // Apply column filters
+    for (const [filterKey, filterValue] of Object.entries(activeFilters)) {
+      if (filterValue && filterValue !== '__all__') {
+        result = result.filter((item) => {
+          const value = getNestedValue(item, filterKey);
+          return String(value) === filterValue;
+        });
+      }
+    }
+
+    return result;
+  }, [data, search, searchKeys, activeFilters]);
 
   const sortedData = useMemo(() => {
     if (!sortKey) return filteredData;
@@ -103,6 +171,76 @@ export function DataTable<T extends { id: string }>({
     }
   };
 
+  // Selection helpers
+  const allPageSelected = paginatedData.length > 0 && paginatedData.every((item) => selectedIds.has(item.id));
+  const somePageSelected = paginatedData.some((item) => selectedIds.has(item.id));
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allPageSelected) {
+        paginatedData.forEach((item) => next.delete(item.id));
+      } else {
+        paginatedData.forEach((item) => next.add(item.id));
+      }
+      return next;
+    });
+  }, [allPageSelected, paginatedData]);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  const selectedItems = useMemo(
+    () => data.filter((item) => selectedIds.has(item.id)),
+    [data, selectedIds]
+  );
+
+  // Filter helpers
+  const activeFilterCount = Object.values(activeFilters).filter((v) => v && v !== '__all__').length;
+
+  const clearFilters = useCallback(() => {
+    setActiveFilters({});
+    setPage(0);
+  }, []);
+
+  // CSV Export
+  const handleExport = useCallback(() => {
+    const exportData = selectedIds.size > 0 ? selectedItems : sortedData;
+    const headers = columns.map((col) => col.header);
+    const rows = exportData.map((item) =>
+      columns.map((col) => {
+        const val = getValue(item, String(col.key));
+        const str = String(val ?? '');
+        // Escape CSV values
+        return str.includes(',') || str.includes('"') || str.includes('\n')
+          ? `"${str.replace(/"/g, '""')}"`
+          : str;
+      })
+    );
+
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${exportFilename}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [selectedIds, selectedItems, sortedData, columns, exportFilename]);
+
   const getValue = (item: T, key: string): unknown => {
     if (key.includes('.')) {
       const keys = key.split('.');
@@ -117,18 +255,109 @@ export function DataTable<T extends { id: string }>({
 
   return (
     <div className="space-y-4">
-      {searchable && (
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(0);
-            }}
-            className="pl-9"
-          />
+      {/* Search + Filter Bar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 flex-1">
+          {searchable && (
+            <div className="relative max-w-sm flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(0);
+                }}
+                className="pl-9"
+              />
+            </div>
+          )}
+          {filters.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className={cn(activeFilterCount > 0 && 'border-primary/50 text-primary')}
+            >
+              <Filter className="size-4 mr-1" />
+              Filters
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {exportable && (
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="size-4 mr-1" />
+              Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Filter Row */}
+      {showFilters && filters.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border/50 bg-muted/30 p-3">
+          {filters.map((filter) => (
+            <div key={filter.key} className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">{filter.label}:</span>
+              <Select
+                value={activeFilters[filter.key] || '__all__'}
+                onValueChange={(val) => {
+                  setActiveFilters((prev) => ({ ...prev, [filter.key]: val }));
+                  setPage(0);
+                }}
+              >
+                <SelectTrigger className="h-8 w-[140px] text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All</SelectItem>
+                  {filter.options.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+          {activeFilterCount > 0 && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
+              <X className="size-3 mr-1" />
+              Clear filters
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Bulk Action Bar */}
+      {selectable && selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 rounded-lg border border-primary/40 bg-primary/5 px-4 py-2.5">
+          <CheckSquare className="size-4 text-primary" />
+          <span className="text-sm font-medium">
+            {selectedIds.size} selected
+          </span>
+          <div className="flex items-center gap-2 ml-auto">
+            {bulkActions.map((action) => (
+              <Button
+                key={action.label}
+                variant={action.variant === 'destructive' ? 'destructive' : 'outline'}
+                size="sm"
+                onClick={() => action.action(Array.from(selectedIds), selectedItems)}
+              >
+                {action.icon && <action.icon className="size-4 mr-1" />}
+                {action.label}
+              </Button>
+            ))}
+            <Button variant="ghost" size="sm" onClick={clearSelection}>
+              <X className="size-4" />
+            </Button>
+          </div>
         </div>
       )}
 
@@ -137,6 +366,15 @@ export function DataTable<T extends { id: string }>({
         <table className="w-full text-sm">
           <thead className="bg-muted/30">
             <tr className="border-b border-border/50">
+              {selectable && (
+                <th className="w-12 px-4">
+                  <Checkbox
+                    checked={allPageSelected ? true : somePageSelected ? 'indeterminate' : false}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Select all"
+                  />
+                </th>
+              )}
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
@@ -163,7 +401,7 @@ export function DataTable<T extends { id: string }>({
             {paginatedData.length === 0 ? (
               <tr>
                 <td
-                  colSpan={columns.length}
+                  colSpan={columns.length + (selectable ? 1 : 0)}
                   className="h-24 text-center text-muted-foreground"
                 >
                   {emptyMessage}
@@ -175,10 +413,20 @@ export function DataTable<T extends { id: string }>({
                   key={item.id}
                   className={cn(
                     'border-b border-border/50 transition-colors hover:bg-muted/30',
-                    onRowClick && 'cursor-pointer'
+                    onRowClick && 'cursor-pointer',
+                    selectedIds.has(item.id) && 'bg-primary/5'
                   )}
                   onClick={() => onRowClick?.(item)}
                 >
+                  {selectable && (
+                    <td className="w-12 px-4" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.has(item.id)}
+                        onCheckedChange={() => toggleSelect(item.id)}
+                        aria-label={`Select row`}
+                      />
+                    </td>
+                  )}
                   {columns.map((col) => (
                     <td key={String(col.key)} className={cn('p-4', col.className)}>
                       {col.render
@@ -206,10 +454,19 @@ export function DataTable<T extends { id: string }>({
               return (
                 <div
                   key={item.id}
-                  onClick={() => onRowClick?.(item)}
-                  className={cn(onRowClick && 'cursor-pointer')}
+                  className={cn('flex items-start gap-3', onRowClick && 'cursor-pointer')}
                 >
-                  {mobileCard(item)}
+                  {selectable && (
+                    <Checkbox
+                      checked={selectedIds.has(item.id)}
+                      onCheckedChange={() => toggleSelect(item.id)}
+                      className="mt-1"
+                      aria-label={`Select row`}
+                    />
+                  )}
+                  <div className="flex-1" onClick={() => onRowClick?.(item)}>
+                    {mobileCard(item)}
+                  </div>
                 </div>
               );
             }
@@ -221,13 +478,25 @@ export function DataTable<T extends { id: string }>({
             return (
               <div
                 key={item.id}
-                onClick={() => onRowClick?.(item)}
-                className={cn(
-                  'relative overflow-hidden rounded-xl border p-4 transition-all',
-                  'border-border/50 bg-card hover:border-primary/40 hover:shadow-md',
-                  onRowClick && 'cursor-pointer'
-                )}
+                className={cn('flex items-start gap-3')}
               >
+                {selectable && (
+                  <Checkbox
+                    checked={selectedIds.has(item.id)}
+                    onCheckedChange={() => toggleSelect(item.id)}
+                    className="mt-1"
+                    aria-label={`Select row`}
+                  />
+                )}
+                <div
+                  className={cn(
+                    'flex-1 relative overflow-hidden rounded-xl border p-4 transition-all',
+                    'border-border/50 bg-card hover:border-primary/40 hover:shadow-md',
+                    selectedIds.has(item.id) && 'border-primary/40 bg-primary/5',
+                    onRowClick && 'cursor-pointer'
+                  )}
+                  onClick={() => onRowClick?.(item)}
+                >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
                 <div className="relative space-y-3">
                   {/* Title row if defined */}
@@ -257,6 +526,7 @@ export function DataTable<T extends { id: string }>({
                       </div>
                     ))}
                 </div>
+                </div>
               </div>
             );
           })
@@ -269,6 +539,9 @@ export function DataTable<T extends { id: string }>({
             Showing {page * pageSize + 1} to{' '}
             {Math.min((page + 1) * pageSize, sortedData.length)} of{' '}
             {sortedData.length} results
+            {sortedData.length !== data.length && (
+              <span className="ml-1">(filtered from {data.length})</span>
+            )}
           </p>
           <div className="flex items-center gap-2">
             <Button

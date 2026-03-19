@@ -1,9 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { DataTable, type Column } from '@/components/admin/data-table';
+import { DataTable, type Column, type TableFilter, type BulkAction } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
 import { formatDateUS } from '@/lib/utils';
+import { bulkUpdateApplicationStatus } from '@/app/actions/audit-log';
+import { toast } from 'sonner';
+import { RefreshCw } from 'lucide-react';
 import type { Application, Job, ApplicationStatus } from '@prisma/client';
 
 type ApplicationWithJob = Application & {
@@ -77,12 +80,49 @@ export function ApplicationsTable({
 }) {
   const router = useRouter();
 
+  const filters: TableFilter[] = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { label: 'Pending', value: 'PENDING' },
+        { label: 'Reviewing', value: 'REVIEWING' },
+        { label: 'Interview', value: 'INTERVIEW' },
+        { label: 'Offered', value: 'OFFERED' },
+        { label: 'Hired', value: 'HIRED' },
+        { label: 'Rejected', value: 'REJECTED' },
+        { label: 'Withdrawn', value: 'WITHDRAWN' },
+      ],
+    },
+  ];
+
+  const bulkActions: BulkAction<ApplicationWithJob>[] = [
+    {
+      label: 'Mark Reviewing',
+      icon: RefreshCw,
+      action: async (ids) => {
+        try {
+          await bulkUpdateApplicationStatus(ids, 'REVIEWING');
+          toast.success(`${ids.length} application(s) updated to Reviewing`);
+          router.refresh();
+        } catch {
+          toast.error('Failed to update applications');
+        }
+      },
+    },
+  ];
+
   return (
     <DataTable
       data={applications}
       columns={columns}
       searchKeys={['firstName', 'lastName', 'email']}
       onRowClick={(app) => router.push(`/admin/applications/${app.id}`)}
+      filters={filters}
+      selectable
+      bulkActions={bulkActions}
+      exportable
+      exportFilename="applications"
       emptyMessage="No applications found."
     />
   );

@@ -6,6 +6,38 @@ export { submitContactForm, type ContactFormState } from "./contact";
 export { submitApplication, type ApplicationFormState } from "./application";
 export { submitCareInquiry, type CareInquiryFormState } from "./care-inquiry";
 
+// Audit log actions
+export {
+  logAuditEvent,
+  getEntityAuditLog,
+  getRecentAuditLog,
+  getFilteredAuditLog,
+  bulkUpdateApplicationStatus,
+  bulkMarkContactsRead,
+  bulkUpdateInquiryStatus,
+  bulkDeleteContacts,
+  bulkDeleteInquiries,
+} from "./audit-log";
+
+// Admin email actions
+export {
+  sendAdminEmail,
+  getEntityEmailHistory,
+  EMAIL_TEMPLATES,
+  type AdminEmailData,
+  type AdminEmailResult,
+  type EmailTemplate,
+} from "./admin-email";
+
+// Notification actions
+export {
+  getUnreadNotificationCount,
+  getRecentNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  createInAppNotification,
+} from "./notifications";
+
 // Worker management actions
 export {
   approveWorker,

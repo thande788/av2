@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { DataTable, type Column } from '@/components/admin/data-table';
+import { useRouter } from 'next/navigation';
+import { DataTable, type Column, type TableFilter, type BulkAction } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,9 +12,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { formatDateUS } from '@/lib/utils';
+import { bulkMarkContactsRead, bulkDeleteContacts } from '@/app/actions/audit-log';
+import { SendEmailDialog } from '@/components/admin/send-email-dialog';
+import { toast } from 'sonner';
 import type { ContactSubmission } from '@prisma/client';
 import { markContactAsRead } from './actions';
-import { Mail, Phone, Check, Eye } from 'lucide-react';
+import { Mail, Phone, Check, Trash2 } from 'lucide-react';
 
 const columns: Column<ContactSubmission>[] = [
   {
@@ -69,6 +73,7 @@ const columns: Column<ContactSubmission>[] = [
 ];
 
 export function ContactsTable({ contacts }: { contacts: ContactSubmission[] }) {
+  const router = useRouter();
   const [selectedContact, setSelectedContact] = useState<ContactSubmission | null>(
     null
   );
@@ -80,6 +85,48 @@ export function ContactsTable({ contacts }: { contacts: ContactSubmission[] }) {
     }
   };
 
+  const filters: TableFilter[] = [
+    {
+      key: 'isRead',
+      label: 'Status',
+      options: [
+        { label: 'Unread', value: 'false' },
+        { label: 'Read', value: 'true' },
+      ],
+    },
+  ];
+
+  const bulkActions: BulkAction<ContactSubmission>[] = [
+    {
+      label: 'Mark Read',
+      icon: Check,
+      action: async (ids) => {
+        try {
+          await bulkMarkContactsRead(ids);
+          toast.success(`${ids.length} contact(s) marked as read`);
+          router.refresh();
+        } catch {
+          toast.error('Failed to update contacts');
+        }
+      },
+    },
+    {
+      label: 'Delete',
+      icon: Trash2,
+      variant: 'destructive',
+      action: async (ids) => {
+        if (!confirm(`Delete ${ids.length} contact(s)? This cannot be undone.`)) return;
+        try {
+          await bulkDeleteContacts(ids);
+          toast.success(`${ids.length} contact(s) deleted`);
+          router.refresh();
+        } catch {
+          toast.error('Failed to delete contacts');
+        }
+      },
+    },
+  ];
+
   return (
     <>
       <DataTable
@@ -88,6 +135,11 @@ export function ContactsTable({ contacts }: { contacts: ContactSubmission[] }) {
         searchKeys={['name', 'email', 'message']}
         onRowClick={handleRowClick}
         emptyMessage="No contact messages yet."
+        filters={filters}
+        selectable
+        bulkActions={bulkActions}
+        exportable
+        exportFilename="contacts"
       />
 
       <Dialog open={!!selectedContact} onOpenChange={() => setSelectedContact(null)}>
@@ -159,12 +211,18 @@ export function ContactsTable({ contacts }: { contacts: ContactSubmission[] }) {
                 >
                   Close
                 </Button>
-                <Button asChild>
-                  <a href={`mailto:${selectedContact.email}`}>
-                    <Mail className="size-4 mr-2" />
-                    Reply
-                  </a>
-                </Button>
+                <SendEmailDialog
+                  toEmail={selectedContact.email}
+                  toName={selectedContact.name}
+                  entity="ContactSubmission"
+                  entityId={selectedContact.id}
+                  trigger={
+                    <Button>
+                      <Mail className="size-4 mr-2" />
+                      Reply
+                    </Button>
+                  }
+                />
               </div>
             </div>
           )}
