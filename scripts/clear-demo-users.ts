@@ -66,17 +66,58 @@ async function main() {
     return;
   }
 
-  // Delete in correct order (cascade handles most, but be explicit)
-  console.log('Deleting demo users...');
+  // Delete in correct order to respect foreign key constraints
+  console.log('Deleting demo users and related data...');
   
-  // Get IDs for cascade deletion
   const demoUserIds = demoUsers.map(u => u.id);
-  
-  // Delete users (will cascade to worker/client)
+  const workerIds = demoUsers.filter(u => u.worker).map(u => u.worker!.id);
+  const clientIds = demoUsers.filter(u => u.client).map(u => u.client!.id);
+
+  // 1. Delete records that reference workers/clients but don't cascade
+  if (workerIds.length > 0) {
+    const timesheets = await prisma.timesheet.findMany({ where: { workerId: { in: workerIds } }, select: { id: true } }).catch(() => []);
+    const timesheetIds = timesheets.map(t => t.id);
+    if (timesheetIds.length > 0) {
+      await prisma.timesheetEntry.deleteMany({ where: { timesheetId: { in: timesheetIds } } }).catch(() => {});
+      console.log(`   Deleted timesheet entries`);
+    }
+    await prisma.timesheet.deleteMany({ where: { workerId: { in: workerIds } } }).catch(() => {});
+    console.log(`   Deleted timesheets`);
+
+    await prisma.shiftReview.deleteMany({ where: { workerId: { in: workerIds } } }).catch(() => {
+      console.log(`   Skipped shift reviews (table not found)`);
+    });
+
+    await prisma.shiftBooking.deleteMany({ where: { workerId: { in: workerIds } } }).catch(() => {});
+    console.log(`   Deleted shift bookings`);
+  }
+
+  if (clientIds.length > 0) {
+    // Find care shifts for these clients
+    const careShifts = await prisma.careShift.findMany({ where: { clientId: { in: clientIds } }, select: { id: true } }).catch(() => []);
+    const shiftIds = careShifts.map(s => s.id);
+    if (shiftIds.length > 0) {
+      await prisma.shiftReview.deleteMany({ where: { shiftId: { in: shiftIds } } }).catch(() => {});
+      await prisma.shiftBooking.deleteMany({ where: { shiftId: { in: shiftIds } } }).catch(() => {});
+      await prisma.careShift.deleteMany({ where: { id: { in: shiftIds } } }).catch(() => {});
+      console.log(`   Deleted care shifts and bookings`);
+    }
+
+    // Delete invoices
+    const invoices = await prisma.invoice.findMany({ where: { clientId: { in: clientIds } }, select: { id: true } }).catch(() => []);
+    if (invoices.length > 0) {
+      await prisma.invoiceLineItem.deleteMany({ where: { invoiceId: { in: invoices.map(i => i.id) } } }).catch(() => {});
+      await prisma.invoice.deleteMany({ where: { clientId: { in: clientIds } } }).catch(() => {});
+      console.log(`   Deleted invoices`);
+    }
+  }
+
+  // 2. Delete testimonials by demo users
+  await prisma.testimonial.deleteMany({ where: { submittedById: { in: demoUserIds } } });
+
+  // 3. Now delete the portal users (cascades to Worker/Client)
   const deleted = await prisma.portalUser.deleteMany({
-    where: {
-      id: { in: demoUserIds },
-    },
+    where: { id: { in: demoUserIds } },
   });
 
   console.log(`✓ Deleted ${deleted.count} demo users and their associated data.`);
