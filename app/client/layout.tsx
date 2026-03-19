@@ -4,6 +4,8 @@ import { ClientSidebar } from '@/components/client/sidebar';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { LogoWatermark } from '@/components/shared/logo-watermark';
 
+export const dynamic = 'force-dynamic';
+
 export default function ClientPortalLayout({
   children,
 }: {

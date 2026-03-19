@@ -8,6 +8,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { CommandPalette } from '@/components/admin/command-palette';
 import { AdminShortcuts } from '@/components/admin/keyboard-shortcuts';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Admin Dashboard | Angel Touch Homecare',
   description: 'Admin dashboard for managing applications, contacts, and content.',

@@ -6,6 +6,8 @@ import { DemoBanner } from '@/components/demo/demo-banner';
 import { EmployeeSidebar } from '@/components/employee/sidebar';
 import { LogoWatermark } from '@/components/shared/logo-watermark';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: {
     default: 'Employee Portal',
