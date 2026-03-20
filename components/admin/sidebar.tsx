@@ -1,6 +1,6 @@
 'use client';
 
-import { SignOutButton } from '@clerk/nextjs';
+import { SignOutButton, UserButton, useClerk } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -217,10 +217,25 @@ function QuickActionsMenu({
 
 function MobileSidebarFooter() {
   const { setTheme, resolvedTheme } = useTheme();
+  const { openUserProfile } = useClerk();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-primary/10 p-3 flex gap-1">
+    <div className="border-t border-primary/10 p-3 space-y-2">
+      <div className="flex items-center gap-3 rounded-2xl px-3 py-2">
+        <UserButton
+          appearance={{ elements: { avatarBox: 'size-8' } }}
+          afterSignOutUrl="/portals"
+        />
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={() => openUserProfile()}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUserProfile(); } }}
+          className="text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+        >Account</span>
+      </div>
+      <div className="flex gap-1">
       <div
         role="button"
         tabIndex={0}
@@ -237,16 +252,34 @@ function MobileSidebarFooter() {
           <span>Sign Out</span>
         </button>
       </SignOutButton>
+      </div>
     </div>
   );
 }
 
 function DesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
   const { setTheme, resolvedTheme } = useTheme();
+  const { openUserProfile } = useClerk();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-primary/10 p-3 flex gap-1">
+    <div className="border-t border-primary/10 p-3 space-y-2">
+      <SidebarTooltip label="Account" disabled={!collapsed}>
+        <div className={cn('flex items-center rounded-2xl px-3 py-2', collapsed ? 'justify-center' : 'gap-3')}>
+          <UserButton
+            appearance={{ elements: { avatarBox: 'size-8' } }}
+            afterSignOutUrl="/portals"
+          />
+          {!collapsed && <span
+            role="button"
+            tabIndex={0}
+            onClick={() => openUserProfile()}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUserProfile(); } }}
+            className="text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+          >Account</span>}
+        </div>
+      </SidebarTooltip>
+      <div className="flex gap-1">
       <SidebarTooltip label="Theme" disabled={!collapsed}>
         <div
           role="button"
@@ -277,6 +310,7 @@ function DesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
           </button>
         </SignOutButton>
       </SidebarTooltip>
+      </div>
     </div>
   );
 }

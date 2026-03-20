@@ -13,6 +13,7 @@ import {
   IconUser,
   IconMapPin,
 } from '@tabler/icons-react';
+import { ManageAccountButton } from '@/components/shared/manage-account-button';
 
 export const metadata = {
   title: 'Settings',
@@ -186,20 +187,16 @@ export default async function ClientSettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Password</p>
-              <p className="text-sm text-muted-foreground">Last changed: Never (using SSO)</p>
+              <p className="text-sm text-muted-foreground">Manage via your account profile</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
-              Change Password
-            </Button>
+            <ManageAccountButton label="Change Password" />
           </div>
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Two-Factor Authentication</p>
               <p className="text-sm text-muted-foreground">Enhanced account security</p>
             </div>
-            <Badge variant="outline" className="bg-amber-500/15 text-amber-600">
-              Not Enabled
-            </Badge>
+            <ManageAccountButton label="Setup 2FA" />
           </div>
         </CardContent>
       </Card>

@@ -14,6 +14,7 @@ import {
   IconLanguage,
   IconShieldCheck,
 } from '@tabler/icons-react';
+import { ManageAccountButton } from '@/components/shared/manage-account-button';
 
 export const metadata = {
   title: 'Settings',
@@ -112,12 +113,10 @@ export default async function EmployeeSettingsPage() {
             <div>
               <p className="font-medium">Password</p>
               <p className="text-sm text-muted-foreground">
-                Last changed: Never (using SSO)
+                Manage via your account profile
               </p>
             </div>
-            <Button variant="outline" size="sm" disabled>
-              Change Password
-            </Button>
+            <ManageAccountButton label="Change Password" />
           </div>
 
           <div className="flex items-center justify-between">
@@ -127,9 +126,7 @@ export default async function EmployeeSettingsPage() {
                 Add an extra layer of security to your account
               </p>
             </div>
-            <Badge variant="outline" className="bg-amber-500/15 text-amber-600 dark:text-amber-400">
-              Not Enabled
-            </Badge>
+            <ManageAccountButton label="Setup 2FA" />
           </div>
 
           <div className="flex items-center justify-between">
@@ -139,9 +136,7 @@ export default async function EmployeeSettingsPage() {
                 Manage devices where you&apos;re logged in
               </p>
             </div>
-            <Button variant="outline" size="sm" disabled>
-              View Sessions
-            </Button>
+            <ManageAccountButton label="View Sessions" />
           </div>
         </CardContent>
       </Card>

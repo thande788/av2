@@ -26,7 +26,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useState } from 'react';
-import { SignOutButton } from '@clerk/nextjs';
+import { SignOutButton, UserButton, useClerk } from '@clerk/nextjs';
 import { useTheme } from 'next-themes';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
@@ -87,10 +87,25 @@ const navItems: NavItem[] = [
 
 function EmployeeMobileSidebarFooter() {
   const { setTheme, resolvedTheme } = useTheme();
+  const { openUserProfile } = useClerk();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="p-3 mt-auto border-t border-emerald-500/20 flex gap-1">
+    <div className="p-3 mt-auto border-t border-emerald-500/20 space-y-2">
+      <div className="flex items-center gap-3 rounded-lg px-3 py-2">
+        <UserButton
+          appearance={{ elements: { avatarBox: 'size-8' } }}
+          afterSignOutUrl="/portals"
+        />
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={() => openUserProfile()}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUserProfile(); } }}
+          className="text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+        >Account</span>
+      </div>
+      <div className="flex gap-1">
       <div
         role="button"
         tabIndex={0}
@@ -107,16 +122,32 @@ function EmployeeMobileSidebarFooter() {
           <span>Sign Out</span>
         </button>
       </SignOutButton>
+      </div>
     </div>
   );
 }
 
 function EmployeeDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
   const { setTheme, resolvedTheme } = useTheme();
+  const { openUserProfile } = useClerk();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-emerald-500/20 p-3 flex gap-1">
+    <div className="border-t border-emerald-500/20 p-3 space-y-2">
+      <div className={cn('flex items-center rounded-lg px-3 py-2', collapsed ? 'justify-center' : 'gap-3')}>
+        <UserButton
+          appearance={{ elements: { avatarBox: 'size-8' } }}
+          afterSignOutUrl="/portals"
+        />
+        {!collapsed && <span
+          role="button"
+          tabIndex={0}
+          onClick={() => openUserProfile()}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUserProfile(); } }}
+          className="text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+        >Account</span>}
+      </div>
+      <div className="flex gap-1">
       <div
         role="button"
         tabIndex={0}
@@ -145,6 +176,7 @@ function EmployeeDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
           {!collapsed && <span>Sign Out</span>}
         </button>
       </SignOutButton>
+      </div>
     </div>
   );
 }
