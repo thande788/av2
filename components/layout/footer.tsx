@@ -1,29 +1,55 @@
 import Link from "next/link";
 import Image from "next/image";
-import { IconPhone, IconMail, IconArrowRight } from "@tabler/icons-react";
+import { IconPhone, IconMail, IconArrowRight, IconBrandFacebook, IconBrandLinkedin, IconBrandInstagram } from "@tabler/icons-react";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import {
   footerNavLinks,
   policyLinks,
-  contactInfo,
-  socialLinks,
   companyDescription,
   licensingBadge,
   accessibilityBadges,
   bottomTagline,
 } from "@/data/footer";
+import { getSiteSettings } from "@/app/actions/site-settings";
 import type { FooterProps } from "@/types/footer";
 
 /**
- * Site footer with contact info, navigation, and social links
+ * Site footer with contact info, navigation, and social links.
+ * Reads contact data from DB-backed site settings with static defaults.
  */
-export function Footer({
+export async function Footer({
   className,
   includeStructuredData = true,
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
+
+  let settings;
+  try {
+    settings = await getSiteSettings();
+  } catch {
+    settings = null;
+  }
+
+  const phones = [
+    settings?.['contact.phonePrimary'] || '(978) 856-9358',
+    settings?.['contact.phoneSecondary'] || '(254) 245-6917',
+  ].filter(Boolean);
+  const email = settings?.['contact.email'] || 'info@angeltouch.services';
+  const serviceArea = settings?.['contact.serviceArea'] || 'Serving Lowell, Dracut, Chelmsford, Tewksbury & Billerica';
+
+  const socialLinks = [
+    { platform: 'Facebook', href: settings?.['social.facebook'] || 'https://facebook.com/angeltouchhomecare', icon: <IconBrandFacebook className="size-5" /> },
+    { platform: 'LinkedIn', href: settings?.['social.linkedin'] || 'https://linkedin.com/company/angeltouchhomecare', icon: <IconBrandLinkedin className="size-5" /> },
+    ...(settings?.['social.instagram'] ? [{ platform: 'Instagram', href: settings['social.instagram'], icon: <IconBrandInstagram className="size-5" /> }] : []),
+  ].filter((s) => s.href);
+
+  const address = {
+    city: settings?.['address.city'] || 'Lowell',
+    state: settings?.['address.state'] || 'MA',
+  };
+  const primaryPhoneE164 = `+1${phones[0]?.replace(/\D/g, '')}`;
 
   return (
     <footer
@@ -117,7 +143,7 @@ export function Footer({
               Contact
             </h3>
             <ul className="space-y-3 text-sm">
-              {contactInfo.phones.map((phone, index) => (
+              {phones.map((phone, index) => (
                 <li key={index}>
                   <a
                     href={`tel:${phone.replace(/\D/g, "")}`}
@@ -138,7 +164,7 @@ export function Footer({
               ))}
               <li>
                 <a
-                  href={`mailto:${contactInfo.email}`}
+                  href={`mailto:${email}`}
                   className={cn(
                     "inline-flex items-center gap-3",
                     "text-white/80 hover:text-icon",
@@ -150,11 +176,11 @@ export function Footer({
                   <span className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/10 text-icon">
                     <IconMail className="size-4" />
                   </span>
-                  <span>{contactInfo.email}</span>
+                  <span>{email}</span>
                 </a>
               </li>
               <li className="text-xs text-white/60 leading-relaxed pl-0">
-                {contactInfo.serviceArea}
+                {serviceArea}
               </li>
             </ul>
           </div>
@@ -246,19 +272,19 @@ export function Footer({
               url: "https://angeltouch.services",
               logo: "https://angeltouch.services/angel_pink.png",
               image: "https://angeltouch.services/angel_pink.png",
-              email: contactInfo.email,
-              telephone: "+1-978-856-9358",
+              email: email,
+              telephone: primaryPhoneE164,
               sameAs: socialLinks.map((s) => s.href),
               address: {
                 "@type": "PostalAddress",
-                addressLocality: "Lowell",
-                addressRegion: "MA",
+                addressLocality: address.city,
+                addressRegion: address.state,
                 addressCountry: "US",
               },
               contactPoint: [
                 {
                   "@type": "ContactPoint",
-                  telephone: "+1-978-856-9358",
+                  telephone: primaryPhoneE164,
                   contactType: "customer service",
                   areaServed: "US-MA",
                   availableLanguage: ["English"],

@@ -8,6 +8,7 @@ import { logAuditEvent } from './audit-log';
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface SiteSettings {
+  // ── Banners ─────────────────────────────────────────────────────
   'hiringBanner.enabled': boolean;
   'hiringBanner.message': string;
   'hiringBanner.ctaText': string;
@@ -17,14 +18,32 @@ export interface SiteSettings {
   'announcementBanner.ctaText': string;
   'announcementBanner.ctaHref': string;
   'announcementBanner.variant': 'info' | 'warning' | 'success';
+  // ── Brand Accents ───────────────────────────────────────────────
   'brandAccents.babyBlue': boolean;
   'brandAccents.rose': boolean;
   'brandAccents.useDeepRoseForIcons': boolean;
+  // ── Contact Info ────────────────────────────────────────────────
+  'contact.phonePrimary': string;
+  'contact.phoneSecondary': string;
+  'contact.email': string;
+  'contact.serviceArea': string;
+  // ── Address ─────────────────────────────────────────────────────
+  'address.street': string;
+  'address.city': string;
+  'address.state': string;
+  'address.zip': string;
+  // ── Social Links ────────────────────────────────────────────────
+  'social.facebook': string;
+  'social.linkedin': string;
+  'social.instagram': string;
+  // ── Business Info ───────────────────────────────────────────────
+  'business.priceRange': string;
+  'business.foundingDate': string;
 }
 
 type SettingKey = keyof SiteSettings;
 
-/** Default values — mirrors data/site-config.ts fallback behavior */
+/** Default values — mirrors data/site-config.ts and lib/seo/site-metadata.ts */
 const DEFAULTS: SiteSettings = {
   'hiringBanner.enabled': true,
   'hiringBanner.message': "We're hiring! Join our team of compassionate caregivers.",
@@ -38,6 +57,19 @@ const DEFAULTS: SiteSettings = {
   'brandAccents.babyBlue': true,
   'brandAccents.rose': true,
   'brandAccents.useDeepRoseForIcons': true,
+  'contact.phonePrimary': '(978) 856-9358',
+  'contact.phoneSecondary': '(254) 245-6917',
+  'contact.email': 'info@angeltouch.services',
+  'contact.serviceArea': 'Serving Lowell, Dracut, Chelmsford, Tewksbury & Billerica',
+  'address.street': 'Main Street',
+  'address.city': 'Lowell',
+  'address.state': 'MA',
+  'address.zip': '01852',
+  'social.facebook': 'https://facebook.com/angeltouchhomecare',
+  'social.linkedin': 'https://linkedin.com/company/angeltouchhomecare',
+  'social.instagram': 'https://instagram.com/angeltouchhomecare',
+  'business.priceRange': '$28-$35/hour',
+  'business.foundingDate': '2015',
 };
 
 // ── Reads ────────────────────────────────────────────────────────────────────

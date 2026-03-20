@@ -19,9 +19,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
+  Building2,
+  Globe,
+  MapPin,
   Megaphone,
   Briefcase,
   Palette,
+  Phone,
   Save,
   Loader2,
 } from 'lucide-react';
@@ -240,6 +244,202 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               id="brandAccents.useDeepRoseForIcons"
               checked={settings['brandAccents.useDeepRoseForIcons']}
               onCheckedChange={(v) => update('brandAccents.useDeepRoseForIcons', v)}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Contact Information ──────────────────────────────────── */}
+      <section className="rounded-xl border p-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-blue-500/10 p-2.5">
+            <Phone className="size-5 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Contact Information</h2>
+            <p className="text-sm text-muted-foreground">
+              Phone numbers, email, and service area shown across the site
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="contact.phonePrimary">Primary Phone</Label>
+            <Input
+              id="contact.phonePrimary"
+              value={settings['contact.phonePrimary']}
+              onChange={(e) => update('contact.phonePrimary', e.target.value)}
+              placeholder="(978) 856-9358"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="contact.phoneSecondary">Secondary Phone</Label>
+            <Input
+              id="contact.phoneSecondary"
+              value={settings['contact.phoneSecondary']}
+              onChange={(e) => update('contact.phoneSecondary', e.target.value)}
+              placeholder="(254) 245-6917"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="contact.email">Email Address</Label>
+            <Input
+              id="contact.email"
+              type="email"
+              value={settings['contact.email']}
+              onChange={(e) => update('contact.email', e.target.value)}
+              placeholder="info@angeltouch.services"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="contact.serviceArea">Service Area Description</Label>
+            <Input
+              id="contact.serviceArea"
+              value={settings['contact.serviceArea']}
+              onChange={(e) => update('contact.serviceArea', e.target.value)}
+              placeholder="Serving Lowell, Dracut, Chelmsford..."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Address ─────────────────────────────────────────────── */}
+      <section className="rounded-xl border p-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-amber-500/10 p-2.5">
+            <MapPin className="size-5 text-amber-600" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Business Address</h2>
+            <p className="text-sm text-muted-foreground">
+              Used in the footer, SEO structured data, and contact pages
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2 space-y-1.5">
+            <Label htmlFor="address.street">Street Address</Label>
+            <Input
+              id="address.street"
+              value={settings['address.street']}
+              onChange={(e) => update('address.street', e.target.value)}
+              placeholder="123 Main Street"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="address.city">City</Label>
+            <Input
+              id="address.city"
+              value={settings['address.city']}
+              onChange={(e) => update('address.city', e.target.value)}
+              placeholder="Lowell"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="address.state">State</Label>
+              <Input
+                id="address.state"
+                value={settings['address.state']}
+                onChange={(e) => update('address.state', e.target.value)}
+                placeholder="MA"
+                maxLength={2}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="address.zip">ZIP Code</Label>
+              <Input
+                id="address.zip"
+                value={settings['address.zip']}
+                onChange={(e) => update('address.zip', e.target.value)}
+                placeholder="01852"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Social Links ────────────────────────────────────────── */}
+      <section className="rounded-xl border p-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-violet-500/10 p-2.5">
+            <Globe className="size-5 text-violet-600" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Social Media</h2>
+            <p className="text-sm text-muted-foreground">
+              Social media profile URLs shown in the footer and SEO data
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="social.facebook">Facebook</Label>
+            <Input
+              id="social.facebook"
+              type="url"
+              value={settings['social.facebook']}
+              onChange={(e) => update('social.facebook', e.target.value)}
+              placeholder="https://facebook.com/angeltouchhomecare"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="social.linkedin">LinkedIn</Label>
+            <Input
+              id="social.linkedin"
+              type="url"
+              value={settings['social.linkedin']}
+              onChange={(e) => update('social.linkedin', e.target.value)}
+              placeholder="https://linkedin.com/company/angeltouchhomecare"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="social.instagram">Instagram</Label>
+            <Input
+              id="social.instagram"
+              type="url"
+              value={settings['social.instagram']}
+              onChange={(e) => update('social.instagram', e.target.value)}
+              placeholder="https://instagram.com/angeltouchhomecare"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Business Info ───────────────────────────────────────── */}
+      <section className="rounded-xl border p-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-emerald-500/10 p-2.5">
+            <Building2 className="size-5 text-emerald-600" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Business Details</h2>
+            <p className="text-sm text-muted-foreground">
+              Shown in Google search results and structured data
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="business.priceRange">Price Range</Label>
+            <Input
+              id="business.priceRange"
+              value={settings['business.priceRange']}
+              onChange={(e) => update('business.priceRange', e.target.value)}
+              placeholder="$28-$35/hour"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="business.foundingDate">Founding Year</Label>
+            <Input
+              id="business.foundingDate"
+              value={settings['business.foundingDate']}
+              onChange={(e) => update('business.foundingDate', e.target.value)}
+              placeholder="2015"
             />
           </div>
         </div>

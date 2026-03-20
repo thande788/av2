@@ -1,5 +1,6 @@
 export {
   siteMetadata,
+  getSiteMetadataFromDB,
   getCanonicalUrl,
   getCanonicalAlternates,
   type ServiceArea,

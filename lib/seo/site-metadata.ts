@@ -66,6 +66,44 @@ export const siteMetadata = {
 export type ServiceArea = typeof siteMetadata.serviceAreas[number];
 
 /**
+ * Get site metadata merged with DB-backed settings.
+ * Falls back to static `siteMetadata` if DB is unavailable.
+ * Call from server components / route handlers only.
+ */
+export async function getSiteMetadataFromDB() {
+  try {
+    const { getSiteSettings } = await import('@/app/actions/site-settings');
+    const s = await getSiteSettings();
+    return {
+      ...siteMetadata,
+      phone: {
+        primary: s['contact.phonePrimary'] || siteMetadata.phone.primary,
+        secondary: s['contact.phoneSecondary'] || siteMetadata.phone.secondary,
+        primaryE164: `+1${(s['contact.phonePrimary'] || siteMetadata.phone.primary).replace(/\D/g, '')}`,
+        secondaryE164: `+1${(s['contact.phoneSecondary'] || siteMetadata.phone.secondary).replace(/\D/g, '')}`,
+      },
+      email: s['contact.email'] || siteMetadata.email,
+      address: {
+        streetAddress: s['address.street'] || siteMetadata.address.streetAddress,
+        addressLocality: s['address.city'] || siteMetadata.address.addressLocality,
+        addressRegion: s['address.state'] || siteMetadata.address.addressRegion,
+        postalCode: s['address.zip'] || siteMetadata.address.postalCode,
+        addressCountry: siteMetadata.address.addressCountry,
+      },
+      social: {
+        facebook: s['social.facebook'] || siteMetadata.social.facebook,
+        linkedin: s['social.linkedin'] || siteMetadata.social.linkedin,
+        instagram: s['social.instagram'] || siteMetadata.social.instagram,
+      },
+      priceRange: s['business.priceRange'] || siteMetadata.priceRange,
+      foundingDate: s['business.foundingDate'] || siteMetadata.foundingDate,
+    };
+  } catch {
+    return siteMetadata;
+  }
+}
+
+/**
  * Generate a canonical URL for a given path
  * @param path - The path relative to the site root (e.g., "/about", "/services")
  * @returns Full canonical URL (e.g., "https://angeltouch.services/about")
