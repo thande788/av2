@@ -211,6 +211,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
                 id="announcementBanner.message"
                 value={settings['announcementBanner.message']}
                 onChange={(e) => update('announcementBanner.message', e.target.value)}
+                maxLength={200}
               />
             </div>
             <div className="space-y-1.5">

@@ -37,6 +37,9 @@ const variantStyles = {
   },
 };
 
+const MAX_DISPLAY_CHARS = 200;
+const MOBILE_HIDE_THRESHOLD = 120;
+
 export function AnnouncementBanner({
   enabled,
   message,
@@ -49,6 +52,11 @@ export function AnnouncementBanner({
   if (!enabled || !message || isDismissed) return null;
 
   const styles = variantStyles[variant];
+  const truncatedMessage =
+    message.length > MAX_DISPLAY_CHARS
+      ? message.slice(0, MAX_DISPLAY_CHARS).trimEnd() + "\u2026"
+      : message;
+  const hideOnMobile = message.length > MOBILE_HIDE_THRESHOLD;
 
   return (
     <div
@@ -57,7 +65,8 @@ export function AnnouncementBanner({
         "px-4 py-3 sm:px-5 sm:py-3.5",
         "flex items-center gap-3 sm:gap-4",
         "text-sm",
-        styles.container
+        styles.container,
+        hideOnMobile && "hidden sm:flex"
       )}
       role="status"
       aria-label="Site announcement"
@@ -73,7 +82,7 @@ export function AnnouncementBanner({
       </span>
 
       {/* Message — fills remaining space */}
-      <p className={cn("flex-1 min-w-0", styles.text)}>{message}</p>
+      <p className={cn("flex-1 min-w-0", styles.text)}>{truncatedMessage}</p>
 
       {/* CTA + Dismiss — pinned right, no overlap */}
       <div className="flex shrink-0 items-center gap-2">
