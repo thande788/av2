@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/sheet';
 import { useState } from 'react';
 import { SignOutButton } from '@clerk/nextjs';
+import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
 interface NavItem {
   title: string;
@@ -137,7 +138,11 @@ export function ClientSidebar() {
                 </Link>
               </div>
               {navLinks({ onNavigate: () => setMobileOpen(false) })}
-              <div className="border-t border-sky-500/20 p-3">
+              <div className="border-t border-sky-500/20 p-3 space-y-1">
+                <div className="flex items-center gap-2 rounded-lg px-3 py-1.5">
+                  <AnimatedThemeToggle className="size-8" />
+                  <span className="text-sm text-muted-foreground">Toggle theme</span>
+                </div>
                 <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
                   <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600">
                     <LogOut className="size-5 shrink-0" />
@@ -196,7 +201,14 @@ export function ClientSidebar() {
 
         <div className="flex min-h-0 flex-1 flex-col">
           {navLinks({ compact: collapsed })}
-          <div className="border-t border-sky-500/20 p-3">
+          <div className="border-t border-sky-500/20 p-3 space-y-1">
+            <div
+              className={cn('flex items-center rounded-lg px-3 py-1.5', collapsed ? 'justify-center' : 'gap-2')}
+              title={collapsed ? 'Toggle theme' : undefined}
+            >
+              <AnimatedThemeToggle className="size-8" />
+              {!collapsed && <span className="text-sm text-muted-foreground">Toggle theme</span>}
+            </div>
             <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
               <button
                 className={cn(

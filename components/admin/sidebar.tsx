@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -416,7 +417,11 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
 
               {navigation({ onNavigate: () => setMobileOpen(false) })}
 
-              <div className="border-t border-primary/10 p-3">
+              <div className="border-t border-primary/10 p-3 space-y-1">
+                <div className="flex items-center gap-2 rounded-2xl px-3 py-1.5">
+                  <AnimatedThemeToggle className="size-8" />
+                  <span className="text-sm text-muted-foreground">Toggle theme</span>
+                </div>
                 <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
                   <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500">
                     <LogOut className="size-5 shrink-0" />
@@ -559,7 +564,13 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
 
         <div className="flex min-h-0 flex-1 flex-col">
           {navigation({ compact: collapsed })}
-          <div className="border-t border-primary/10 p-3">
+          <div className="border-t border-primary/10 p-3 space-y-1">
+            <SidebarTooltip label="Toggle theme" disabled={!collapsed}>
+              <div className={cn('flex items-center rounded-2xl px-3 py-1.5', collapsed ? 'justify-center' : 'gap-2')}>
+                <AnimatedThemeToggle className="size-8" />
+                {!collapsed && <span className="text-sm text-muted-foreground">Toggle theme</span>}
+              </div>
+            </SidebarTooltip>
             <SidebarTooltip label="Sign Out" disabled={!collapsed}>
               <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
                 <button
