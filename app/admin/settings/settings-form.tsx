@@ -5,6 +5,7 @@ import {
   updateSiteSettings,
   type SiteSettings,
 } from '@/app/actions/site-settings';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,15 +21,26 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
   Building2,
+  Eye,
+  EyeOff,
+  ExternalLink,
   Globe,
   MapPin,
   Megaphone,
   Briefcase,
   Palette,
   Phone,
+  Mail,
   Save,
   Loader2,
 } from 'lucide-react';
+import {
+  IconSparkles,
+  IconX,
+  IconBrandFacebook,
+  IconBrandLinkedin,
+  IconBrandInstagram,
+} from '@tabler/icons-react';
 
 interface SettingsFormProps {
   initialSettings: SiteSettings;
@@ -37,9 +49,30 @@ interface SettingsFormProps {
 export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [settings, setSettings] = useState<SiteSettings>(initialSettings);
   const [isPending, startTransition] = useTransition();
+  const [previews, setPreviews] = useState<Record<string, boolean>>({});
 
   function update<K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) {
     setSettings((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function togglePreview(section: string) {
+    setPreviews((prev) => ({ ...prev, [section]: !prev[section] }));
+  }
+
+  function PreviewToggle({ section }: { section: string }) {
+    const open = previews[section];
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => togglePreview(section)}
+        className="gap-1.5 text-xs text-muted-foreground"
+      >
+        {open ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+        {open ? 'Hide Preview' : 'Preview'}
+      </Button>
+    );
   }
 
   function handleSave() {
@@ -72,6 +105,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               {settings['hiringBanner.enabled'] ? 'Active' : 'Disabled'}
             </Badge>
           </div>
+          <PreviewToggle section="hiring" />
         </div>
 
         <div className="flex items-center justify-between">
@@ -112,6 +146,33 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
             </div>
           </div>
         )}
+
+        {previews.hiring && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Live Preview</p>
+            {settings['hiringBanner.enabled'] ? (
+              <div className="relative rounded-xl border border-decorative-border bg-gradient-to-r from-decorative/15 via-decorative/8 to-decorative/15 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-center gap-4 text-sm">
+                <span className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-decorative/15 text-icon">
+                  <IconSparkles className="size-4" />
+                </span>
+                <p className="text-foreground/90">
+                  <span className="font-semibold text-icon">We&apos;re hiring!</span>{' '}
+                  <span className="text-muted-foreground">
+                    {settings['hiringBanner.message'].replace("We're hiring! ", '')}
+                  </span>
+                </p>
+                <span className="text-icon font-medium whitespace-nowrap">
+                  {settings['hiringBanner.ctaText']} <span aria-hidden="true">→</span>
+                </span>
+                <span className="absolute right-2 p-1.5 text-muted-foreground">
+                  <IconX className="size-4" />
+                </span>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">Banner is disabled — nothing will be shown on the site.</p>
+            )}
+          </div>
+        )}
       </section>
 
       {/* ── Announcement Banner ─────────────────────────────────── */}
@@ -131,6 +192,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               {settings['announcementBanner.enabled'] ? 'Active' : 'Disabled'}
             </Badge>
           </div>
+          <PreviewToggle section="announcement" />
         </div>
 
         <div className="flex items-center justify-between">
@@ -188,6 +250,33 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
             </div>
           </div>
         )}
+
+        {previews.announcement && (() => {
+          const v = settings['announcementBanner.variant'];
+          const variantStyles = {
+            info: 'border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400',
+            warning: 'border-yellow-500/30 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400',
+            success: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+          };
+          return (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Live Preview</p>
+              {settings['announcementBanner.enabled'] ? (
+                <div className={cn('rounded-xl border px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-center gap-4 text-sm', variantStyles[v])}>
+                  <Megaphone className="size-4 shrink-0" />
+                  <p>{settings['announcementBanner.message']}</p>
+                  {settings['announcementBanner.ctaText'] && (
+                    <span className="font-medium whitespace-nowrap">
+                      {settings['announcementBanner.ctaText']} →
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">Banner is disabled — nothing will be shown on the site.</p>
+              )}
+            </div>
+          );
+        })()}
       </section>
 
       {/* ── Brand Accents ───────────────────────────────────────── */}
@@ -202,6 +291,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               Toggle decorative color accents across the site
             </p>
           </div>
+          <PreviewToggle section="accents" />
         </div>
 
         <div className="space-y-4">
@@ -247,6 +337,37 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
             />
           </div>
         </div>
+
+        {previews.accents && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Colors</p>
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
+                <span className={cn('size-4 rounded-full border', settings['brandAccents.babyBlue'] ? 'bg-blue-400 border-blue-500' : 'bg-muted border-border')} />
+                <span className="text-sm">Baby Blue</span>
+                <span className={cn('text-xs', settings['brandAccents.babyBlue'] ? 'text-emerald-600' : 'text-muted-foreground')}>
+                  {settings['brandAccents.babyBlue'] ? 'ON' : 'OFF'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
+                <span className={cn('size-4 rounded-full border', settings['brandAccents.rose'] ? 'bg-rose-400 border-rose-500' : 'bg-muted border-border')} />
+                <span className="text-sm">Rose</span>
+                <span className={cn('text-xs', settings['brandAccents.rose'] ? 'text-emerald-600' : 'text-muted-foreground')}>
+                  {settings['brandAccents.rose'] ? 'ON' : 'OFF'}
+                </span>
+              </div>
+              {settings['brandAccents.rose'] && (
+                <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
+                  <span className={cn('size-4 rounded-full border', settings['brandAccents.useDeepRoseForIcons'] ? 'border-[#E37383]' : 'border-rose-400')} style={{ backgroundColor: settings['brandAccents.useDeepRoseForIcons'] ? '#E37383' : undefined }} />
+                  <span className="text-sm">Icon Color</span>
+                  <span className="text-xs text-muted-foreground">
+                    {settings['brandAccents.useDeepRoseForIcons'] ? '#E37383' : 'Default'}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ── Contact Information ──────────────────────────────────── */}
@@ -261,6 +382,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               Phone numbers, email, and service area shown across the site
             </p>
           </div>
+          <PreviewToggle section="contact" />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -302,6 +424,34 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
             />
           </div>
         </div>
+
+        {previews.contact && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Footer Preview</p>
+            <div className="rounded-xl border bg-muted/30 p-4 space-y-3 text-sm">
+              <div className="flex items-center gap-2">
+                <Phone className="size-4 text-muted-foreground" />
+                <span>{settings['contact.phonePrimary'] || '(not set)'}</span>
+                {settings['contact.phoneSecondary'] && (
+                  <>
+                    <span className="text-muted-foreground">·</span>
+                    <span>{settings['contact.phoneSecondary']}</span>
+                  </>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="size-4 text-muted-foreground" />
+                <span>{settings['contact.email'] || '(not set)'}</span>
+              </div>
+              {settings['contact.serviceArea'] && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">{settings['contact.serviceArea']}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ── Address ─────────────────────────────────────────────── */}
@@ -316,6 +466,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               Used in the footer, SEO structured data, and contact pages
             </p>
           </div>
+          <PreviewToggle section="address" />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -359,6 +510,23 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
             </div>
           </div>
         </div>
+
+        {previews.address && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Formatted Address</p>
+            <div className="rounded-xl border bg-muted/30 p-4 text-sm">
+              {settings['address.street'] || settings['address.city'] ? (
+                <p>
+                  {settings['address.street'] && <>{settings['address.street']}<br /></>}
+                  {[settings['address.city'], settings['address.state']].filter(Boolean).join(', ')}
+                  {settings['address.zip'] && ` ${settings['address.zip']}`}
+                </p>
+              ) : (
+                <p className="text-muted-foreground italic">No address configured</p>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ── Social Links ────────────────────────────────────────── */}
@@ -373,6 +541,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               Social media profile URLs shown in the footer and SEO data
             </p>
           </div>
+          <PreviewToggle section="social" />
         </div>
 
         <div className="grid gap-4">
@@ -407,6 +576,38 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
             />
           </div>
         </div>
+
+        {previews.social && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Footer Icons Preview</p>
+            <div className="flex gap-3">
+              {settings['social.facebook'] && (
+                <a href={settings['social.facebook']} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-muted">
+                  <IconBrandFacebook className="size-5 text-blue-600" />
+                  Facebook
+                  <ExternalLink className="size-3 text-muted-foreground" />
+                </a>
+              )}
+              {settings['social.linkedin'] && (
+                <a href={settings['social.linkedin']} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-muted">
+                  <IconBrandLinkedin className="size-5 text-blue-700" />
+                  LinkedIn
+                  <ExternalLink className="size-3 text-muted-foreground" />
+                </a>
+              )}
+              {settings['social.instagram'] && (
+                <a href={settings['social.instagram']} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-muted">
+                  <IconBrandInstagram className="size-5 text-pink-600" />
+                  Instagram
+                  <ExternalLink className="size-3 text-muted-foreground" />
+                </a>
+              )}
+              {!settings['social.facebook'] && !settings['social.linkedin'] && !settings['social.instagram'] && (
+                <p className="text-sm text-muted-foreground italic">No social links configured</p>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ── Business Info ───────────────────────────────────────── */}
