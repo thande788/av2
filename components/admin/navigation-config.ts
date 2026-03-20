@@ -7,6 +7,7 @@ import {
   Calendar,
   CircleHelp,
   ClipboardCheck,
+  CreditCard,
   DollarSign,
   FileText,
   Heart,
@@ -279,6 +280,14 @@ export const adminNavItems: AdminNavItem[] = [
     keywords: ['service categories', 'offerings'],
   },
   {
+    id: 'pricing',
+    title: 'Pricing',
+    href: '/admin/pricing',
+    icon: CreditCard,
+    section: 'content',
+    keywords: ['pricing tiers', 'rates', 'packages'],
+  },
+  {
     id: 'analytics',
     title: 'Analytics',
     href: '/admin/analytics',
@@ -352,6 +361,13 @@ export const adminQuickActions: AdminQuickAction[] = [
     href: '/admin/services/new',
     icon: Plus,
     keywords: ['new service', 'category'],
+  },
+  {
+    id: 'new-pricing-tier',
+    title: 'Add Pricing Tier',
+    href: '/admin/pricing/new',
+    icon: Plus,
+    keywords: ['new pricing', 'rate', 'tier'],
   },
 ];
 
