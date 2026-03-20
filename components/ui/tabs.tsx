@@ -25,7 +25,7 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  "rounded-xl p-1 group-data-horizontal/tabs:h-10 group-data-vertical/tabs:rounded-xl data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
+  "rounded-xl p-1 group-data-horizontal/tabs:min-h-10 group-data-vertical/tabs:rounded-xl data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit max-w-full items-center justify-center group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col overflow-x-auto",
   {
     variants: {
       variant: {
@@ -64,12 +64,12 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "gap-1.5 rounded-lg border border-transparent px-3 py-1.5 text-sm font-medium",
+        "gap-1.5 rounded-lg border border-transparent px-2.5 py-1.5 text-xs sm:px-3 sm:text-sm font-medium",
         "group-data-vertical/tabs:px-3 group-data-vertical/tabs:py-2",
-        "[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "[&_svg:not([class*='size-'])]:size-3.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring focus-visible:ring-[3px] focus-visible:outline-1",
         "text-muted-foreground hover:text-foreground",
-        "relative inline-flex h-[calc(100%-2px)] flex-1 items-center justify-center whitespace-nowrap transition-all",
+        "relative inline-flex h-auto min-h-[calc(100%-2px)] flex-1 items-center justify-center whitespace-nowrap transition-all",
         "group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start",
         "disabled:pointer-events-none disabled:opacity-50",
         // Active state: filled background with primary color

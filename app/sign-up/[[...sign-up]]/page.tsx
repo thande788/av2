@@ -73,6 +73,7 @@ export default function SignUpPage() {
       {/* Sign Up Form */}
       <div className='flex flex-1 items-center justify-center p-6 md:p-10 lg:justify-start'>
         <SignUp
+          forceRedirectUrl='/portals'
           appearance={{
             elements: {
               rootBox: 'mx-auto lg:mx-0',

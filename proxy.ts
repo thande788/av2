@@ -134,8 +134,14 @@ export default clerkMiddleware(async (auth, req) => {
   const hostname = req.headers.get('host') || '';
 
   // Subdomain routing: app.angeltouch.services root → /portals
+  // Also redirect authenticated users from marketing homepage to their portal
   if (hostname.startsWith('app.') && pathname === '/') {
     return NextResponse.rewrite(new URL('/portals', req.url));
+  }
+  if (userId && pathname === '/') {
+    const { role } = await getUserRoleAndStatus(userId, sessionClaims as { metadata?: { role?: string } } | null);
+    const portalUrl = getDefaultPortalUrl(role);
+    return NextResponse.redirect(new URL(portalUrl, req.url));
   }
 
   // Gate feature-flagged routes - redirect to home if the feature is disabled
@@ -143,8 +149,16 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Allow public routes
+  // Allow public routes (but intercept /portals for authenticated users)
   if (isPublicRoute(req)) {
+    // If authenticated user hits /portals, redirect to their actual dashboard
+    if (userId && pathname === '/portals') {
+      const { role } = await getUserRoleAndStatus(userId, sessionClaims as { metadata?: { role?: string } } | null);
+      const portalUrl = getDefaultPortalUrl(role);
+      if (portalUrl !== '/portals') {
+        return NextResponse.redirect(new URL(portalUrl, req.url));
+      }
+    }
     return NextResponse.next();
   }
 

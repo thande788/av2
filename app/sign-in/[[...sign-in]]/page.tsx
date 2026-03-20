@@ -9,6 +9,7 @@ export default function SignInPage() {
   return (
     <div className='flex min-h-[60vh] w-full flex-1 items-center justify-center p-6 md:p-10'>
       <SignIn
+        forceRedirectUrl='/portals'
         appearance={{
           elements: {
             rootBox: 'mx-auto',
