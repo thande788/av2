@@ -43,7 +43,7 @@ export function Logo({
         aria-label="Angel Touch Homecare Logo"
       >
         <Image
-          src="/Angel Touch Logo-09-1.png"
+          src="/Angel Touch Logo-09-1024-png.png"
           alt="Angel Touch Homecare Logo"
           fill
           sizes="(max-width: 640px) 40px, (max-width: 1024px) 48px, 56px"
