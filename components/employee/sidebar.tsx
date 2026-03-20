@@ -153,7 +153,7 @@ export function EmployeeSidebar() {
               <div className="p-3 mt-auto border-t border-emerald-500/20 space-y-1">
                 <div className="flex items-center gap-2 rounded-lg px-3 py-1.5">
                   <AnimatedThemeToggle className="size-8" />
-                  <span className="text-sm text-muted-foreground">Toggle theme</span>
+                  <span className="text-sm text-muted-foreground">Theme</span>
                 </div>
                 <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
                   <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500">
@@ -216,10 +216,10 @@ export function EmployeeSidebar() {
           <div className="border-t border-emerald-500/20 p-3 space-y-1">
             <div
               className={cn('flex items-center rounded-lg px-3 py-1.5', collapsed ? 'justify-center' : 'gap-2')}
-              title={collapsed ? 'Toggle theme' : undefined}
+              title={collapsed ? 'Theme' : undefined}
             >
               <AnimatedThemeToggle className="size-8" />
-              {!collapsed && <span className="text-sm text-muted-foreground">Toggle theme</span>}
+              {!collapsed && <span className="text-sm text-muted-foreground">Theme</span>}
             </div>
             <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
               <button
