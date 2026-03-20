@@ -110,10 +110,18 @@ export async function updateSiteSettings(
   if (!userId) return { success: false, error: 'Unauthorized' };
 
   try {
-    const entries = Object.entries(payload) as [SettingKey, SiteSettings[SettingKey]][];
+    // Only upsert keys whose values actually changed
+    const current = await getSiteSettings();
+    const changedEntries = (
+      Object.entries(payload) as [SettingKey, SiteSettings[SettingKey]][]
+    ).filter(([key, value]) => JSON.stringify(current[key]) !== JSON.stringify(value));
+
+    if (changedEntries.length === 0) {
+      return { success: true };
+    }
 
     await db.$transaction(
-      entries.map(([key, value]) =>
+      changedEntries.map(([key, value]) =>
         db.siteSetting.upsert({
           where: { key },
           create: {
@@ -133,7 +141,7 @@ export async function updateSiteSettings(
       action: 'SETTINGS_UPDATE',
       entity: 'SiteSetting',
       entityId: 'global',
-      details: { changedKeys: Object.keys(payload) },
+      details: { changedKeys: changedEntries.map(([k]) => k) },
     });
 
     revalidatePath('/', 'layout');
