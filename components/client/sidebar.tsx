@@ -128,9 +128,9 @@ export function ClientSidebar() {
                     <Image
                       src="/angel_pink.png"
                       alt="Angel Touch"
-                      width={200}
-                      height={200}
-                      className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                      width={650}
+                      height={731}
+                      className="size-full object-contain"
                     />
                   </div>
                   <span className="font-semibold text-sky-600 dark:text-sky-500">Family Portal</span>
@@ -153,9 +153,9 @@ export function ClientSidebar() {
             <Image
               src="/angel_pink.png"
               alt="Angel Touch"
-              width={200}
-              height={200}
-              className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+              width={650}
+              height={731}
+              className="size-full object-contain"
             />
           </div>
           <span className="truncate font-semibold text-sky-600 dark:text-sky-500">Family Portal</span>
@@ -174,9 +174,9 @@ export function ClientSidebar() {
               <Image
                 src="/angel_pink.png"
                 alt="Angel Touch"
-                width={200}
-                height={200}
-                className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                width={650}
+                height={731}
+                className="size-full object-contain"
               />
             </div>
             {!collapsed && (

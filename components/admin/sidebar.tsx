@@ -381,9 +381,9 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
                       <Image
                         src="/angel_pink.png"
                         alt="Angel Touch"
-                        width={200}
-                        height={200}
-                        className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                        width={650}
+                        height={731}
+                        className="size-full object-contain"
                       />
                     </div>
                     <div>
@@ -433,9 +433,9 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
             <Image
               src="/angel_pink.png"
               alt="Angel Touch"
-              width={200}
-              height={200}
-              className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+              width={650}
+              height={731}
+              className="size-full object-contain"
             />
           </div>
           <div className="min-w-0">
@@ -467,9 +467,9 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
                   <Image
                     src="/angel_pink.png"
                     alt="Angel Touch"
-                    width={200}
-                    height={200}
-                    className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                    width={650}
+                    height={731}
+                    className="size-full object-contain"
                   />
                 </div>
               </Link>
@@ -509,9 +509,9 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
                   <Image
                     src="/angel_pink.png"
                     alt="Angel Touch"
-                    width={200}
-                    height={200}
-                    className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+                    width={650}
+                    height={731}
+                    className="size-full object-contain"
                   />
                 </div>
                 <div className="min-w-0">

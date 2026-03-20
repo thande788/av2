@@ -22,9 +22,9 @@ export function LogoWatermark({ className }: LogoWatermarkProps) {
         <Image
           src="/angel_pink.png"
           alt=""
-          width={600}
-          height={600}
-          className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%]"
+          width={650}
+          height={731}
+          className="size-full object-contain"
           priority={false}
         />
       </div>
