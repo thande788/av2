@@ -134,7 +134,7 @@ function ChatWidgetContent({
   }, [message, isSending]);
 
   return (
-    <Card className="w-[calc(100vw-2rem)] sm:w-96 max-w-96 overflow-hidden shadow-2xl border-border/50 py-0">
+    <Card className="w-[calc(100vw-2rem)] sm:w-96 max-w-96 overflow-hidden shadow-2xl border-border/50 py-0 bg-blue-50/60 dark:bg-card">
       {/* Header */}
       <div className="bg-primary p-4 text-primary-foreground rounded-t-2xl">
         <div className="flex items-start justify-between">
