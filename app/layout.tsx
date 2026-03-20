@@ -3,7 +3,7 @@ import { Geist_Mono, Inter, Nunito } from "next/font/google";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SkipLink } from "@/components/layout";
-import { getBrandAccentsAttribute } from "@/data/site-config";
+import { getBrandAccentsFromDB } from "@/data/site-config";
 import { siteMetadata } from "@/lib/seo/site-metadata";
 import "./globals.css";
 
@@ -34,12 +34,12 @@ export const metadata: Metadata = {
     "Compassionate, professional homecare services supporting independence, dignity, and quality of life.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const brandAccents = getBrandAccentsAttribute();
+  const brandAccents = await getBrandAccentsFromDB();
 
   return (
     <ClerkProvider>

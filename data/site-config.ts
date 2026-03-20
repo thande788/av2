@@ -1,8 +1,14 @@
 /**
  * Site-wide configuration for toggleable features
  * 
- * This file controls feature flags and promotional banners.
- * Configuration reads from environment variables with sensible defaults.
+ * Configuration hierarchy (highest to lowest priority):
+ * 1. Database (SiteSetting table) — admin-editable at /admin/settings
+ * 2. Environment variables (NEXT_PUBLIC_*)
+ * 3. Hardcoded defaults below
+ * 
+ * The `siteConfig` object is the static/env-var fallback used by client
+ * components. Server components should call `getSiteSettings()` from
+ * `@/app/actions/site-settings` for the freshest DB-backed values.
  * 
  * Environment variables:
  * - NEXT_PUBLIC_HIRING_BANNER: "true" | "false" (default: "true")
@@ -82,6 +88,24 @@ export function getBrandAccentsAttribute(): string {
   if (rose) accents.push("rose");
   
   return accents.join(" ");
+}
+
+/**
+ * DB-backed brand accents attribute.
+ * Falls back to static config if DB read fails (e.g. during build).
+ */
+export async function getBrandAccentsFromDB(): Promise<string> {
+  try {
+    const { getSiteSettings } = await import('@/app/actions/site-settings');
+    const settings = await getSiteSettings();
+    const accents: string[] = [];
+    if (settings['brandAccents.babyBlue']) accents.push('baby-blue');
+    if (settings['brandAccents.rose']) accents.push('rose');
+    return accents.join(' ');
+  } catch {
+    // Fallback to static config during build or if DB is unavailable
+    return getBrandAccentsAttribute();
+  }
 }
 
 /**

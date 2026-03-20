@@ -28,6 +28,13 @@ export {
   type AdminEmailResult,
 } from "./admin-email";
 
+// Site settings actions
+export {
+  getSiteSettings,
+  updateSiteSettings,
+  type SiteSettings,
+} from "./site-settings";
+
 // Email templates (shared data — re-exported from types to avoid restricted import)
 export type { EmailTemplate } from '@/types';
 

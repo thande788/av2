@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   MessageSquare,
   Plus,
+  Settings,
   Shield,
   Star,
   UserCheck,
@@ -303,6 +304,15 @@ export const adminNavItems: AdminNavItem[] = [
     section: 'system',
     shortcut: 'G U',
     keywords: ['accounts', 'roles'],
+  },
+  {
+    id: 'settings',
+    title: 'Site Settings',
+    href: '/admin/settings',
+    icon: Settings,
+    section: 'system',
+    shortcut: 'G S',
+    keywords: ['configuration', 'banners', 'branding'],
   },
 ];
 

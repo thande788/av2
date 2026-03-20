@@ -30,6 +30,7 @@ import {
 import { HiringBanner } from "@/components/shared/hiring-banner";
 import { JsonLd } from "@/components/seo";
 import { localBusinessSchema, getCanonicalAlternates } from "@/lib/seo";
+import { getSiteSettings } from "@/app/actions/site-settings";
 
 export const metadata: Metadata = {
 	title: "Angel Touch Homecare | Compassionate In-Home Care in Lowell, MA",
@@ -192,7 +193,10 @@ async function getFeaturedTestimonials(): Promise<Testimonial[]> {
  * Sections: Hero, Stats, Services Preview, Why Choose Us, Testimonials, CTA
  */
 export default async function HomePage() {
-	const testimonials = await getFeaturedTestimonials();
+	const [testimonials, settings] = await Promise.all([
+		getFeaturedTestimonials(),
+		getSiteSettings(),
+	]);
 	return (
 		<>
 			<JsonLd data={localBusinessSchema} />
@@ -249,9 +253,14 @@ export default async function HomePage() {
 				</div>
 			</section>
 
-			{/* Hiring Banner - Toggleable via siteConfig */}
+			{/* Hiring Banner - Toggleable via admin settings */}
 			<section className="px-4 md:px-8 max-w-7xl mx-auto mb-8">
-				<HiringBanner />
+				<HiringBanner
+					enabled={settings['hiringBanner.enabled']}
+					message={settings['hiringBanner.message']}
+					ctaText={settings['hiringBanner.ctaText']}
+					ctaHref={settings['hiringBanner.ctaHref']}
+				/>
 			</section>
 
 			{/* Statistics Section */}

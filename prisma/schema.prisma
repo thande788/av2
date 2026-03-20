@@ -1180,3 +1180,14 @@ enum IncidentStatus {
   RESOLVED
   CLOSED
 }
+
+// =============================================================================
+// SITE SETTINGS — admin-configurable key-value store
+// =============================================================================
+
+model SiteSetting {
+  key       String   @id // e.g. "hiringBanner.enabled"
+  value     String   @db.Text // JSON-encoded value
+  updatedAt DateTime @updatedAt
+  updatedBy String?  // Clerk user ID of last editor
+}

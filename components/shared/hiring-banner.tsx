@@ -6,23 +6,40 @@ import { IconSparkles, IconX } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { siteConfig, isHiringBannerActive } from "@/data/site-config";
 
+interface HiringBannerProps {
+  /** Override enabled state from DB-backed settings. Falls back to static config. */
+  enabled?: boolean;
+  message?: string;
+  ctaText?: string;
+  ctaHref?: string;
+}
+
 /**
  * Subtle hiring banner component
  * 
  * Displays a dismissible banner promoting open positions.
- * Controlled via siteConfig.hiringBanner.enabled
+ * Accepts optional props from server-side DB reads; falls back to
+ * siteConfig.hiringBanner when props are omitted.
  * 
  * Note: Dismissal is session-based (resets on page refresh).
- * For persistent dismissal, could integrate with localStorage or user preferences.
  */
-export function HiringBanner() {
+export function HiringBanner({
+  enabled,
+  message: messageProp,
+  ctaText: ctaTextProp,
+  ctaHref: ctaHrefProp,
+}: HiringBannerProps) {
   const [isDismissed, setIsDismissed] = useState(false);
 
-  if (!isHiringBannerActive() || isDismissed) {
+  const isActive = enabled !== undefined ? enabled : isHiringBannerActive();
+
+  if (!isActive || isDismissed) {
     return null;
   }
 
-  const { message, ctaText, ctaHref } = siteConfig.hiringBanner;
+  const message = messageProp ?? siteConfig.hiringBanner.message;
+  const ctaText = ctaTextProp ?? siteConfig.hiringBanner.ctaText;
+  const ctaHref = ctaHrefProp ?? siteConfig.hiringBanner.ctaHref;
 
   return (
     <div
