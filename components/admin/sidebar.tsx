@@ -1,6 +1,6 @@
 'use client';
 
-import { SignOutButton, UserButton, useClerk } from '@clerk/nextjs';
+import { SignOutButton, UserButton } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -217,100 +217,74 @@ function QuickActionsMenu({
 
 function MobileSidebarFooter() {
   const { setTheme, resolvedTheme } = useTheme();
-  const { openUserProfile } = useClerk();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-primary/10 p-3 space-y-2">
-      <div className="flex items-center gap-3 rounded-2xl px-3 py-2">
-        <UserButton
-          appearance={{ elements: { avatarBox: 'size-8' } }}
-          afterSignOutUrl="/portals"
-        />
-        <span
-          role="button"
-          tabIndex={0}
-          onClick={() => openUserProfile()}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUserProfile(); } }}
-          className="text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-        >Account</span>
-      </div>
-      <div className="flex gap-1">
+    <div className="border-t border-primary/10 p-3 flex items-center justify-center gap-2">
+      <UserButton
+        appearance={{ elements: { avatarBox: 'size-9' } }}
+        afterSignOutUrl="/portals"
+      />
       <div
         role="button"
         tabIndex={0}
         onClick={toggleTheme}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } }}
-        className="flex flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted cursor-pointer"
+        className="flex items-center justify-center size-9 rounded-2xl text-muted-foreground transition-all hover:bg-muted cursor-pointer"
+        title="Toggle theme"
       >
-        <AnimatedThemeToggle className="size-8 pointer-events-none" />
-        <span>Theme</span>
+        <AnimatedThemeToggle className="size-7 pointer-events-none" />
       </div>
       <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-        <button className="flex flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500">
-          <LogOut className="size-5 shrink-0" />
-          <span>Sign Out</span>
+        <button
+          className="flex items-center justify-center size-9 rounded-2xl text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500"
+          title="Sign out"
+        >
+          <LogOut className="size-5" />
         </button>
       </SignOutButton>
-      </div>
     </div>
   );
 }
 
 function DesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
   const { setTheme, resolvedTheme } = useTheme();
-  const { openUserProfile } = useClerk();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-primary/10 p-3 space-y-2">
+    <div className="border-t border-primary/10 p-3 flex items-center justify-center gap-2">
       <SidebarTooltip label="Account" disabled={!collapsed}>
-        <div className={cn('flex items-center rounded-2xl px-3 py-2', collapsed ? 'justify-center' : 'gap-3')}>
+        <div>
           <UserButton
-            appearance={{ elements: { avatarBox: 'size-8' } }}
+            appearance={{ elements: { avatarBox: 'size-9' } }}
             afterSignOutUrl="/portals"
           />
-          {!collapsed && <span
-            role="button"
-            tabIndex={0}
-            onClick={() => openUserProfile()}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUserProfile(); } }}
-            className="text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-          >Account</span>}
         </div>
       </SidebarTooltip>
-      <div className="flex gap-1">
-      <SidebarTooltip label="Theme" disabled={!collapsed}>
+      <SidebarTooltip label="Toggle theme" disabled={!collapsed}>
         <div
           role="button"
           tabIndex={0}
           onClick={toggleTheme}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } }}
-          className={cn(
-            'flex flex-1 items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition-all cursor-pointer',
-            collapsed ? 'justify-center' : 'gap-3',
-            'text-muted-foreground hover:bg-muted'
-          )}
+          className="flex items-center justify-center size-9 rounded-2xl text-muted-foreground transition-all hover:bg-muted cursor-pointer"
+          title={!collapsed ? 'Toggle theme' : undefined}
         >
-          <AnimatedThemeToggle className="size-8 pointer-events-none" />
-          {!collapsed && <span>Theme</span>}
+          <AnimatedThemeToggle className="size-7 pointer-events-none" />
         </div>
       </SidebarTooltip>
-      <SidebarTooltip label="Sign Out" disabled={!collapsed}>
-        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-          <button
-            className={cn(
-              'flex flex-1 items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition-all',
-              collapsed ? 'justify-center' : 'gap-3',
-              'text-muted-foreground hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500'
-            )}
-          >
-            <LogOut className="size-5 shrink-0" />
-            {!collapsed && <span>Sign Out</span>}
-          </button>
-        </SignOutButton>
-      </SidebarTooltip>
-      </div>
+      {!collapsed && (
+        <SidebarTooltip label="Sign out" disabled={!collapsed}>
+          <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+            <button
+              className="flex items-center justify-center size-9 rounded-2xl text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500"
+              title="Sign out"
+            >
+              <LogOut className="size-5" />
+            </button>
+          </SignOutButton>
+        </SidebarTooltip>
+      )}
     </div>
   );
 }

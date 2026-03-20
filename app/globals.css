@@ -5,7 +5,10 @@
 
 @plugin "@tailwindcss/typography";
 
-
+/* Blur page behind Clerk account management modal */
+.cl-modalBackdrop {
+  backdrop-filter: blur(4px);
+}
 
 @custom-variant dark (&:is(.dark *));
 

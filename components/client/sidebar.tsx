@@ -24,7 +24,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useState } from 'react';
-import { SignOutButton, UserButton, useClerk } from '@clerk/nextjs';
+import { SignOutButton, UserButton } from '@clerk/nextjs';
 import { useTheme } from 'next-themes';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
@@ -75,96 +75,66 @@ const navItems: NavItem[] = [
 
 function ClientMobileSidebarFooter() {
   const { setTheme, resolvedTheme } = useTheme();
-  const { openUserProfile } = useClerk();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-sky-500/20 p-3 space-y-2">
-      <div className="flex items-center gap-3 rounded-lg px-3 py-2">
-        <UserButton
-          appearance={{ elements: { avatarBox: 'size-8' } }}
-          afterSignOutUrl="/portals"
-        />
-        <span
-          role="button"
-          tabIndex={0}
-          onClick={() => openUserProfile()}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUserProfile(); } }}
-          className="text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-        >Account</span>
-      </div>
-      <div className="flex gap-1">
+    <div className="border-t border-sky-500/20 p-3 flex items-center justify-center gap-2">
+      <UserButton
+        appearance={{ elements: { avatarBox: 'size-9' } }}
+        afterSignOutUrl="/portals"
+      />
       <div
         role="button"
         tabIndex={0}
         onClick={toggleTheme}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } }}
-        className="flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted cursor-pointer"
+        className="flex items-center justify-center size-9 rounded-lg text-muted-foreground transition-colors hover:bg-muted cursor-pointer"
+        title="Toggle theme"
       >
-        <AnimatedThemeToggle className="size-8 pointer-events-none" />
-        <span>Theme</span>
+        <AnimatedThemeToggle className="size-7 pointer-events-none" />
       </div>
       <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-        <button className="flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600">
-          <LogOut className="size-5 shrink-0" />
-          <span>Sign Out</span>
+        <button
+          className="flex items-center justify-center size-9 rounded-lg text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600"
+          title="Sign out"
+        >
+          <LogOut className="size-5" />
         </button>
       </SignOutButton>
-      </div>
     </div>
   );
 }
 
 function ClientDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
   const { setTheme, resolvedTheme } = useTheme();
-  const { openUserProfile } = useClerk();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-sky-500/20 p-3 space-y-2">
-      <div className={cn('flex items-center rounded-lg px-3 py-2', collapsed ? 'justify-center' : 'gap-3')}>
-        <UserButton
-          appearance={{ elements: { avatarBox: 'size-8' } }}
-          afterSignOutUrl="/portals"
-        />
-        {!collapsed && <span
-          role="button"
-          tabIndex={0}
-          onClick={() => openUserProfile()}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUserProfile(); } }}
-          className="text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-        >Account</span>}
-      </div>
-      <div className="flex gap-1">
+    <div className="border-t border-sky-500/20 p-3 flex items-center justify-center gap-2">
+      <UserButton
+        appearance={{ elements: { avatarBox: 'size-9' } }}
+        afterSignOutUrl="/portals"
+      />
       <div
         role="button"
         tabIndex={0}
         onClick={toggleTheme}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } }}
-        className={cn(
-          'flex flex-1 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer',
-          collapsed ? 'justify-center' : 'gap-3',
-          'text-muted-foreground hover:bg-muted'
-        )}
-        title={collapsed ? 'Theme' : undefined}
+        className="flex items-center justify-center size-9 rounded-lg text-muted-foreground transition-colors hover:bg-muted cursor-pointer"
+        title="Toggle theme"
       >
-        <AnimatedThemeToggle className="size-8 pointer-events-none" />
-        {!collapsed && <span>Theme</span>}
+        <AnimatedThemeToggle className="size-7 pointer-events-none" />
       </div>
-      <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-        <button
-          className={cn(
-            'flex flex-1 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-            'text-muted-foreground hover:bg-red-500/10 hover:text-red-600',
-            collapsed ? 'justify-center' : 'gap-3'
-          )}
-          title={collapsed ? 'Sign Out' : undefined}
-        >
-          <LogOut className="size-5 shrink-0" />
-          {!collapsed && <span>Sign Out</span>}
-        </button>
-      </SignOutButton>
-      </div>
+      {!collapsed && (
+        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+          <button
+            className="flex items-center justify-center size-9 rounded-lg text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600"
+            title="Sign out"
+          >
+            <LogOut className="size-5" />
+          </button>
+        </SignOutButton>
+      )}
     </div>
   );
 }
