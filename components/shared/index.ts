@@ -58,6 +58,10 @@ export {
 
 // Chat widget
 export { ChatWidget } from "./chat-widget";
+
+// Helpers & tutorials
+export { InfoTooltip } from "./info-tooltip";
+export { EmptyState } from "./empty-state";
 export { LazyChatWidget } from "./lazy-chat-widget";
 
 // File upload

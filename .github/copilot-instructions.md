@@ -96,6 +96,7 @@ To provide compassionate, reliable, and personalized non-medical in-home care se
 | Theming | next-themes | Light/dark mode, system preference |
 | Forms | React Hook Form + Zod | Type-safe validation |
 | Icons | Tabler Icons, Lucide React | Consistent iconography |
+| MDX | next-mdx-remote + gray-matter | Help center articles |
 
 ### Planned Stack (Fullstack Evolution)
 
@@ -139,6 +140,11 @@ v2/
 ├── hooks/                  # Custom React hooks
 ├── types/                  # TypeScript type definitions
 ├── data/                   # Static data, content
+├── content/
+│   └── help/               # MDX help center articles
+│       ├── getting-started/ # Onboarding / portal overview articles
+│       ├── scheduling/      # Shift & schedule help articles
+│       └── billing/         # Invoice & payment help articles
 ├── public/                 # Static assets
 └── prisma/                 # Database schema (future)
 ```
@@ -810,6 +816,20 @@ __tests__/
 - [x] Availability Conflicts & Swaps (swap requests, admin approval workflow)
 - [x] Invoice Payment Portal (Stripe Checkout integration)
 
+### Phase: Tutorial & Guided Help ✅ COMPLETE
+
+- [x] InfoTooltip contextual help component (`components/shared/info-tooltip.tsx`)
+- [x] EmptyState reusable component (`components/shared/empty-state.tsx`)
+- [x] Onboarding Wizard infrastructure (server actions, Prisma fields, gate component)
+- [x] Per-portal onboarding steps (family 4 steps, employee 3, admin 3)
+- [x] Feature Tour spotlight overlay with localStorage persistence (`components/shared/feature-tour.tsx`)
+- [x] Tour restart via TourTrigger button + custom event (no page reload)
+- [x] Dashboard tours wired into all 3 portals (`data/tour-steps.ts`)
+- [x] MDX Help Center with `next-mdx-remote` + `gray-matter` (`content/help/`, `/help` route)
+- [x] Chat Widget extended with contextual `helpLinks` prop
+- [x] Admin Site Settings CMS (brand accents, hiring banner, announcement banner, contact info)
+- [x] Announcement Banner component wired into marketing layout
+
 ### Phase: Enterprise Features (Long-term)
 
 - Integration with care management software (AlayaCare/ClearCare)
@@ -872,8 +892,13 @@ git add -A && git commit -m "type(scope): message"
 | shadcn/ui config | `components.json` |
 | Environment template | `.env.local.example` |
 | Migration plan | `migration_plan.md` |
+| Help center content | `content/help/` |
+| Tour step definitions | `data/tour-steps.ts` |
+| Feature tour component | `components/shared/feature-tour.tsx` |
+| Onboarding wizard | `components/shared/onboarding-wizard.tsx` |
+| Site settings actions | `app/actions/site-settings.ts` |
 | This guide | `.github/copilot-instructions.md` |
 
 ---
 
-*Last updated: March 19, 2026*
+*Last updated: March 20, 2026*

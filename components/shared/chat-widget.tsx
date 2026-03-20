@@ -20,6 +20,7 @@ import {
   IconClock,
   IconChevronRight,
   IconSend,
+  IconBook,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,9 +28,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { siteMetadata } from "@/lib/seo/site-metadata";
+import Link from "next/link";
 import { submitChatMessage } from "@/app/actions/chat-widget";
 
 // Types
+interface HelpLink {
+  label: string;
+  href: string;
+}
+
 interface QuickAction {
   id: string;
   icon: React.ReactNode;
@@ -48,6 +55,8 @@ interface ChatWidgetProps {
   greeting?: string;
   /** Show widget immediately (skip delay) */
   immediate?: boolean;
+  /** Contextual help links shown in the widget */
+  helpLinks?: HelpLink[];
 }
 
 // Quick contact actions
@@ -88,10 +97,12 @@ function BusinessHours() {
 // Chat widget content
 function ChatWidgetContent({ 
   onClose, 
-  greeting 
+  greeting,
+  helpLinks,
 }: { 
   onClose: () => void;
   greeting: string;
+  helpLinks?: HelpLink[];
 }) {
   const [showMessageForm, setShowMessageForm] = useState(false);
   const [message, setMessage] = useState("");
@@ -193,6 +204,30 @@ function ChatWidgetContent({
 
         {/* Quick message form */}
         <div className="pt-2 border-t border-border/50">
+          {/* Contextual help links */}
+          {helpLinks && helpLinks.length > 0 && (
+            <div className="mb-3 space-y-1.5">
+              <p className="text-xs text-muted-foreground font-medium px-1">Help Articles</p>
+              {helpLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+                >
+                  <IconBook className="size-4 shrink-0 text-primary/60" />
+                  {link.label}
+                </Link>
+              ))}
+              <Link
+                href="/help"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-primary transition-colors hover:bg-primary/5"
+              >
+                Browse all articles
+                <IconChevronRight className="size-3" />
+              </Link>
+            </div>
+          )}
+
           {!showMessageForm ? (
             <Button
               variant="outline"
@@ -319,8 +354,9 @@ function ChatButton({
 export function ChatWidget({
   showDelay = 5000,
   position = "bottom-right",
-  greeting = "Hi there! 👋 How can we help you today? Whether you need information about our care services or want to schedule a consultation, we&apos;re here for you.",
+  greeting = "Hi there! 👋 How can we help you today? Whether you need information about our care services or want to schedule a consultation, we're here for you.",
   immediate = false,
+  helpLinks,
 }: ChatWidgetProps) {
   const [isVisible, setIsVisible] = useState(immediate);
   const [isOpen, setIsOpen] = useState(false);
@@ -383,7 +419,7 @@ export function ChatWidget({
             transition={{ duration: 0.2 }}
             className="mb-4 origin-bottom-right"
           >
-            <ChatWidgetContent onClose={handleClose} greeting={greeting} />
+            <ChatWidgetContent onClose={handleClose} greeting={greeting} helpLinks={helpLinks} />
           </motion.div>
         )}
       </AnimatePresence>

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { EmployeeStatCard } from '@/components/employee/stat-card';
 import { formatDateUS } from '@/lib/utils';
 import { getCurrentWorkerWithBookings, isAdminOrManager } from '@/lib/auth';
+import { EmployeeDashboardTour } from '@/components/employee/dashboard-tour';
 
 export const metadata = {
   title: 'Dashboard',
@@ -107,6 +108,7 @@ export default async function EmployeeDashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome */}
+      <EmployeeDashboardTour />
       <div>
         <h1 className="text-2xl font-bold text-foreground">
           Welcome back, {worker.user.firstName}!
@@ -115,7 +117,7 @@ export default async function EmployeeDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div data-tour="employee-stats" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <EmployeeStatCard
           title="Upcoming Shifts"
           value={upcomingShifts.length.toString()}

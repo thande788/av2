@@ -14,6 +14,7 @@ import {
 } from '@tabler/icons-react';
 import { isToday, isTomorrow } from 'date-fns';
 import { getCurrentClient, getCurrentPortalUser } from '@/lib/auth';
+import { ClientDashboardTour } from '@/components/client/dashboard-tour';
 
 export const metadata = {
   title: 'Dashboard',
@@ -127,6 +128,7 @@ export default async function ClientDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <ClientDashboardTour />
       <div>
         <h1 className="text-2xl font-bold text-foreground">
           Welcome, {demoClient.user.firstName}
@@ -137,7 +139,7 @@ export default async function ClientDashboardPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div data-tour="client-stats" className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -218,7 +220,7 @@ export default async function ClientDashboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Upcoming Visits */}
-        <Card>
+        <Card data-tour="client-visits">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -283,7 +285,7 @@ export default async function ClientDashboardPage() {
         </Card>
 
         {/* Care Team */}
-        <Card>
+        <Card data-tour="client-care-team">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>

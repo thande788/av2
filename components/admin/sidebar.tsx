@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useTheme } from 'next-themes';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 import {
   DropdownMenu,
@@ -211,6 +212,72 @@ function QuickActionsMenu({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function MobileSidebarFooter() {
+  const { setTheme, resolvedTheme } = useTheme();
+  const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+
+  return (
+    <div className="border-t border-primary/10 p-3 flex gap-1">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={toggleTheme}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } }}
+        className="flex flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted cursor-pointer"
+      >
+        <AnimatedThemeToggle className="size-8 pointer-events-none" />
+        <span>Theme</span>
+      </div>
+      <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+        <button className="flex flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500">
+          <LogOut className="size-5 shrink-0" />
+          <span>Sign Out</span>
+        </button>
+      </SignOutButton>
+    </div>
+  );
+}
+
+function DesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
+  const { setTheme, resolvedTheme } = useTheme();
+  const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+
+  return (
+    <div className="border-t border-primary/10 p-3 flex gap-1">
+      <SidebarTooltip label="Theme" disabled={!collapsed}>
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={toggleTheme}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } }}
+          className={cn(
+            'flex flex-1 items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition-all cursor-pointer',
+            collapsed ? 'justify-center' : 'gap-3',
+            'text-muted-foreground hover:bg-muted'
+          )}
+        >
+          <AnimatedThemeToggle className="size-8 pointer-events-none" />
+          {!collapsed && <span>Theme</span>}
+        </div>
+      </SidebarTooltip>
+      <SidebarTooltip label="Sign Out" disabled={!collapsed}>
+        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+          <button
+            className={cn(
+              'flex flex-1 items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition-all',
+              collapsed ? 'justify-center' : 'gap-3',
+              'text-muted-foreground hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500'
+            )}
+          >
+            <LogOut className="size-5 shrink-0" />
+            {!collapsed && <span>Sign Out</span>}
+          </button>
+        </SignOutButton>
+      </SidebarTooltip>
+    </div>
   );
 }
 
@@ -417,18 +484,7 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
 
               {navigation({ onNavigate: () => setMobileOpen(false) })}
 
-              <div className="border-t border-primary/10 p-3 space-y-1">
-                <div className="flex items-center gap-2 rounded-2xl px-3 py-1.5">
-                  <AnimatedThemeToggle className="size-8" />
-                  <span className="text-sm text-muted-foreground">Theme</span>
-                </div>
-                <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-                  <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500">
-                    <LogOut className="size-5 shrink-0" />
-                    <span>Sign Out</span>
-                  </button>
-                </SignOutButton>
-              </div>
+              <MobileSidebarFooter />
             </div>
           </SheetContent>
         </Sheet>
@@ -564,28 +620,7 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
 
         <div className="flex min-h-0 flex-1 flex-col">
           {navigation({ compact: collapsed })}
-          <div className="border-t border-primary/10 p-3 space-y-1">
-            <SidebarTooltip label="Theme" disabled={!collapsed}>
-              <div className={cn('flex items-center rounded-2xl px-3 py-1.5', collapsed ? 'justify-center' : 'gap-2')}>
-                <AnimatedThemeToggle className="size-8" />
-                {!collapsed && <span className="text-sm text-muted-foreground">Theme</span>}
-              </div>
-            </SidebarTooltip>
-            <SidebarTooltip label="Sign Out" disabled={!collapsed}>
-              <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-                <button
-                  className={cn(
-                    'flex w-full items-center rounded-2xl px-3 py-2.5 text-sm font-medium transition-all',
-                    collapsed ? 'justify-center' : 'gap-3',
-                    'text-muted-foreground hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500'
-                  )}
-                >
-                  <LogOut className="size-5 shrink-0" />
-                  {!collapsed && <span>Sign Out</span>}
-                </button>
-              </SignOutButton>
-            </SidebarTooltip>
-          </div>
+          <DesktopSidebarFooter collapsed={collapsed} />
         </div>
       </aside>
     </>

@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 import { ClientSidebar } from '@/components/client/sidebar';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { LogoWatermark } from '@/components/shared/logo-watermark';
+import { OnboardingGate } from '@/components/shared/onboarding-gate';
+import { familyOnboardingSteps } from '@/components/shared/onboarding-steps';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +33,9 @@ export default function ClientPortalLayout({
       <main className="relative min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <LogoWatermark />
         <div className="relative z-10 mx-auto w-full max-w-[160rem] px-5 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-10 lg:py-10">
-          {children}
+          <OnboardingGate steps={familyOnboardingSteps} portalName="Family Portal" accentColor="sky-500">
+            {children}
+          </OnboardingGate>
         </div>
       </main>
       <DemoBanner />

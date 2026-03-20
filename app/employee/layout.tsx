@@ -5,6 +5,8 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { EmployeeSidebar } from '@/components/employee/sidebar';
 import { LogoWatermark } from '@/components/shared/logo-watermark';
+import { OnboardingGate } from '@/components/shared/onboarding-gate';
+import { employeeOnboardingSteps } from '@/components/shared/onboarding-steps';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +34,9 @@ export default function EmployeeLayout({
       <main className="relative min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <LogoWatermark />
         <div className="relative z-10 mx-auto w-full max-w-[160rem] px-5 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-10 lg:py-10">
-          {children}
+          <OnboardingGate steps={employeeOnboardingSteps} portalName="Employee Portal" accentColor="emerald-500">
+            {children}
+          </OnboardingGate>
         </div>
       </main>
       <DemoBanner />

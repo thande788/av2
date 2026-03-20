@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/sheet';
 import { useState } from 'react';
 import { SignOutButton } from '@clerk/nextjs';
+import { useTheme } from 'next-themes';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
 interface NavItem {
@@ -83,6 +84,70 @@ const navItems: NavItem[] = [
     icon: Settings,
   },
 ];
+
+function EmployeeMobileSidebarFooter() {
+  const { setTheme, resolvedTheme } = useTheme();
+  const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+
+  return (
+    <div className="p-3 mt-auto border-t border-emerald-500/20 flex gap-1">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={toggleTheme}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } }}
+        className="flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted cursor-pointer"
+      >
+        <AnimatedThemeToggle className="size-8 pointer-events-none" />
+        <span>Theme</span>
+      </div>
+      <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+        <button className="flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500">
+          <LogOut className="size-5 shrink-0" />
+          <span>Sign Out</span>
+        </button>
+      </SignOutButton>
+    </div>
+  );
+}
+
+function EmployeeDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
+  const { setTheme, resolvedTheme } = useTheme();
+  const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+
+  return (
+    <div className="border-t border-emerald-500/20 p-3 flex gap-1">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={toggleTheme}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); } }}
+        className={cn(
+          'flex flex-1 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all cursor-pointer',
+          collapsed ? 'justify-center' : 'gap-3',
+          'text-muted-foreground hover:bg-muted'
+        )}
+        title={collapsed ? 'Theme' : undefined}
+      >
+        <AnimatedThemeToggle className="size-8 pointer-events-none" />
+        {!collapsed && <span>Theme</span>}
+      </div>
+      <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
+        <button
+          className={cn(
+            'flex flex-1 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+            'text-muted-foreground hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500',
+            collapsed ? 'justify-center' : 'gap-3'
+          )}
+          title={collapsed ? 'Sign Out' : undefined}
+        >
+          <LogOut className="size-5 shrink-0" />
+          {!collapsed && <span>Sign Out</span>}
+        </button>
+      </SignOutButton>
+    </div>
+  );
+}
 
 export function EmployeeSidebar() {
   const pathname = usePathname();
@@ -150,18 +215,7 @@ export function EmployeeSidebar() {
                 </Link>
               </div>
               {navLinks({ onNavigate: () => setMobileOpen(false) })}
-              <div className="p-3 mt-auto border-t border-emerald-500/20 space-y-1">
-                <div className="flex items-center gap-2 rounded-lg px-3 py-1.5">
-                  <AnimatedThemeToggle className="size-8" />
-                  <span className="text-sm text-muted-foreground">Theme</span>
-                </div>
-                <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500">
-                    <LogOut className="size-5 shrink-0" />
-                    <span>Sign Out</span>
-                  </button>
-                </SignOutButton>
-              </div>
+              <EmployeeMobileSidebarFooter />
             </div>
           </SheetContent>
         </Sheet>
@@ -213,28 +267,7 @@ export function EmployeeSidebar() {
 
         <div className="flex min-h-0 flex-1 flex-col">
           {navLinks({ compact: collapsed })}
-          <div className="border-t border-emerald-500/20 p-3 space-y-1">
-            <div
-              className={cn('flex items-center rounded-lg px-3 py-1.5', collapsed ? 'justify-center' : 'gap-2')}
-              title={collapsed ? 'Theme' : undefined}
-            >
-              <AnimatedThemeToggle className="size-8" />
-              {!collapsed && <span className="text-sm text-muted-foreground">Theme</span>}
-            </div>
-            <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-              <button
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-                  'hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-500',
-                  collapsed && 'justify-center px-2'
-                )}
-                title={collapsed ? 'Sign Out' : undefined}
-              >
-                <LogOut className="size-5 shrink-0" />
-                {!collapsed && <span>Sign Out</span>}
-              </button>
-            </SignOutButton>
-          </div>
+          <EmployeeDesktopSidebarFooter collapsed={collapsed} />
         </div>
       </aside>
     </>

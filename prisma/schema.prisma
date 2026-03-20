@@ -251,6 +251,10 @@ model PortalUser {
   role            UserRole
   status          UserStatus @default(PENDING)
   
+  // Onboarding
+  onboardingCompletedAt DateTime?   // null = not started/in-progress
+  onboardingStep        Int         @default(0) // tracks progress
+  
   // Relations
   worker          Worker?
   client          Client?

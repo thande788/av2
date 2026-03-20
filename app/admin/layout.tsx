@@ -8,6 +8,8 @@ import { LogoWatermark } from '@/components/shared/logo-watermark';
 import { Toaster } from '@/components/ui/sonner';
 import { CommandPalette } from '@/components/admin/command-palette';
 import { AdminShortcuts } from '@/components/admin/keyboard-shortcuts';
+import { OnboardingGate } from '@/components/shared/onboarding-gate';
+import { adminOnboardingSteps } from '@/components/shared/onboarding-steps';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,7 +103,9 @@ export default async function AdminLayout({
       <main className="relative min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <LogoWatermark />
         <div className="relative z-10 mx-auto w-full max-w-[160rem] px-5 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-10 lg:py-10">
-          {children}
+          <OnboardingGate steps={adminOnboardingSteps} portalName="Admin" accentColor="primary">
+            {children}
+          </OnboardingGate>
         </div>
       </main>
       <DemoBanner />

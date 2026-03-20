@@ -28,12 +28,15 @@ interface LazyChatWidgetProps {
   /** Props to pass to ChatWidget */
   greeting?: string;
   position?: "bottom-right" | "bottom-left";
+  /** Contextual help links */
+  helpLinks?: { label: string; href: string }[];
 }
 
 export function LazyChatWidget({
   loadDelay = 3000,
   greeting,
   position,
+  helpLinks,
 }: LazyChatWidgetProps) {
   const [shouldLoad, setShouldLoad] = useState(false);
 
@@ -83,6 +86,7 @@ export function LazyChatWidget({
       <ChatWidget 
         greeting={greeting} 
         position={position}
+        helpLinks={helpLinks}
         immediate // Already delayed by this wrapper
       />
     </Suspense>

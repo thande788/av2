@@ -48,7 +48,13 @@ export default async function MarketingLayout({
         {children}
       </main>
       <Footer />
-      <LazyChatWidget />
+      <LazyChatWidget
+        helpLinks={[
+          { label: "Family Portal Overview", href: "/help/getting-started/family-portal-overview" },
+          { label: "Viewing Your Care Schedule", href: "/help/scheduling/viewing-your-care-schedule" },
+          { label: "Understanding Your Invoice", href: "/help/billing/understanding-your-invoice" },
+        ]}
+      />
     </>
   );
 }
