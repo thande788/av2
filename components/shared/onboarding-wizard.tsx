@@ -4,12 +4,21 @@ import { useState, useTransition } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { advanceOnboardingStep, completeOnboarding, skipOnboarding } from '@/app/actions/onboarding';
-import { Check, ChevronRight, X } from 'lucide-react';
+import { Bell, Calendar, Check, ChevronRight, Heart, Phone, Shield, User, X } from 'lucide-react';
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Bell,
+  Calendar,
+  Heart,
+  Phone,
+  Shield,
+  User,
+};
 
 export interface OnboardingStep {
   title: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string;
   content: React.ReactNode;
 }
 
@@ -58,7 +67,7 @@ export function OnboardingWizard({
     });
   }
 
-  const Icon = step.icon;
+  const Icon = iconMap[step.icon] ?? User;
 
   return (
     <div className="rounded-xl border bg-card shadow-lg overflow-hidden">

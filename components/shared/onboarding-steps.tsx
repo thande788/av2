@@ -1,4 +1,3 @@
-import { Bell, Calendar, Heart, Phone, Shield, User } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import type { OnboardingStep } from '@/components/shared/onboarding-wizard';
@@ -8,7 +7,7 @@ export const familyOnboardingSteps: OnboardingStep[] = [
     title: 'Welcome to the Family Portal',
     description:
       'This is your hub for managing your loved one\'s care. Here you can view schedules, communicate with caregivers, and manage billing.',
-    icon: Heart,
+    icon: 'Heart',
     content: (
       <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground space-y-2">
         <p>From your dashboard you can:</p>
@@ -25,7 +24,7 @@ export const familyOnboardingSteps: OnboardingStep[] = [
     title: 'Review Your Care Schedule',
     description:
       'Your care schedule shows all upcoming and past visits. You\'ll see the caregiver assigned, the time, and the type of care provided.',
-    icon: Calendar,
+    icon: 'Calendar',
     content: (
       <div className="flex justify-center">
         <Button variant="outline" size="sm" asChild>
@@ -38,7 +37,7 @@ export const familyOnboardingSteps: OnboardingStep[] = [
     title: 'Set Your Notification Preferences',
     description:
       'Choose how you\'d like to be notified about schedule changes, caregiver updates, and billing reminders.',
-    icon: Bell,
+    icon: 'Bell',
     content: (
       <div className="flex justify-center">
         <Button variant="outline" size="sm" asChild>
@@ -51,7 +50,7 @@ export const familyOnboardingSteps: OnboardingStep[] = [
     title: 'Emergency Contacts',
     description:
       'Make sure your emergency contact information is up to date. This helps our caregivers respond quickly in urgent situations.',
-    icon: Phone,
+    icon: 'Phone',
     content: (
       <div className="flex justify-center">
         <Button variant="outline" size="sm" asChild>
@@ -67,7 +66,7 @@ export const employeeOnboardingSteps: OnboardingStep[] = [
     title: 'Welcome to the Employee Portal',
     description:
       'This is your central hub for managing shifts, tracking hours, and communicating with the care team.',
-    icon: User,
+    icon: 'User',
     content: (
       <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground space-y-2">
         <p>From your dashboard you can:</p>
@@ -84,7 +83,7 @@ export const employeeOnboardingSteps: OnboardingStep[] = [
     title: 'Set Your Availability',
     description:
       'Let your coordinator know when you\'re available to work. This helps us match you with the right shifts.',
-    icon: Calendar,
+    icon: 'Calendar',
     content: (
       <div className="flex justify-center">
         <Button variant="outline" size="sm" asChild>
@@ -97,7 +96,7 @@ export const employeeOnboardingSteps: OnboardingStep[] = [
     title: 'Complete Your Profile',
     description:
       'Ensure your skills, certifications, and contact information are all up to date for the best shift matching.',
-    icon: Shield,
+    icon: 'Shield',
     content: (
       <div className="flex justify-center">
         <Button variant="outline" size="sm" asChild>
@@ -113,7 +112,7 @@ export const adminOnboardingSteps: OnboardingStep[] = [
     title: 'Welcome to the Admin Dashboard',
     description:
       'This is your command center for managing clients, caregivers, schedules, and operations. Let\'s walk through the key features.',
-    icon: Shield,
+    icon: 'Shield',
     content: (
       <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground space-y-2">
         <p>Your dashboard gives you an at-a-glance view of:</p>
@@ -130,7 +129,7 @@ export const adminOnboardingSteps: OnboardingStep[] = [
     title: 'Managing Clients',
     description:
       'Add new clients, update their care plans, and assign caregivers. The matching system helps you find the best caregiver-client fit.',
-    icon: User,
+    icon: 'User',
     content: (
       <div className="flex justify-center gap-3">
         <Button variant="outline" size="sm" asChild>
@@ -146,7 +145,7 @@ export const adminOnboardingSteps: OnboardingStep[] = [
     title: 'Scheduling & Shifts',
     description:
       'Create and manage shifts, handle swap requests, and broadcast open shifts to available caregivers.',
-    icon: Calendar,
+    icon: 'Calendar',
     content: (
       <div className="flex justify-center gap-3">
         <Button variant="outline" size="sm" asChild>
