@@ -24,7 +24,7 @@ import {
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { siteMetadata } from "@/lib/seo/site-metadata";
@@ -134,12 +134,13 @@ function ChatWidgetContent({
   }, [message, isSending]);
 
   return (
-    <Card className="w-80 sm:w-96 overflow-hidden shadow-2xl border-border/50">
+    <Card className="w-[calc(100vw-2rem)] sm:w-96 max-w-96 overflow-hidden shadow-2xl border-border/50 py-0">
       {/* Header */}
-      <div className="bg-primary p-4 text-primary-foreground">
+      <div className="bg-primary p-4 text-primary-foreground rounded-t-2xl">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="size-10 border-2 border-primary-foreground/20">
+              <AvatarImage src="/angel_pink.png" alt="Angel Touch" />
               <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground text-sm font-semibold">
                 AT
               </AvatarFallback>
@@ -162,10 +163,11 @@ function ChatWidgetContent({
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
+      <div className="p-4 space-y-4 max-h-72 overflow-y-auto">
         {/* Greeting message */}
         <div className="flex gap-3">
           <Avatar className="size-8 shrink-0">
+            <AvatarImage src="/angel_pink.png" alt="Angel Touch" />
             <AvatarFallback className="bg-primary/10 text-primary text-xs">
               AT
             </AvatarFallback>
@@ -227,21 +229,29 @@ function ChatWidgetContent({
               </Link>
             </div>
           )}
+        </div>
+      </div>
 
-          {!showMessageForm ? (
-            <Button
-              variant="outline"
-              className="w-full justify-start text-muted-foreground"
-              onClick={() => setShowMessageForm(true)}
-            >
-              <IconMessageCircle className="size-4 mr-2" />
-              Send a quick message...
-            </Button>
-          ) : (
-            <form onSubmit={handleSubmitMessage} className="space-y-2">
+      {/* Sticky message pill / form */}
+      {!showMessageForm ? (
+        <div className="border-t border-border/50 px-4 py-3">
+          <Button
+            variant="outline"
+            className="w-full justify-start text-muted-foreground"
+            onClick={() => setShowMessageForm(true)}
+          >
+            <IconMessageCircle className="size-4 mr-2" />
+            Send a quick message...
+          </Button>
+        </div>
+      ) : (
+        <div className="border-t border-border/50 p-4">
+          <form onSubmit={handleSubmitMessage} className="space-y-2">
+            <div className="relative">
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                maxLength={500}
                 placeholder="Type your message..."
                 className={cn(
                   "w-full min-h-20 p-3 text-sm rounded-xl resize-none",
@@ -250,40 +260,43 @@ function ChatWidgetContent({
                 )}
                 autoFocus
               />
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowMessageForm(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={!message.trim() || submitted || isSending}
-                  className="flex-1"
-                >
-                  {submitted ? (
-                    "Message Sent!"
-                  ) : isSending ? (
-                    "Sending..."
-                  ) : (
-                    <>
-                      <IconSend className="size-4 mr-2" />
-                      Send
-                    </>
-                  )}
-                </Button>
-              </div>
-              {error && (
-                <p className="text-xs text-destructive">{error}</p>
-              )}
-            </form>
-          )}
+              <span className="absolute bottom-2 right-3 text-[10px] text-muted-foreground">
+                {message.length}/500
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMessageForm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!message.trim() || submitted || isSending}
+                className="flex-1"
+              >
+                {submitted ? (
+                  "Message Sent!"
+                ) : isSending ? (
+                  "Sending..."
+                ) : (
+                  <>
+                    <IconSend className="size-4 mr-2" />
+                    Send
+                  </>
+                )}
+              </Button>
+            </div>
+            {error && (
+              <p className="text-xs text-destructive">{error}</p>
+            )}
+          </form>
         </div>
-      </div>
+      )}
 
       {/* Footer */}
       <div className="px-4 py-3 bg-muted/30 border-t border-border/50">
