@@ -214,6 +214,7 @@ function ChatWidgetContent({
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={onClose}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                 >
                   <IconBook className="size-4 shrink-0 text-primary/60" />
@@ -222,6 +223,7 @@ function ChatWidgetContent({
               ))}
               <Link
                 href="/help"
+                onClick={onClose}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-primary transition-colors hover:bg-primary/5"
               >
                 Browse all articles

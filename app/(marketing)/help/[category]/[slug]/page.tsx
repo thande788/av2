@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
 import { getHelpArticle, getHelpCategories } from '@/lib/help';
 
 interface ArticlePageProps {
@@ -52,7 +53,7 @@ export default async function HelpArticlePage({ params }: ArticlePageProps) {
       <hr className="my-8 border-border" />
 
       <article className="prose prose-neutral dark:prose-invert max-w-none">
-        <MDXRemote source={article.content} />
+        <MDXRemote source={article.content} options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </article>
     </div>
   );
