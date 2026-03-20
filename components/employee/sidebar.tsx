@@ -12,7 +12,6 @@ import {
   Settings,
   ChevronLeft,
   Menu,
-  LogOut,
   FileCheck,
   BarChart3,
   CalendarClock,
@@ -26,7 +25,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useState } from 'react';
-import { SignOutButton, UserButton } from '@clerk/nextjs';
+import { UserButton } from '@clerk/nextjs';
 import { useTheme } from 'next-themes';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
@@ -90,7 +89,7 @@ function EmployeeMobileSidebarFooter() {
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="p-3 mt-auto border-t border-emerald-500/20 flex items-center justify-center gap-2">
+    <div className="w-full p-3 mt-auto border-t border-emerald-500/20 flex items-center justify-evenly">
       <UserButton
         appearance={{ elements: { avatarBox: 'size-9' } }}
         afterSignOutUrl="/portals"
@@ -105,14 +104,6 @@ function EmployeeMobileSidebarFooter() {
       >
         <AnimatedThemeToggle className="size-7 pointer-events-none" />
       </div>
-      <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-        <button
-          className="flex items-center justify-center size-9 rounded-lg text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500"
-          title="Sign out"
-        >
-          <LogOut className="size-5" />
-        </button>
-      </SignOutButton>
     </div>
   );
 }
@@ -122,7 +113,7 @@ function EmployeeDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-emerald-500/20 p-3 flex items-center justify-center gap-2">
+    <div className="w-full border-t border-emerald-500/20 p-3 flex items-center justify-evenly">
       <UserButton
         appearance={{ elements: { avatarBox: 'size-9' } }}
         afterSignOutUrl="/portals"
@@ -137,16 +128,6 @@ function EmployeeDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
       >
         <AnimatedThemeToggle className="size-7 pointer-events-none" />
       </div>
-      {!collapsed && (
-        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-          <button
-            className="flex items-center justify-center size-9 rounded-lg text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500"
-            title="Sign out"
-          >
-            <LogOut className="size-5" />
-          </button>
-        </SignOutButton>
-      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { SignOutButton, UserButton } from '@clerk/nextjs';
+import { UserButton } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
-  LogOut,
   Menu,
   Plus,
 } from 'lucide-react';
@@ -220,7 +219,7 @@ function MobileSidebarFooter() {
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-primary/10 p-3 flex items-center justify-center gap-2">
+    <div className="w-full border-t border-primary/10 p-3 flex items-center justify-evenly">
       <UserButton
         appearance={{ elements: { avatarBox: 'size-9' } }}
         afterSignOutUrl="/portals"
@@ -235,14 +234,6 @@ function MobileSidebarFooter() {
       >
         <AnimatedThemeToggle className="size-7 pointer-events-none" />
       </div>
-      <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-        <button
-          className="flex items-center justify-center size-9 rounded-2xl text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500"
-          title="Sign out"
-        >
-          <LogOut className="size-5" />
-        </button>
-      </SignOutButton>
     </div>
   );
 }
@@ -252,7 +243,7 @@ function DesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-primary/10 p-3 flex items-center justify-center gap-2">
+    <div className="w-full border-t border-primary/10 p-3 flex items-center justify-evenly">
       <SidebarTooltip label="Account" disabled={!collapsed}>
         <div>
           <UserButton
@@ -273,18 +264,6 @@ function DesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
           <AnimatedThemeToggle className="size-7 pointer-events-none" />
         </div>
       </SidebarTooltip>
-      {!collapsed && (
-        <SidebarTooltip label="Sign out" disabled={!collapsed}>
-          <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-            <button
-              className="flex items-center justify-center size-9 rounded-2xl text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500"
-              title="Sign out"
-            >
-              <LogOut className="size-5" />
-            </button>
-          </SignOutButton>
-        </SidebarTooltip>
-      )}
     </div>
   );
 }

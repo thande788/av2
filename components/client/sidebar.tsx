@@ -12,7 +12,6 @@ import {
   Settings,
   ChevronLeft,
   Menu,
-  LogOut,
   Star,
   MessageSquareHeart,
 } from 'lucide-react';
@@ -24,7 +23,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useState } from 'react';
-import { SignOutButton, UserButton } from '@clerk/nextjs';
+import { UserButton } from '@clerk/nextjs';
 import { useTheme } from 'next-themes';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
 
@@ -78,7 +77,7 @@ function ClientMobileSidebarFooter() {
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-sky-500/20 p-3 flex items-center justify-center gap-2">
+    <div className="w-full border-t border-sky-500/20 p-3 flex items-center justify-evenly">
       <UserButton
         appearance={{ elements: { avatarBox: 'size-9' } }}
         afterSignOutUrl="/portals"
@@ -93,14 +92,6 @@ function ClientMobileSidebarFooter() {
       >
         <AnimatedThemeToggle className="size-7 pointer-events-none" />
       </div>
-      <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-        <button
-          className="flex items-center justify-center size-9 rounded-lg text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600"
-          title="Sign out"
-        >
-          <LogOut className="size-5" />
-        </button>
-      </SignOutButton>
     </div>
   );
 }
@@ -110,7 +101,7 @@ function ClientDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <div className="border-t border-sky-500/20 p-3 flex items-center justify-center gap-2">
+    <div className="w-full border-t border-sky-500/20 p-3 flex items-center justify-evenly">
       <UserButton
         appearance={{ elements: { avatarBox: 'size-9' } }}
         afterSignOutUrl="/portals"
@@ -125,16 +116,6 @@ function ClientDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
       >
         <AnimatedThemeToggle className="size-7 pointer-events-none" />
       </div>
-      {!collapsed && (
-        <SignOutButton signOutOptions={{ redirectUrl: '/portals' }}>
-          <button
-            className="flex items-center justify-center size-9 rounded-lg text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600"
-            title="Sign out"
-          >
-            <LogOut className="size-5" />
-          </button>
-        </SignOutButton>
-      )}
     </div>
   );
 }
