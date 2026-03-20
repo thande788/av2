@@ -54,7 +54,7 @@ export function Footer({
                   width={200}
                   height={200}
                   alt="Angel Touch Homecare logo"
-                  className="size-[250%] max-w-none -translate-x-[30%] -translate-y-[28%] select-none drop-shadow-md"
+                  className="size-full object-contain select-none drop-shadow-md"
                   loading="lazy"
                 />
               </span>
