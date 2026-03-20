@@ -4,7 +4,7 @@ import { UserButton } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -270,11 +270,14 @@ function DesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
 
 export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
   const pathname = usePathname();
-  const collapsed = useSyncExternalStore(
+  const storedCollapsed = useSyncExternalStore(
     subscribeToSidebarPreference,
     getSidebarCollapsedSnapshot,
     () => false
   );
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => setHasMounted(true), []);
+  const collapsed = hasMounted ? storedCollapsed : false;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const sections = getVisibleAdminNavSections(isFeatureEnabled);
