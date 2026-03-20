@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { TimesheetsTable } from './timesheets-table';
 
 export const metadata = {
-  title: 'Timesheets | Admin',
+  title: 'Timesheets',
   description: 'Review and approve worker timesheets',
 };
 

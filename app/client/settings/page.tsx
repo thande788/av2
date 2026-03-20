@@ -15,7 +15,7 @@ import {
 } from '@tabler/icons-react';
 
 export const metadata = {
-  title: 'Settings | Family Portal',
+  title: 'Settings',
   description: 'Manage your account settings',
 };
 

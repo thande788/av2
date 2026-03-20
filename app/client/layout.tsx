@@ -1,5 +1,14 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Family Portal',
+    template: '%s | Family Portal',
+  },
+  description: 'Angel Touch Homecare family care portal',
+};
 import { ClientSidebar } from '@/components/client/sidebar';
 import { DemoBanner } from '@/components/demo/demo-banner';
 import { LogoWatermark } from '@/components/shared/logo-watermark';

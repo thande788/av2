@@ -1,7 +1,7 @@
 import { TestimonialForm } from '../testimonial-form';
 
 export const metadata = {
-  title: 'New Testimonial | Admin Dashboard',
+  title: 'New Testimonial',
   description: 'Add a new testimonial',
 };
 

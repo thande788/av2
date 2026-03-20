@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 
 export const metadata = {
-  title: 'Clients | Admin Dashboard',
+  title: 'Clients',
   description: 'Manage client accounts and care recipients',
 };
 

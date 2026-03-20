@@ -12,7 +12,7 @@ import {
 } from '@tabler/icons-react';
 
 export const metadata = {
-  title: 'Invoices | Family Portal',
+  title: 'Invoices',
   description: 'View and pay your invoices',
 };
 

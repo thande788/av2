@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 
 export const metadata = {
-  title: 'Create Job | Admin Dashboard',
+  title: 'Create Job',
   description: 'Create a new job posting',
 };
 

@@ -4,7 +4,7 @@ import { serialize } from '@/lib/utils';
 import { TimesheetDetail } from './timesheet-detail';
 
 export const metadata = {
-  title: 'Timesheet Details | Admin',
+  title: 'Timesheet Details',
   description: 'View and approve timesheet',
 };
 

@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { ContactsTable } from './contacts-table';
 
 export const metadata = {
-  title: 'Contacts | Admin Dashboard',
+  title: 'Contacts',
   description: 'View and manage contact form submissions',
 };
 

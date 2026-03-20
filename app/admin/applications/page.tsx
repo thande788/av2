@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { ApplicationsView } from './applications-view';
 
 export const metadata = {
-  title: 'Applications | Admin Dashboard',
+  title: 'Applications',
   description: 'Manage job applications',
 };
 

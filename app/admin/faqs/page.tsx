@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { FAQsTable } from './faqs-table';
 
 export const metadata = {
-  title: 'FAQs | Admin Dashboard',
+  title: 'FAQs',
   description: 'Manage frequently asked questions',
 };
 

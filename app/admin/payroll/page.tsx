@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { PayrollPreview } from './payroll-preview';
 
 export const metadata = {
-  title: 'Payroll | Admin',
+  title: 'Payroll',
   description: 'Calculate and preview payroll',
 };
 

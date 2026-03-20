@@ -1,7 +1,7 @@
 import { FAQForm } from '../faq-form';
 
 export const metadata = {
-  title: 'New FAQ | Admin Dashboard',
+  title: 'New FAQ',
   description: 'Add a new FAQ',
 };
 

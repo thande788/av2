@@ -1,7 +1,7 @@
 import { CategoryForm } from '../category-form';
 
 export const metadata = {
-  title: 'New Service Category | Admin Dashboard',
+  title: 'New Service Category',
   description: 'Add a new service category',
 };
 

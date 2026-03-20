@@ -2,7 +2,7 @@ import { getAnalyticsSummary } from '@/app/actions/analytics';
 import { AnalyticsDashboard } from '@/components/admin/analytics-dashboard';
 
 export const metadata = {
-  title: 'Analytics | Admin Dashboard',
+  title: 'Analytics',
   description: 'View application and inquiry analytics',
 };
 

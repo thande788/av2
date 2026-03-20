@@ -4,7 +4,7 @@ import { serialize } from '@/lib/utils';
 import { ShiftDetail } from './shift-detail';
 
 export const metadata = {
-  title: 'Shift Details | Admin',
+  title: 'Shift Details',
   description: 'View and manage shift details',
 };
 

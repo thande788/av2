@@ -11,7 +11,7 @@ import {
 import { isToday, isTomorrow, startOfWeek, endOfWeek, addWeeks } from 'date-fns';
 
 export const metadata = {
-  title: 'Schedule | Family Portal',
+  title: 'Schedule',
   description: 'View your care schedule',
 };
 

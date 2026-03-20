@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 
 export const metadata = {
-  title: 'Edit Job | Admin Dashboard',
+  title: 'Edit Job',
   description: 'Edit job posting',
 };
 

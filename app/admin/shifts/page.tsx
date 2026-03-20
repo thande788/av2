@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { IconCalendarPlus } from '@tabler/icons-react';
 
 export const metadata = {
-  title: 'Shifts | Admin',
+  title: 'Shifts',
   description: 'Manage care shifts',
 };
 

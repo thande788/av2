@@ -7,7 +7,7 @@ import { TestimonialsTable } from './testimonials-table';
 import { RequestTestimonialDialog } from './request-testimonial-dialog';
 
 export const metadata = {
-  title: 'Testimonials | Admin Dashboard',
+  title: 'Testimonials',
   description: 'Manage testimonials',
 };
 

@@ -11,7 +11,7 @@ import {
 } from '@tabler/icons-react';
 
 export const metadata = {
-  title: 'Care Team | Family Portal',
+  title: 'Care Team',
   description: 'View your care team members',
 };
 

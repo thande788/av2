@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { AuditLogTable } from './audit-log-table';
 
 export const metadata = {
-  title: 'Audit Log | Admin Dashboard',
+  title: 'Audit Log',
   description: 'View activity and audit trail',
 };
 

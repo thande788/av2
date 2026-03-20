@@ -6,7 +6,7 @@ import { Plus } from 'lucide-react';
 import { ServicesTable } from './services-table';
 
 export const metadata = {
-  title: 'Services | Admin Dashboard',
+  title: 'Services',
   description: 'Manage service categories and offerings',
 };
 

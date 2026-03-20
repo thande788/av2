@@ -3,7 +3,7 @@ import { InquiriesTable } from './inquiries-table';
 import { CaregiverRequestsCard } from './caregiver-requests';
 
 export const metadata = {
-  title: 'Service Inquiries | Admin Dashboard',
+  title: 'Service Inquiries',
   description: 'View and manage service inquiries',
 };
 

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { IconArrowLeft } from '@tabler/icons-react';
 
 export const metadata = {
-  title: 'Create Shift | Admin',
+  title: 'Create Shift',
   description: 'Create a new care shift',
 };
 

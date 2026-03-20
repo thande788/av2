@@ -56,9 +56,9 @@ export default function RootLayout({
           <meta name="apple-mobile-web-app-title" content="Angel Touch" />
         </head>
         <body className={`${inter.variable} ${nunito.variable} ${geistMono.variable} antialiased`}>
+          <SkipLink />
           <ThemeProvider>
           <div className="flex min-h-screen flex-col">
-            <SkipLink />
             {children}
           </div>
           </ThemeProvider>

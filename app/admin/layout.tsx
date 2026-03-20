@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
@@ -10,8 +11,11 @@ import { AdminShortcuts } from '@/components/admin/keyboard-shortcuts';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Admin Dashboard | Angel Touch Homecare',
+export const metadata: Metadata = {
+  title: {
+    default: 'Admin Dashboard',
+    template: '%s | Admin Dashboard',
+  },
   description: 'Admin dashboard for managing applications, contacts, and content.',
 };
 

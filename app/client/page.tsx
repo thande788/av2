@@ -16,7 +16,7 @@ import { isToday, isTomorrow } from 'date-fns';
 import { getCurrentClient, getCurrentPortalUser } from '@/lib/auth';
 
 export const metadata = {
-  title: 'Family Portal | Dashboard',
+  title: 'Dashboard',
   description: 'View your care schedule and team',
 };
 

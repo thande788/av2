@@ -3,7 +3,7 @@ import { serialize } from '@/lib/utils';
 import { CaregiverProfiles } from './caregiver-profiles';
 
 export const metadata = {
-  title: 'Caregiver Profiles | Admin Dashboard',
+  title: 'Caregiver Profiles',
   description: 'Review, publish, and manage caregiver marketing profiles',
 };
 

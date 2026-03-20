@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { JobsTable } from './jobs-table';
 
 export const metadata = {
-  title: 'Jobs | Admin Dashboard',
+  title: 'Jobs',
   description: 'Manage job postings',
 };
 

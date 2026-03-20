@@ -16,7 +16,7 @@ import {
 import type { AdminRole } from '@/lib/rbac';
 
 export const metadata = {
-  title: 'User Management | Admin Dashboard',
+  title: 'User Management',
   description: 'Manage admin users and roles',
 };
 

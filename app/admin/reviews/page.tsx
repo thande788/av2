@@ -3,7 +3,7 @@ import { serialize } from '@/lib/utils';
 import { ReviewsTable } from './reviews-table';
 
 export const metadata = {
-  title: 'Review Moderation | Admin',
+  title: 'Review Moderation',
   description: 'Manage and moderate client and admin reviews',
 };
 
