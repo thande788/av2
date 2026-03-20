@@ -46,6 +46,21 @@ interface SettingsFormProps {
   initialSettings: SiteSettings;
 }
 
+function PreviewToggle({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      onClick={onToggle}
+      className="gap-1.5 text-xs text-muted-foreground"
+    >
+      {open ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+      {open ? 'Hide Preview' : 'Preview'}
+    </Button>
+  );
+}
+
 export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [settings, setSettings] = useState<SiteSettings>(initialSettings);
   const [isPending, startTransition] = useTransition();
@@ -57,22 +72,6 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
 
   function togglePreview(section: string) {
     setPreviews((prev) => ({ ...prev, [section]: !prev[section] }));
-  }
-
-  function PreviewToggle({ section }: { section: string }) {
-    const open = previews[section];
-    return (
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={() => togglePreview(section)}
-        className="gap-1.5 text-xs text-muted-foreground"
-      >
-        {open ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
-        {open ? 'Hide Preview' : 'Preview'}
-      </Button>
-    );
   }
 
   function handleSave() {
@@ -105,7 +104,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               {settings['hiringBanner.enabled'] ? 'Active' : 'Disabled'}
             </Badge>
           </div>
-          <PreviewToggle section="hiring" />
+          <PreviewToggle open={!!previews.hiring} onToggle={() => togglePreview('hiring')} />
         </div>
 
         <div className="flex items-center justify-between">
@@ -192,7 +191,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               {settings['announcementBanner.enabled'] ? 'Active' : 'Disabled'}
             </Badge>
           </div>
-          <PreviewToggle section="announcement" />
+          <PreviewToggle open={!!previews.announcement} onToggle={() => togglePreview('announcement')} />
         </div>
 
         <div className="flex items-center justify-between">
@@ -291,7 +290,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               Toggle decorative color accents across the site
             </p>
           </div>
-          <PreviewToggle section="accents" />
+          <PreviewToggle open={!!previews.accents} onToggle={() => togglePreview('accents')} />
         </div>
 
         <div className="space-y-4">
@@ -382,7 +381,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               Phone numbers, email, and service area shown across the site
             </p>
           </div>
-          <PreviewToggle section="contact" />
+          <PreviewToggle open={!!previews.contact} onToggle={() => togglePreview('contact')} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -466,7 +465,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               Used in the footer, SEO structured data, and contact pages
             </p>
           </div>
-          <PreviewToggle section="address" />
+          <PreviewToggle open={!!previews.address} onToggle={() => togglePreview('address')} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -541,7 +540,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
               Social media profile URLs shown in the footer and SEO data
             </p>
           </div>
-          <PreviewToggle section="social" />
+          <PreviewToggle open={!!previews.social} onToggle={() => togglePreview('social')} />
         </div>
 
         <div className="grid gap-4">
