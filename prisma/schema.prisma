@@ -527,10 +527,24 @@ model ServiceTypeConfig {
   defaultWorkerRatePercent Float        @default(65)
   isActive                 Boolean      @default(true)
   sortOrder                Int          @default(0)
+  skills                   Skill[]
   createdAt                DateTime     @default(now())
   updatedAt                DateTime     @updatedAt
 
   @@unique([label])
+  @@index([isActive, sortOrder])
+}
+
+model Skill {
+  id          String              @id @default(cuid())
+  key         String              @unique
+  label       String              @unique
+  isActive    Boolean             @default(true)
+  sortOrder   Int                 @default(0)
+  serviceTypes ServiceTypeConfig[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
   @@index([isActive, sortOrder])
 }
 

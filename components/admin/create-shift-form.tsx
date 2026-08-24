@@ -13,9 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { createShift, type CreateShiftInput } from '@/app/actions/shifts';
 import { IconLoader2, IconCalendarPlus } from '@tabler/icons-react';
 import type { ServiceLevel } from '@prisma/client';
@@ -38,23 +38,11 @@ interface CreateShiftFormProps {
   serviceTypes: ServiceTypeOption[];
 }
 
-const SKILLS = [
-  'Personal Care',
-  'Dementia Care',
-  'Hoyer Lift',
-  'Meal Prep',
-  'Companionship',
-  'Medication Reminders',
-  'Light Housekeeping',
-  'Transportation',
-];
-
 export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [workerRateMode, setWorkerRateMode] = useState<'fixed' | 'percentage'>('percentage');
   const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>(
     serviceTypes[0]?.id ?? ''
@@ -66,6 +54,9 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
   function getDefaultPercentForServiceType(serviceTypeId: string) {
     return serviceTypes.find((type) => type.id === serviceTypeId)?.defaultWorkerRatePercent ?? 65;
   }
+
+  const selectedServiceType =
+    serviceTypes.find((type) => type.id === selectedServiceTypeId) || serviceTypes[0];
 
   async function handleSubmit(formData: FormData) {
     setIsPending(true);
@@ -89,7 +80,6 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
         startTime,
         endTime,
         serviceTypeId,
-        skillsRequired: selectedSkills,
         clientRate,
         workerRateMode: workerRateModeValue,
         workerRate: workerRateModeValue === 'fixed' && Number.isFinite(workerRate) ? workerRate : undefined,
@@ -120,12 +110,6 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
     if (client && workerRateMode === 'percentage') {
       setWorkerRatePercentInput(String(getDefaultPercentForServiceType(selectedServiceTypeId)));
     }
-  }
-
-  function toggleSkill(skill: string) {
-    setSelectedSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
-    );
   }
 
   // Get tomorrow's date as the minimum date
@@ -263,23 +247,19 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
           </div>
 
           <div className="space-y-2">
-            <Label>Required Skills</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {SKILLS.map((skill) => (
-                <div key={skill} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`skill-${skill}`}
-                    checked={selectedSkills.includes(skill)}
-                    onCheckedChange={() => toggleSkill(skill)}
-                  />
-                  <label
-                    htmlFor={`skill-${skill}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
+            <Label>Assigned Skills</Label>
+            <div className="flex flex-wrap gap-2 rounded-lg border border-border/50 bg-muted/20 p-3">
+              {selectedServiceType?.skills.length ? (
+                selectedServiceType.skills.map((skill) => (
+                  <Badge key={`service-skill-${skill}`} variant="secondary">
                     {skill}
-                  </label>
-                </div>
-              ))}
+                  </Badge>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No skills are assigned to this service type yet.
+                </p>
+              )}
             </div>
           </div>
 

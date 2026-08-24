@@ -13,7 +13,6 @@ const createShiftSchema = z.object({
   startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
   endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
   serviceTypeId: z.string().min(1, 'Service type is required'),
-  skillsRequired: z.array(z.string()).default([]),
   notes: z.string().optional(),
   clientRate: z.number().positive('Client rate must be positive'),
   workerRateMode: z.enum(['fixed', 'percentage']).default('percentage'),
@@ -82,7 +81,6 @@ const updateShiftSchema = z
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
     serviceTypeId: z.string().min(1, 'Service type is required'),
-    skillsRequired: z.array(z.string()).default([]),
     notes: z.string().optional(),
     clientRate: z.number().positive('Client rate must be positive'),
     workerRateMode: z.enum(['fixed', 'percentage']).default('percentage'),
@@ -147,7 +145,7 @@ export async function createShift(
 
     const serviceTypeConfig = await db.serviceTypeConfig.findUnique({
       where: { id: validated.serviceTypeId },
-      select: { label: true },
+      select: { label: true, skills: { select: { label: true } } },
     });
 
     if (!serviceTypeConfig) {
@@ -162,7 +160,7 @@ export async function createShift(
         endTime: validated.endTime,
         duration,
         serviceType: serviceTypeConfig.label,
-        skillsRequired: validated.skillsRequired,
+        skillsRequired: serviceTypeConfig.skills.map((skill) => skill.label),
         notes: validated.notes,
         clientRate: validated.clientRate,
         workerRate:
@@ -260,7 +258,7 @@ export async function updateShift(
 
     const serviceTypeConfig = await db.serviceTypeConfig.findUnique({
       where: { id: validated.serviceTypeId },
-      select: { label: true },
+      select: { label: true, skills: { select: { label: true } } },
     });
 
     if (!serviceTypeConfig) {
@@ -291,7 +289,7 @@ export async function updateShift(
         endTime: validated.endTime,
         duration,
         serviceType: serviceTypeConfig.label,
-        skillsRequired: validated.skillsRequired,
+        skillsRequired: serviceTypeConfig.skills.map((skill) => skill.label),
         notes: validated.notes,
         clientRate: validated.clientRate,
         workerRate,

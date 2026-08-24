@@ -1544,6 +1544,7 @@ const seedServiceTypeConfigs = [
     defaultWorkerRatePercent: 65,
     isActive: true,
     sortOrder: 0,
+    skillKeys: ['companionship', 'light-housekeeping'],
   },
   {
     key: 'personal-care',
@@ -1552,6 +1553,7 @@ const seedServiceTypeConfigs = [
     defaultWorkerRatePercent: 65,
     isActive: true,
     sortOrder: 1,
+    skillKeys: ['personal-care', 'meal-prep', 'medication-reminders'],
   },
   {
     key: 'skilled-nursing',
@@ -1560,6 +1562,7 @@ const seedServiceTypeConfigs = [
     defaultWorkerRatePercent: 70,
     isActive: true,
     sortOrder: 2,
+    skillKeys: ['dementia-care', 'medication-reminders'],
   },
   {
     key: 'live-in-care',
@@ -1568,7 +1571,19 @@ const seedServiceTypeConfigs = [
     defaultWorkerRatePercent: 68,
     isActive: true,
     sortOrder: 3,
+    skillKeys: ['personal-care', 'meal-prep', 'companionship'],
   },
+];
+
+const seedSkills = [
+  { key: 'personal-care', label: 'Personal Care', isActive: true, sortOrder: 0 },
+  { key: 'dementia-care', label: 'Dementia Care', isActive: true, sortOrder: 1 },
+  { key: 'hoyer-lift', label: 'Hoyer Lift', isActive: true, sortOrder: 2 },
+  { key: 'meal-prep', label: 'Meal Prep', isActive: true, sortOrder: 3 },
+  { key: 'companionship', label: 'Companionship', isActive: true, sortOrder: 4 },
+  { key: 'medication-reminders', label: 'Medication Reminders', isActive: true, sortOrder: 5 },
+  { key: 'light-housekeeping', label: 'Light Housekeeping', isActive: true, sortOrder: 6 },
+  { key: 'transportation', label: 'Transportation', isActive: true, sortOrder: 7 },
 ];
 
 // =============================================================================
@@ -1590,6 +1605,7 @@ async function main() {
   await prisma.fAQ.deleteMany();
   await prisma.pricingTier.deleteMany();
   await prisma.serviceTypeConfig.deleteMany();
+  await prisma.skill.deleteMany();
   console.log('   ✓ Existing data cleared\n');
 
   // Seed Jobs
@@ -1680,10 +1696,26 @@ async function main() {
   }
   console.log(`   Total: ${seedPricingTiers.length} tiers\n`);
 
+  // Seed Skills
+  console.log('🧩 Seeding skills...');
+  for (const skill of seedSkills) {
+    await prisma.skill.create({ data: skill });
+    console.log(`   ✓ Created skill: ${skill.label}`);
+  }
+  console.log(`   Total: ${seedSkills.length} skills\n`);
+
   // Seed Service Type Configs
   console.log('⚙️ Seeding service type configs...');
   for (const config of seedServiceTypeConfigs) {
-    await prisma.serviceTypeConfig.create({ data: config });
+    const { skillKeys, ...serviceTypeData } = config;
+    await prisma.serviceTypeConfig.create({
+      data: {
+        ...serviceTypeData,
+        skills: {
+          connect: skillKeys.map((key) => ({ key })),
+        },
+      },
+    });
     console.log(
       `   ✓ Created service type config: ${config.label} (${config.defaultWorkerRatePercent}%)`
     );

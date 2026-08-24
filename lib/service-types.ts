@@ -8,6 +8,8 @@ export interface ServiceTypeOption {
   defaultWorkerRatePercent: number;
   isActive: boolean;
   sortOrder: number;
+  skills: string[];
+  skillIds: string[];
 }
 
 export const DEFAULT_SERVICE_TYPES: Omit<ServiceTypeOption, 'id'>[] = [
@@ -18,6 +20,8 @@ export const DEFAULT_SERVICE_TYPES: Omit<ServiceTypeOption, 'id'>[] = [
     defaultWorkerRatePercent: 65,
     isActive: true,
     sortOrder: 0,
+    skills: ['Companionship', 'Light Housekeeping'],
+    skillIds: [],
   },
   {
     key: 'personal-care',
@@ -26,6 +30,8 @@ export const DEFAULT_SERVICE_TYPES: Omit<ServiceTypeOption, 'id'>[] = [
     defaultWorkerRatePercent: 65,
     isActive: true,
     sortOrder: 1,
+    skills: ['Personal Care', 'Medication Reminders', 'Meal Prep'],
+    skillIds: [],
   },
   {
     key: 'skilled-nursing',
@@ -34,6 +40,8 @@ export const DEFAULT_SERVICE_TYPES: Omit<ServiceTypeOption, 'id'>[] = [
     defaultWorkerRatePercent: 70,
     isActive: true,
     sortOrder: 2,
+    skills: ['Dementia Care', 'Medication Reminders'],
+    skillIds: [],
   },
   {
     key: 'live-in-care',
@@ -42,6 +50,8 @@ export const DEFAULT_SERVICE_TYPES: Omit<ServiceTypeOption, 'id'>[] = [
     defaultWorkerRatePercent: 68,
     isActive: true,
     sortOrder: 3,
+    skills: ['Personal Care', 'Meal Prep', 'Companionship'],
+    skillIds: [],
   },
 ];
 
@@ -64,12 +74,25 @@ export async function getServiceTypeOptions(
 
     if (existingCount === 0) {
       await db.serviceTypeConfig.createMany({
-        data: DEFAULT_SERVICE_TYPES,
+        data: DEFAULT_SERVICE_TYPES.map((item) => ({
+          key: item.key,
+          label: item.label,
+          description: item.description,
+          defaultWorkerRatePercent: item.defaultWorkerRatePercent,
+          isActive: item.isActive,
+          sortOrder: item.sortOrder,
+        })),
         skipDuplicates: true,
       });
     }
 
     const rows = await db.serviceTypeConfig.findMany({
+      include: {
+        skills: {
+          select: { id: true, label: true },
+          orderBy: [{ sortOrder: 'asc' }, { label: 'asc' }],
+        },
+      },
       orderBy: [{ sortOrder: 'asc' }, { label: 'asc' }],
     });
 
@@ -81,6 +104,8 @@ export async function getServiceTypeOptions(
       defaultWorkerRatePercent: Number(row.defaultWorkerRatePercent),
       isActive: row.isActive,
       sortOrder: row.sortOrder,
+      skills: row.skills.map((skill) => skill.label),
+      skillIds: row.skills.map((skill) => skill.id),
     }));
 
     if (options?.includeInactive) {

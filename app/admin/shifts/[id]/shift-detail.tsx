@@ -59,7 +59,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -98,17 +97,6 @@ interface ShiftDetailProps {
   })[]>;
   serviceTypes: ServiceTypeOption[];
 }
-
-const SKILLS = [
-  'Personal Care',
-  'Dementia Care',
-  'Hoyer Lift',
-  'Meal Prep',
-  'Companionship',
-  'Medication Reminders',
-  'Light Housekeeping',
-  'Transportation',
-];
 
 const statusColors: Record<ShiftStatus, string> = {
   OPEN: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-500',
@@ -151,9 +139,6 @@ export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: 
   const [serviceTypeIdInput, setServiceTypeIdInput] = React.useState(
     currentServiceTypeOption?.id ?? ''
   );
-  const [selectedSkills, setSelectedSkills] = React.useState<string[]>(
-    shift.skillsRequired || []
-  );
   const [notesInput, setNotesInput] = React.useState(shift.notes || '');
   const [clientRateInput, setClientRateInput] = React.useState(Number(shift.clientRate).toFixed(2));
   const [workerRateMode, setWorkerRateMode] = React.useState<'fixed' | 'percentage'>('percentage');
@@ -175,6 +160,8 @@ export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: 
     const selected = serviceTypes.find((serviceType) => serviceType.id === serviceTypeIdInput);
     return item.isActive || selected?.id === item.id;
   });
+  const selectedServiceTypeOption =
+    serviceTypes.find((item) => item.id === serviceTypeIdInput) ?? currentServiceTypeOption;
   const serviceTypeLabel = shift.serviceType;
 
   const handleSendNotification = async () => {
@@ -231,7 +218,6 @@ export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: 
     setStartTimeInput(shift.startTime);
     setEndTimeInput(shift.endTime);
     setServiceTypeIdInput(currentServiceTypeOption?.id ?? '');
-    setSelectedSkills(shift.skillsRequired || []);
     setNotesInput(shift.notes || '');
     setClientRateInput(Number(shift.clientRate).toFixed(2));
     setWorkerRateInput(Number(shift.workerRate || 0).toFixed(2));
@@ -275,7 +261,6 @@ export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: 
       startTime: startTimeInput,
       endTime: endTimeInput,
       serviceTypeId: serviceTypeIdInput,
-      skillsRequired: selectedSkills,
       notes: notesInput || undefined,
       clientRate,
       workerRateMode,
@@ -291,12 +276,6 @@ export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: 
     }
 
     setRateError(result.error || 'Failed to update rates');
-  };
-
-  const toggleSkill = (skill: string) => {
-    setSelectedSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
-    );
   };
 
   // Filter out workers that already have bookings for this shift
@@ -437,22 +416,18 @@ export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: 
 
                 <div className="space-y-2">
                   <Label>Required Skills</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {SKILLS.map((skill) => (
-                      <div key={skill} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`edit-skill-${skill}`}
-                          checked={selectedSkills.includes(skill)}
-                          onCheckedChange={() => toggleSkill(skill)}
-                        />
-                        <label
-                          htmlFor={`edit-skill-${skill}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
+                  <div className="flex flex-wrap gap-2 rounded-lg border border-border/50 bg-muted/20 p-3">
+                    {selectedServiceTypeOption?.skills.length ? (
+                      selectedServiceTypeOption.skills.map((skill) => (
+                        <Badge key={`selected-service-skill-${skill}`} variant="secondary">
                           {skill}
-                        </label>
-                      </div>
-                    ))}
+                        </Badge>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No skills are assigned to this service type yet.
+                      </p>
+                    )}
                   </div>
                 </div>
 

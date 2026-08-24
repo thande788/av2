@@ -33,6 +33,7 @@ import {
 interface WorkerProfileFormProps {
   userName?: string;
   userEmail?: string;
+  skillOptions: string[];
 }
 
 // Steps: Skills → Availability → Address → Agreements
@@ -61,17 +62,6 @@ const STEPS = [
     icon: IconCheck,
     description: 'Review and consent',
   },
-];
-
-const SKILLS_OPTIONS = [
-  { value: 'personal-care', label: 'Personal Care (bathing, dressing)' },
-  { value: 'meal-preparation', label: 'Meal Preparation' },
-  { value: 'medication-reminders', label: 'Medication Reminders' },
-  { value: 'companionship', label: 'Companionship' },
-  { value: 'light-housekeeping', label: 'Light Housekeeping' },
-  { value: 'transportation', label: 'Transportation' },
-  { value: 'dementia-care', label: 'Dementia/Alzheimer\'s Care' },
-  { value: 'mobility-assistance', label: 'Mobility Assistance' },
 ];
 
 const CERTIFICATION_OPTIONS = [
@@ -105,7 +95,7 @@ const initialState: CompleteProfileState = {
   message: '',
 };
 
-export function WorkerProfileForm({ userName, userEmail }: WorkerProfileFormProps) {
+export function WorkerProfileForm({ userName, userEmail, skillOptions }: WorkerProfileFormProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [state, formAction, isPending] = useActionState(completeWorkerProfile, initialState);
@@ -206,24 +196,24 @@ export function WorkerProfileForm({ userName, userEmail }: WorkerProfileFormProp
                 Select all skills you can provide
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
-                {SKILLS_OPTIONS.map((skill) => (
+                {skillOptions.map((skill) => (
                   <label
-                    key={skill.value}
+                    key={skill}
                     className={cn(
                       'flex cursor-pointer items-center space-x-2 rounded-lg border p-3 transition-colors',
-                      skills.includes(skill.value)
+                      skills.includes(skill)
                         ? 'border-primary bg-primary/10'
                         : 'border-border hover:border-primary/50'
                     )}
                   >
                     <Checkbox
-                      checked={skills.includes(skill.value)}
+                      checked={skills.includes(skill)}
                       onCheckedChange={() =>
-                        toggleSelection(skill.value, skills, setSkills)
+                        toggleSelection(skill, skills, setSkills)
                       }
                     />
-                    <span className="text-sm">{skill.label}</span>
-                    <input type="hidden" name="skills" value={skill.value} disabled={!skills.includes(skill.value)} />
+                    <span className="text-sm">{skill}</span>
+                    <input type="hidden" name="skills" value={skill} disabled={!skills.includes(skill)} />
                   </label>
                 ))}
               </div>

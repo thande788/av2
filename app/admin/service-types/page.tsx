@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getServiceTypeOptions } from '@/lib/service-types';
+import { getSkillOptions } from '@/lib/skills';
 import { ServiceTypesManager } from './service-types-manager';
 
 export const metadata: Metadata = {
@@ -8,7 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ServiceTypesPage() {
-  const serviceTypes = await getServiceTypeOptions({ includeInactive: true });
+  const [serviceTypes, skills] = await Promise.all([
+    getServiceTypeOptions({ includeInactive: true }),
+    getSkillOptions({ includeInactive: true }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -19,7 +23,7 @@ export default async function ServiceTypesPage() {
         </p>
       </div>
 
-      <ServiceTypesManager serviceTypes={serviceTypes} />
+      <ServiceTypesManager serviceTypes={serviceTypes} skills={skills} />
     </div>
   );
 }

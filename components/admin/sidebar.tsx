@@ -4,7 +4,7 @@ import { UserButton } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -95,45 +95,6 @@ function updateSidebarCollapsedPreference(value: boolean) {
 
   window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(value));
   window.dispatchEvent(new Event(SIDEBAR_STORAGE_EVENT));
-}
-
-function isDynamicPathSegment(segment: string): boolean {
-  return /^[a-z0-9]{8,}$/i.test(segment);
-}
-
-function titleCaseSegment(segment: string): string {
-  if (segment === 'new') {
-    return 'Create';
-  }
-
-  if (segment === 'edit') {
-    return 'Edit';
-  }
-
-  return segment
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-function getRouteDetailLabel(pathname: string, item: AdminNavItem): string | null {
-  const pathnameSegments = pathname.split('/').filter(Boolean);
-  const itemSegments = item.href.split('/').filter(Boolean);
-  const trailingSegments = pathnameSegments.slice(itemSegments.length);
-
-  if (trailingSegments.length === 0) {
-    return null;
-  }
-
-  const descriptiveSegments = trailingSegments.filter(
-    (segment) => !isDynamicPathSegment(segment)
-  );
-
-  if (descriptiveSegments.length === 0) {
-    return 'Details';
-  }
-
-  return descriptiveSegments.map(titleCaseSegment).join(' / ');
 }
 
 function SidebarTooltip({
@@ -275,24 +236,17 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
     getSidebarCollapsedSnapshot,
     () => false
   );
-  const hasMounted = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false
-  );
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHasMounted(true);
+  }, []);
   const collapsed = hasMounted ? storedCollapsed : false;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const sections = getVisibleAdminNavSections(isFeatureEnabled);
   const quickActions = getVisibleAdminQuickActions(isFeatureEnabled);
   const activeItem = getActiveAdminNavItem(pathname, sections);
-  const activeSection = sections.find((section) =>
-    section.items.some((item) => item.id === activeItem?.id)
-  );
-  const routeDetail = activeItem ? getRouteDetailLabel(pathname, activeItem) : null;
-  const activeContextLabel = activeItem
-    ? [activeSection?.title, activeItem.title, routeDetail].filter(Boolean).join(' / ')
-    : null;
 
   const renderNavItem = ({
     item,
@@ -465,16 +419,6 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
                 </div>
               </div>
 
-              {activeContextLabel && (
-                <div className="border-b border-primary/10 px-3 py-3">
-                  <div className="rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2.5">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {activeContextLabel}
-                    </p>
-                  </div>
-                </div>
-              )}
-
               {navigation({ onNavigate: () => setMobileOpen(false) })}
 
               <MobileSidebarFooter />
@@ -588,14 +532,6 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
                   <ChevronLeft className="size-5" />
                 </Button>
               </div>
-            </div>
-          )}
-
-          {!collapsed && activeContextLabel && (
-            <div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2.5">
-              <p className="truncate text-sm font-medium text-foreground">
-                {activeContextLabel}
-              </p>
             </div>
           )}
 

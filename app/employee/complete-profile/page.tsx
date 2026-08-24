@@ -4,6 +4,7 @@ import { checkWorkerProfileStatus } from '@/app/actions/complete-profile';
 import { WorkerProfileForm } from '@/components/signup/worker-profile-form';
 import { AccountSetupWaiting } from '@/components/employee/account-setup-waiting';
 import { isAdminOrManager } from '@/lib/auth';
+import { getSkillOptions } from '@/lib/skills';
 
 export const metadata = {
   title: 'Complete Your Profile | Angel Touch Homecare Services',
@@ -39,6 +40,8 @@ export default async function CompleteProfilePage() {
     return <AccountSetupWaiting error={status.error} />;
   }
 
+  const skillOptions = await getSkillOptions();
+
   return (
     <div className="container mx-auto max-w-2xl px-4 py-12">
       <div className="mb-8 text-center">
@@ -52,6 +55,7 @@ export default async function CompleteProfilePage() {
       <WorkerProfileForm
         userName={user.fullName || user.firstName || undefined}
         userEmail={user.emailAddresses[0]?.emailAddress}
+        skillOptions={skillOptions.map((skill) => skill.label)}
       />
     </div>
   );

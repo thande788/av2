@@ -152,10 +152,7 @@ export async function completeWorkerProfile(
       };
     }
 
-    // Map skills to proper format
-    const skillsFormatted = data.skills.map((s) =>
-      s.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-    );
+    const skillsFormatted = data.skills;
 
     // Map languages to proper format
     const languagesFormatted = data.languages.map((l) =>
