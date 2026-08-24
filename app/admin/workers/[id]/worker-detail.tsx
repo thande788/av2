@@ -12,6 +12,7 @@ import {
   IconCertificate2,
   IconCheck,
   IconClock,
+  IconCurrencyDollar,
   IconEdit,
   IconEye,
   IconEyeOff,
@@ -109,6 +110,10 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
   const [editEmployeeId, setEditEmployeeId] = React.useState(worker.employeeId || '');
   const [editError, setEditError] = React.useState<string | null>(null);
   const [isSavingId, setIsSavingId] = React.useState(false);
+  const [isEditingPayRate, setIsEditingPayRate] = React.useState(false);
+  const [editPayRate, setEditPayRate] = React.useState(Number(worker.payRate || 0).toFixed(2));
+  const [payRateError, setPayRateError] = React.useState<string | null>(null);
+  const [isSavingPayRate, setIsSavingPayRate] = React.useState(false);
 
   // Marketing profile review state
   const [isApprovingProfile, setIsApprovingProfile] = React.useState(false);
@@ -130,6 +135,27 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
       router.refresh();
     } else {
       setEditError(result.error || 'Failed to update employee ID');
+    }
+  };
+
+  const handleSavePayRate = async () => {
+    const parsedPayRate = Number.parseFloat(editPayRate);
+
+    if (!Number.isFinite(parsedPayRate) || parsedPayRate <= 0) {
+      setPayRateError('Pay rate must be a positive number');
+      return;
+    }
+
+    setIsSavingPayRate(true);
+    setPayRateError(null);
+    const result = await updateWorker(worker.id, { payRate: parsedPayRate });
+    setIsSavingPayRate(false);
+
+    if (result.success) {
+      setIsEditingPayRate(false);
+      router.refresh();
+    } else {
+      setPayRateError(result.error || 'Failed to update pay rate');
     }
   };
 
@@ -259,6 +285,47 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
                     </Button>
                     <Button onClick={handleSaveEmployeeId} disabled={isSavingId}>
                       {isSavingId && <IconLoader2 className="mr-2 size-4 animate-spin" />}
+                      Save
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              <Dialog open={isEditingPayRate} onOpenChange={setIsEditingPayRate}>
+                <DialogTrigger asChild>
+                  <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <IconCurrencyDollar className="size-3.5" />
+                    ${Number(worker.payRate).toFixed(2)}/{worker.payType === 'HOURLY' ? 'hr' : worker.payType.toLowerCase()}
+                    <IconEdit className="ml-1 size-3 opacity-50" />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-sm">
+                  <DialogHeader>
+                    <DialogTitle>Edit Pay Rate</DialogTitle>
+                    <DialogDescription>
+                      Update hourly pay for {worker.user.firstName} {worker.user.lastName}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="payRate">Pay Rate ($/hr)</Label>
+                      <Input
+                        id="payRate"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={editPayRate}
+                        onChange={(e) => setEditPayRate(e.target.value)}
+                        placeholder="22.00"
+                      />
+                      {payRateError && <p className="text-sm text-destructive">{payRateError}</p>}
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsEditingPayRate(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSavePayRate} disabled={isSavingPayRate}>
+                      {isSavingPayRate && <IconLoader2 className="mr-2 size-4 animate-spin" />}
                       Save
                     </Button>
                   </DialogFooter>

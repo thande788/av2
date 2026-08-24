@@ -40,6 +40,26 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const brandAccents = await getBrandAccentsFromDB();
+  const serviceWorkerScript =
+    process.env.NODE_ENV === 'production'
+      ? `
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js');
+          });
+        }
+      `
+      : `
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              registrations.forEach(function(registration) {
+                registration.unregister();
+              });
+            });
+          });
+        }
+      `;
 
   return (
     <ClerkProvider>
@@ -64,13 +84,7 @@ export default async function RootLayout({
           </ThemeProvider>
           <script
             dangerouslySetInnerHTML={{
-              __html: `
-                if ('serviceWorker' in navigator) {
-                  window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js');
-                  });
-                }
-              `,
+              __html: serviceWorkerScript,
             }}
           />
         </body>

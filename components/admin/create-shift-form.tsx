@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { createShift, type CreateShiftInput } from '@/app/actions/shifts';
 import { IconLoader2, IconCalendarPlus } from '@tabler/icons-react';
@@ -58,6 +59,7 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [workerRateMode, setWorkerRateMode] = useState<'fixed' | 'percentage'>('percentage');
 
   async function handleSubmit(formData: FormData) {
     setIsPending(true);
@@ -71,6 +73,8 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
       const serviceType = formData.get('serviceType') as 'COMPANION' | 'PERSONAL' | 'SKILLED' | 'LIVE_IN';
       const clientRate = parseFloat(formData.get('clientRate') as string);
       const workerRate = parseFloat(formData.get('workerRate') as string);
+      const workerRateModeValue = formData.get('workerRateMode') as 'fixed' | 'percentage';
+      const workerRatePercent = parseFloat(formData.get('workerRatePercent') as string);
       const notes = formData.get('notes') as string;
 
       const input: CreateShiftInput = {
@@ -81,7 +85,12 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
         serviceType,
         skillsRequired: selectedSkills,
         clientRate,
-        workerRate: workerRate || undefined,
+        workerRateMode: workerRateModeValue,
+        workerRate: workerRateModeValue === 'fixed' && Number.isFinite(workerRate) ? workerRate : undefined,
+        workerRatePercent:
+          workerRateModeValue === 'percentage' && Number.isFinite(workerRatePercent)
+            ? workerRatePercent
+            : undefined,
         notes: notes || undefined,
       };
 
@@ -295,18 +304,57 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="workerRate">Worker Rate ($/hr)</Label>
-              <Input
-                type="number"
-                id="workerRate"
-                name="workerRate"
-                step="0.01"
-                min="0"
-                placeholder="Auto: 65% of client rate"
-              />
-              <p className="text-xs text-muted-foreground">
-                Leave blank to use default (65% of client rate)
-              </p>
+              <Label>Worker Rate Method</Label>
+              <input type="hidden" name="workerRateMode" value={workerRateMode} />
+              <RadioGroup
+                value={workerRateMode}
+                onValueChange={(value) => setWorkerRateMode(value as 'fixed' | 'percentage')}
+                className="space-y-2"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem id="worker-rate-percentage" value="percentage" />
+                  <Label htmlFor="worker-rate-percentage" className="font-normal">Percentage of client rate</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem id="worker-rate-fixed" value="fixed" />
+                  <Label htmlFor="worker-rate-fixed" className="font-normal">Fixed worker rate</Label>
+                </div>
+              </RadioGroup>
+
+              {workerRateMode === 'percentage' ? (
+                <>
+                  <Label htmlFor="workerRatePercent" className="sr-only">Worker Rate Percentage</Label>
+                  <Input
+                    type="number"
+                    id="workerRatePercent"
+                    name="workerRatePercent"
+                    step="0.1"
+                    min="1"
+                    max="100"
+                    defaultValue="65"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Worker earns this percent of client rate (default 65%).
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Label htmlFor="workerRate" className="sr-only">Worker Rate</Label>
+                  <Input
+                    type="number"
+                    id="workerRate"
+                    name="workerRate"
+                    step="0.01"
+                    min="0"
+                    required
+                    placeholder="e.g. 22.00"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Set an explicit hourly worker rate for this shift.
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </CardContent>

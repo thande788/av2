@@ -8,7 +8,13 @@ export const metadata = {
   description: 'Your account status information',
 };
 
-export default async function AccountStatusPage() {
+interface AccountStatusPageProps {
+  searchParams: Promise<{ issue?: string }>;
+}
+
+export default async function AccountStatusPage({ searchParams }: AccountStatusPageProps) {
+  const params = await searchParams;
+  const issue = params.issue;
   const user = await currentUser();
 
   if (!user) {
@@ -20,9 +26,26 @@ export default async function AccountStatusPage() {
     where: { clerkId: user.id },
   });
 
-  // If no portal user found, redirect to portals
+  // If no portal user found, show actionable guidance instead of bouncing.
   if (!portalUser) {
-    redirect('/portals');
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto py-12">
+          <ErrorDisplay
+            type="general"
+            title="Account setup issue"
+            message={
+              issue === 'missing-role'
+                ? 'You are signed in, but your portal role is missing. Please contact support so we can finish your account setup.'
+                : 'We could not find your portal account yet. Please contact support so we can complete your access.'
+            }
+            showHomeLink={true}
+            showContactLink={true}
+            homeUrl="/portals"
+          />
+        </div>
+      </div>
+    );
   }
 
   // If user is active, redirect to their portal
@@ -33,7 +56,26 @@ export default async function AccountStatusPage() {
       CAREGIVER: '/employee',
       CLIENT: '/client',
     };
-    redirect(roleRedirects[portalUser.role] || '/portals');
+    const roleRedirect = roleRedirects[portalUser.role];
+
+    if (roleRedirect) {
+      redirect(roleRedirect);
+    }
+
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto py-12">
+          <ErrorDisplay
+            type="general"
+            title="Account role issue"
+            message="Your account is active, but your role is not configured for a portal. Please contact support to correct your access."
+            showHomeLink={true}
+            showContactLink={true}
+            homeUrl="/portals"
+          />
+        </div>
+      </div>
+    );
   }
 
   // Map status to error type

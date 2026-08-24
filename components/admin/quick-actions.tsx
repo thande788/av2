@@ -4,7 +4,7 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getVisibleAdminQuickActions } from './navigation-config';
 
 export function QuickActions() {
-  const actions = getVisibleAdminQuickActions(isFeatureEnabled).slice(0, 4);
+  const actions = getVisibleAdminQuickActions(isFeatureEnabled);
 
   if (actions.length === 0) {
     return null;

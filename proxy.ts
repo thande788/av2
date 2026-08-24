@@ -118,6 +118,18 @@ const canAccessAdmin = (role?: string) => role === 'admin' || role === 'manager'
 const canAccessEmployee = (role?: string) => role === 'admin' || role === 'manager' || role === 'caregiver';
 const canAccessClient = (role?: string) => role === 'admin' || role === 'manager' || role === 'client';
 
+const KNOWN_ROLES = ['admin', 'manager', 'caregiver', 'client'] as const;
+
+function isKnownRole(role?: string): role is (typeof KNOWN_ROLES)[number] {
+  return !!role && KNOWN_ROLES.includes(role as (typeof KNOWN_ROLES)[number]);
+}
+
+function getAccountStatusUrl(reqUrl: string, issue: string): URL {
+  const url = new URL('/account-status', reqUrl);
+  url.searchParams.set('issue', issue);
+  return url;
+}
+
 /**
  * Get default redirect URL based on role
  */
@@ -140,6 +152,9 @@ export default clerkMiddleware(async (auth, req) => {
   }
   if (userId && pathname === '/') {
     const { role } = await getUserRoleAndStatus(userId, sessionClaims as { metadata?: { role?: string } } | null);
+    if (!isKnownRole(role)) {
+      return NextResponse.redirect(getAccountStatusUrl(req.url, 'missing-role'));
+    }
     const portalUrl = getDefaultPortalUrl(role);
     return NextResponse.redirect(new URL(portalUrl, req.url));
   }
@@ -154,6 +169,9 @@ export default clerkMiddleware(async (auth, req) => {
     // If authenticated user hits /portals, redirect to their actual dashboard
     if (userId && pathname === '/portals') {
       const { role } = await getUserRoleAndStatus(userId, sessionClaims as { metadata?: { role?: string } } | null);
+      if (!isKnownRole(role)) {
+        return NextResponse.redirect(getAccountStatusUrl(req.url, 'missing-role'));
+      }
       const portalUrl = getDefaultPortalUrl(role);
       if (portalUrl !== '/portals') {
         return NextResponse.redirect(new URL(portalUrl, req.url));
@@ -165,6 +183,13 @@ export default clerkMiddleware(async (auth, req) => {
   // If user is signed in and tries to access auth routes, redirect to dashboard
   if (userId && isAuthRoute(req)) {
     const { role } = await getUserRoleAndStatus(userId, sessionClaims as { metadata?: { role?: string } } | null);
+    if (!isKnownRole(role)) {
+      // Allow sign-in page to render guidance instead of bouncing to /portals.
+      if (pathname.startsWith('/sign-in')) {
+        return NextResponse.next();
+      }
+      return NextResponse.redirect(getAccountStatusUrl(req.url, 'missing-role'));
+    }
     return NextResponse.redirect(new URL(getDefaultPortalUrl(role), req.url));
   }
 
@@ -189,6 +214,10 @@ export default clerkMiddleware(async (auth, req) => {
     // Check if user account is not active - redirect to account status page
     if (status && status !== 'active') {
       return NextResponse.redirect(new URL('/account-status', req.url));
+    }
+
+    if (!isKnownRole(role)) {
+      return NextResponse.redirect(getAccountStatusUrl(req.url, 'missing-role'));
     }
   }
 

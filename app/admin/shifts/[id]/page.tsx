@@ -58,10 +58,32 @@ export default async function ShiftDetailPage({ params }: ShiftDetailPageProps) 
     take: 20,
   });
 
+  const clients = await db.client.findMany({
+    where: {
+      user: {
+        status: 'ACTIVE',
+      },
+    },
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+    orderBy: {
+      user: {
+        lastName: 'asc',
+      },
+    },
+  });
+
   return (
     <ShiftDetail 
       shift={serialize(shift)}
       availableWorkers={serialize(availableWorkers)}
+      clients={serialize(clients)}
     />
   );
 }

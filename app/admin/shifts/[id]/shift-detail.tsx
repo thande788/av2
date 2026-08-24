@@ -8,6 +8,7 @@ import {
   IconCalendar,
   IconCheck,
   IconClock,
+  IconEdit,
   IconLoader2,
   IconMapPin,
   IconMessageForward,
@@ -50,10 +51,25 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
+import {
   sendBookingRequest,
   confirmBooking,
   cancelShift,
   completeShift,
+  updateShift,
 } from '@/app/actions/shifts';
 import { sendShiftNotification } from '@/app/actions/sms-notifications';
 import { AdminShiftRating } from './admin-shift-rating';
@@ -76,7 +92,28 @@ type WorkerWithUser = Worker & {
 interface ShiftDetailProps {
   shift: Serialized<ShiftWithRelations>;
   availableWorkers: Serialized<WorkerWithUser>[];
+  clients: Serialized<(Client & {
+    user: Pick<PortalUser, 'firstName' | 'lastName'>;
+  })[]>;
 }
+
+const SERVICE_LEVELS = [
+  { value: 'COMPANION', label: 'Companion Care' },
+  { value: 'PERSONAL', label: 'Personal Care' },
+  { value: 'SKILLED', label: 'Skilled Nursing' },
+  { value: 'LIVE_IN', label: 'Live-In Care' },
+] as const;
+
+const SKILLS = [
+  'Personal Care',
+  'Dementia Care',
+  'Hoyer Lift',
+  'Meal Prep',
+  'Companionship',
+  'Medication Reminders',
+  'Light Housekeeping',
+  'Transportation',
+];
 
 const statusColors: Record<ShiftStatus, string> = {
   OPEN: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-500',
@@ -98,7 +135,7 @@ const bookingStatusColors: Record<BookingStatus, string> = {
   NO_SHOW: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500',
 };
 
-export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
+export function ShiftDetail({ shift, availableWorkers, clients }: ShiftDetailProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
   const [isNotifying, setIsNotifying] = React.useState(false);
@@ -107,6 +144,26 @@ export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
     failed: number;
   } | null>(null);
   const [selectedWorkerId, setSelectedWorkerId] = React.useState<string>('');
+  const [isEditingRates, setIsEditingRates] = React.useState(false);
+  const [selectedClientId, setSelectedClientId] = React.useState(shift.clientId);
+  const [dateInput, setDateInput] = React.useState(
+    new Date(shift.date).toISOString().split('T')[0]
+  );
+  const [startTimeInput, setStartTimeInput] = React.useState(shift.startTime);
+  const [endTimeInput, setEndTimeInput] = React.useState(shift.endTime);
+  const [serviceTypeInput, setServiceTypeInput] = React.useState(shift.serviceType);
+  const [selectedSkills, setSelectedSkills] = React.useState<string[]>(
+    shift.skillsRequired || []
+  );
+  const [notesInput, setNotesInput] = React.useState(shift.notes || '');
+  const [clientRateInput, setClientRateInput] = React.useState(Number(shift.clientRate).toFixed(2));
+  const [workerRateMode, setWorkerRateMode] = React.useState<'fixed' | 'percentage'>('percentage');
+  const [workerRateInput, setWorkerRateInput] = React.useState(Number(shift.workerRate || 0).toFixed(2));
+  const [workerRatePercentInput, setWorkerRatePercentInput] = React.useState(
+    ((Number(shift.workerRate || 0) / Number(shift.clientRate || 1)) * 100).toFixed(1)
+  );
+  const [rateError, setRateError] = React.useState<string | null>(null);
+  const [isSavingRates, setIsSavingRates] = React.useState(false);
 
   const confirmedBooking = shift.bookings.find((b) => b.status === 'CONFIRMED');
   const pendingBookings = shift.bookings.filter((b) => b.status === 'PENDING');
@@ -161,6 +218,80 @@ export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
     }
   };
 
+  const resetRatesForm = () => {
+    setSelectedClientId(shift.clientId);
+    setDateInput(new Date(shift.date).toISOString().split('T')[0]);
+    setStartTimeInput(shift.startTime);
+    setEndTimeInput(shift.endTime);
+    setServiceTypeInput(shift.serviceType);
+    setSelectedSkills(shift.skillsRequired || []);
+    setNotesInput(shift.notes || '');
+    setClientRateInput(Number(shift.clientRate).toFixed(2));
+    setWorkerRateInput(Number(shift.workerRate || 0).toFixed(2));
+    setWorkerRatePercentInput(
+      ((Number(shift.workerRate || 0) / Number(shift.clientRate || 1)) * 100).toFixed(1)
+    );
+    setWorkerRateMode('percentage');
+    setRateError(null);
+  };
+
+  const handleSaveRates = async () => {
+    const clientRate = Number.parseFloat(clientRateInput);
+    const workerRate = Number.parseFloat(workerRateInput);
+    const workerRatePercent = Number.parseFloat(workerRatePercentInput);
+
+    setRateError(null);
+
+    if (!Number.isFinite(clientRate) || clientRate <= 0) {
+      setRateError('Client rate must be a positive number');
+      return;
+    }
+
+    if (workerRateMode === 'fixed' && (!Number.isFinite(workerRate) || workerRate <= 0)) {
+      setRateError('Worker rate must be a positive number');
+      return;
+    }
+
+    if (
+      workerRateMode === 'percentage' &&
+      (!Number.isFinite(workerRatePercent) || workerRatePercent <= 0 || workerRatePercent > 100)
+    ) {
+      setRateError('Worker rate percentage must be between 1 and 100');
+      return;
+    }
+
+    setIsSavingRates(true);
+    const result = await updateShift({
+      shiftId: shift.id,
+      clientId: selectedClientId,
+      date: dateInput,
+      startTime: startTimeInput,
+      endTime: endTimeInput,
+      serviceType: serviceTypeInput,
+      skillsRequired: selectedSkills,
+      notes: notesInput || undefined,
+      clientRate,
+      workerRateMode,
+      workerRate: workerRateMode === 'fixed' ? workerRate : undefined,
+      workerRatePercent: workerRateMode === 'percentage' ? workerRatePercent : undefined,
+    });
+    setIsSavingRates(false);
+
+    if (result.success) {
+      setIsEditingRates(false);
+      router.refresh();
+      return;
+    }
+
+    setRateError(result.error || 'Failed to update rates');
+  };
+
+  const toggleSkill = (skill: string) => {
+    setSelectedSkills((prev) =>
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
+    );
+  };
+
   // Filter out workers that already have bookings for this shift
   const bookedWorkerIds = shift.bookings.map((b) => b.workerId);
   const filteredWorkers = availableWorkers.filter(
@@ -199,6 +330,207 @@ export function ShiftDetail({ shift, availableWorkers }: ShiftDetailProps) {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          <Dialog
+            open={isEditingRates}
+            onOpenChange={(open) => {
+              setIsEditingRates(open);
+              if (open) {
+                resetRatesForm();
+              }
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <IconEdit className="mr-2 size-4" />
+                Edit
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Edit Shift</DialogTitle>
+                <DialogDescription>
+                  Update schedule, requirements, and billing/pay rates.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label htmlFor="clientId">Client</Label>
+                  <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                    <SelectTrigger id="clientId">
+                      <SelectValue placeholder="Select a client" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients.map((client) => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.careRecipientName || `${client.user.firstName} ${client.user.lastName}`} - {client.city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="shiftDate">Date</Label>
+                    <Input
+                      id="shiftDate"
+                      type="date"
+                      value={dateInput}
+                      onChange={(event) => setDateInput(event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="serviceType">Service Type</Label>
+                    <Select
+                      value={serviceTypeInput}
+                      onValueChange={(value) => setServiceTypeInput(value as typeof serviceTypeInput)}
+                    >
+                      <SelectTrigger id="serviceType">
+                        <SelectValue placeholder="Select service type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SERVICE_LEVELS.map((level) => (
+                          <SelectItem key={level.value} value={level.value}>
+                            {level.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="startTime">Start Time</Label>
+                    <Input
+                      id="startTime"
+                      type="time"
+                      value={startTimeInput}
+                      onChange={(event) => setStartTimeInput(event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="endTime">End Time</Label>
+                    <Input
+                      id="endTime"
+                      type="time"
+                      value={endTimeInput}
+                      onChange={(event) => setEndTimeInput(event.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Required Skills</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SKILLS.map((skill) => (
+                      <div key={skill} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`edit-skill-${skill}`}
+                          checked={selectedSkills.includes(skill)}
+                          onCheckedChange={() => toggleSkill(skill)}
+                        />
+                        <label
+                          htmlFor={`edit-skill-${skill}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {skill}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={notesInput}
+                    onChange={(event) => setNotesInput(event.target.value)}
+                    rows={3}
+                    placeholder="Any special instructions or requirements..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="clientRate">Client Rate ($/hr)</Label>
+                  <Input
+                    id="clientRate"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={clientRateInput}
+                    onChange={(event) => setClientRateInput(event.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Worker Rate Method</Label>
+                  <RadioGroup
+                    value={workerRateMode}
+                    onValueChange={(value) =>
+                      setWorkerRateMode(value as 'fixed' | 'percentage')
+                    }
+                    className="space-y-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem id="edit-worker-rate-percentage" value="percentage" />
+                      <Label htmlFor="edit-worker-rate-percentage" className="font-normal">
+                        Percentage of client rate
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem id="edit-worker-rate-fixed" value="fixed" />
+                      <Label htmlFor="edit-worker-rate-fixed" className="font-normal">
+                        Fixed worker rate
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {workerRateMode === 'percentage' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="workerRatePercent">Worker Rate (%)</Label>
+                    <Input
+                      id="workerRatePercent"
+                      type="number"
+                      min="1"
+                      max="100"
+                      step="0.1"
+                      value={workerRatePercentInput}
+                      onChange={(event) => setWorkerRatePercentInput(event.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="workerRate">Worker Rate ($/hr)</Label>
+                    <Input
+                      id="workerRate"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={workerRateInput}
+                      onChange={(event) => setWorkerRateInput(event.target.value)}
+                    />
+                  </div>
+                )}
+
+                {rateError && <p className="text-sm text-destructive">{rateError}</p>}
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsEditingRates(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveRates} disabled={isSavingRates}>
+                  {isSavingRates ? <IconLoader2 className="mr-2 size-4 animate-spin" /> : null}
+                  Save Shift
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           {isOpen && (
             <Button
               variant="outline"

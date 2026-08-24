@@ -16,10 +16,105 @@ const createShiftSchema = z.object({
   skillsRequired: z.array(z.string()).default([]),
   notes: z.string().optional(),
   clientRate: z.number().positive('Client rate must be positive'),
+  workerRateMode: z.enum(['fixed', 'percentage']).default('percentage'),
   workerRate: z.number().positive('Worker rate must be positive').optional(),
+  workerRatePercent: z.number().min(1, 'Rate percentage must be at least 1').max(100, 'Rate percentage cannot exceed 100').optional(),
+}).superRefine((data, ctx) => {
+  if (data.workerRateMode === 'fixed' && data.workerRate === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Worker rate is required when using a fixed rate',
+      path: ['workerRate'],
+    });
+  }
+
+  if (data.workerRateMode === 'percentage' && data.workerRatePercent === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Worker rate percentage is required when using percentage mode',
+      path: ['workerRatePercent'],
+    });
+  }
 });
 
 export type CreateShiftInput = z.infer<typeof createShiftSchema>;
+
+const updateShiftRatesSchema = z
+  .object({
+    shiftId: z.string().min(1, 'Shift ID is required'),
+    clientRate: z.number().positive('Client rate must be positive'),
+    workerRateMode: z.enum(['fixed', 'percentage']).default('percentage'),
+    workerRate: z.number().positive('Worker rate must be positive').optional(),
+    workerRatePercent: z
+      .number()
+      .min(1, 'Rate percentage must be at least 1')
+      .max(100, 'Rate percentage cannot exceed 100')
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.workerRateMode === 'fixed' && data.workerRate === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Worker rate is required when using a fixed rate',
+        path: ['workerRate'],
+      });
+    }
+
+    if (
+      data.workerRateMode === 'percentage' &&
+      data.workerRatePercent === undefined
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Worker rate percentage is required when using percentage mode',
+        path: ['workerRatePercent'],
+      });
+    }
+  });
+
+export type UpdateShiftRatesInput = z.infer<typeof updateShiftRatesSchema>;
+
+const updateShiftSchema = z
+  .object({
+    shiftId: z.string().min(1, 'Shift ID is required'),
+    clientId: z.string().min(1, 'Client is required'),
+    date: z.string().min(1, 'Date is required'),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
+    serviceType: z.nativeEnum(ServiceLevel),
+    skillsRequired: z.array(z.string()).default([]),
+    notes: z.string().optional(),
+    clientRate: z.number().positive('Client rate must be positive'),
+    workerRateMode: z.enum(['fixed', 'percentage']).default('percentage'),
+    workerRate: z.number().positive('Worker rate must be positive').optional(),
+    workerRatePercent: z
+      .number()
+      .min(1, 'Rate percentage must be at least 1')
+      .max(100, 'Rate percentage cannot exceed 100')
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.workerRateMode === 'fixed' && data.workerRate === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Worker rate is required when using a fixed rate',
+        path: ['workerRate'],
+      });
+    }
+
+    if (
+      data.workerRateMode === 'percentage' &&
+      data.workerRatePercent === undefined
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Worker rate percentage is required when using percentage mode',
+        path: ['workerRatePercent'],
+      });
+    }
+  });
+
+export type UpdateShiftInput = z.infer<typeof updateShiftSchema>;
 
 /**
  * Create a new shift
@@ -61,7 +156,10 @@ export async function createShift(
         skillsRequired: validated.skillsRequired,
         notes: validated.notes,
         clientRate: validated.clientRate,
-        workerRate: validated.workerRate || validated.clientRate * 0.65, // Default to 65% of client rate
+        workerRate:
+          validated.workerRateMode === 'percentage'
+            ? validated.clientRate * ((validated.workerRatePercent ?? 65) / 100)
+            : validated.workerRate ?? validated.clientRate * 0.65,
         status: 'OPEN',
         createdBy: 'admin', // TODO: Get from auth session
       },
@@ -78,6 +176,123 @@ export async function createShift(
     }
     console.error('Failed to create shift:', error);
     return { success: false, error: 'Failed to create shift' };
+  }
+}
+
+/**
+ * Update shift billing and worker rates.
+ */
+export async function updateShiftRates(
+  input: UpdateShiftRatesInput
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const validated = updateShiftRatesSchema.parse(input);
+
+    const existingShift = await db.careShift.findUnique({
+      where: { id: validated.shiftId },
+      select: { id: true, clientId: true },
+    });
+
+    if (!existingShift) {
+      return { success: false, error: 'Shift not found' };
+    }
+
+    const workerRate =
+      validated.workerRateMode === 'percentage'
+        ? validated.clientRate * ((validated.workerRatePercent ?? 65) / 100)
+        : validated.workerRate ?? validated.clientRate * 0.65;
+
+    await db.careShift.update({
+      where: { id: validated.shiftId },
+      data: {
+        clientRate: validated.clientRate,
+        workerRate,
+      },
+    });
+
+    revalidatePath('/admin/shifts');
+    revalidatePath(`/admin/shifts/${validated.shiftId}`);
+    revalidatePath(`/admin/clients/${existingShift.clientId}`);
+
+    return { success: true };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.issues[0].message };
+    }
+
+    console.error('Failed to update shift rates:', error);
+    return { success: false, error: 'Failed to update shift rates' };
+  }
+}
+
+/**
+ * Update full shift details from admin edit flow.
+ */
+export async function updateShift(
+  input: UpdateShiftInput
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const validated = updateShiftSchema.parse(input);
+
+    const existingShift = await db.careShift.findUnique({
+      where: { id: validated.shiftId },
+      select: { id: true, clientId: true },
+    });
+
+    if (!existingShift) {
+      return { success: false, error: 'Shift not found' };
+    }
+
+    const client = await db.client.findUnique({ where: { id: validated.clientId } });
+
+    if (!client) {
+      return { success: false, error: 'Client not found' };
+    }
+
+    const [startHour, startMin] = validated.startTime.split(':').map(Number);
+    const [endHour, endMin] = validated.endTime.split(':').map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+    const duration = (endMinutes - startMinutes) / 60;
+
+    if (duration <= 0) {
+      return { success: false, error: 'End time must be after start time' };
+    }
+
+    const workerRate =
+      validated.workerRateMode === 'percentage'
+        ? validated.clientRate * ((validated.workerRatePercent ?? 65) / 100)
+        : validated.workerRate ?? validated.clientRate * 0.65;
+
+    await db.careShift.update({
+      where: { id: validated.shiftId },
+      data: {
+        clientId: validated.clientId,
+        date: new Date(validated.date),
+        startTime: validated.startTime,
+        endTime: validated.endTime,
+        duration,
+        serviceType: validated.serviceType,
+        skillsRequired: validated.skillsRequired,
+        notes: validated.notes,
+        clientRate: validated.clientRate,
+        workerRate,
+      },
+    });
+
+    revalidatePath('/admin/shifts');
+    revalidatePath(`/admin/shifts/${validated.shiftId}`);
+    revalidatePath(`/admin/clients/${existingShift.clientId}`);
+    revalidatePath(`/admin/clients/${validated.clientId}`);
+
+    return { success: true };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.issues[0].message };
+    }
+
+    console.error('Failed to update shift:', error);
+    return { success: false, error: 'Failed to update shift' };
   }
 }
 
