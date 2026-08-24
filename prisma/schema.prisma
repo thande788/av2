@@ -491,6 +491,7 @@ model Client {
   billingEmail      String?
   
   // Care plans & shifts
+  careRecipients    CareRecipient[]
   careShifts        CareShift[]
   invoices          Invoice[]
   
@@ -503,6 +504,22 @@ model Client {
 
   @@index([type])
   @@index([zip])
+}
+
+model CareRecipient {
+  id          String    @id @default(cuid())
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId    String
+  fullName    String
+  dateOfBirth DateTime?
+  relationship String?
+  isPrimary   Boolean   @default(false)
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([clientId])
+  @@index([isPrimary])
 }
 
 enum ClientType {

@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { serialize } from '@/lib/utils';
+import { getClientProfileCompletion } from '@/lib/client-profile-completion';
 import { ClientsTable } from './clients-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -18,13 +19,24 @@ export default async function ClientsPage() {
   });
 
   // Serialize Prisma objects to plain objects for client components
-  const serializedClients = serialize(clients);
+  const serializedClients = serialize(clients).map((client) => {
+    const completion = getClientProfileCompletion(client, 'admin');
+    return {
+      ...client,
+      profileStatus: completion.profileStatus,
+      missingFields: completion.missingFields,
+      missingCount: completion.missingFields.length,
+    };
+  });
 
   const activeCount = serializedClients.filter(
     (c) => c.user.status === 'ACTIVE'
   ).length;
   const pendingCount = serializedClients.filter(
     (c) => c.user.status === 'PENDING'
+  ).length;
+  const incompleteCount = serializedClients.filter(
+    (c) => c.profileStatus === 'INCOMPLETE'
   ).length;
 
   return (
@@ -58,6 +70,14 @@ export default async function ClientsPage() {
               </Badge>
             </TabsTrigger>
           )}
+          {incompleteCount > 0 && (
+            <TabsTrigger value="incomplete">
+              Incomplete Profiles
+              <Badge variant="outline" className="ml-2 border-amber-500/40 text-amber-700 dark:text-amber-300">
+                {incompleteCount}
+              </Badge>
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="all">
@@ -73,6 +93,12 @@ export default async function ClientsPage() {
         <TabsContent value="pending">
           <ClientsTable 
             clients={serializedClients.filter((c) => c.user.status === 'PENDING')} 
+          />
+        </TabsContent>
+
+        <TabsContent value="incomplete">
+          <ClientsTable
+            clients={serializedClients.filter((c) => c.profileStatus === 'INCOMPLETE')}
           />
         </TabsContent>
       </Tabs>

@@ -1,8 +1,9 @@
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getCurrentClient } from '@/lib/auth';
+import { ClientSetupNeeded } from '@/components/client/client-setup-needed';
 import {
-  IconAlertCircle,
   IconUsers,
   IconPhone,
   IconMail,
@@ -16,36 +17,32 @@ export const metadata = {
 };
 
 export default async function CareTeamPage() {
-  const demoClient = await db.client.findFirst({
-    where: {
-      user: { status: 'ACTIVE' },
-    },
-    include: {
-      careShifts: {
+  const currentClient = await getCurrentClient();
+
+  const demoClient = currentClient
+    ? await db.client.findUnique({
+        where: { id: currentClient.id },
         include: {
-          bookings: {
-            where: {
-              status: { in: ['CONFIRMED', 'ACCEPTED', 'COMPLETED'] },
-            },
+          careShifts: {
             include: {
-              worker: {
-                include: { user: true },
+              bookings: {
+                where: {
+                  status: { in: ['CONFIRMED', 'ACCEPTED', 'COMPLETED'] },
+                },
+                include: {
+                  worker: {
+                    include: { user: true },
+                  },
+                },
               },
             },
           },
         },
-      },
-    },
-  });
+      })
+    : null;
 
   if (!demoClient) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Client Data</h2>
-        <p className="text-muted-foreground">Please contact your administrator.</p>
-      </div>
-    );
+    return <ClientSetupNeeded />;
   }
 
   // Get unique caregivers with visit counts

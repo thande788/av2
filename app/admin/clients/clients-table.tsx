@@ -1,14 +1,20 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DataTable, type Column } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import type { Client, PortalUser, UserStatus, ServiceLevel, ClientType } from '@prisma/client';
 import type { Serialized } from '@/lib/utils';
 
 type ClientWithUser = Serialized<Client & {
   user: PortalUser;
-}>;
+}> & {
+  profileStatus: 'COMPLETE' | 'INCOMPLETE';
+  missingFields: string[];
+  missingCount: number;
+};
 
 const statusColors: Record<UserStatus, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
@@ -91,6 +97,27 @@ const columns: Column<ClientWithUser>[] = [
     ),
   },
   {
+    key: 'profileStatus',
+    header: 'Profile',
+    sortable: true,
+    render: (client) => (
+      client.profileStatus === 'INCOMPLETE' ? (
+        <div className="space-y-1">
+          <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300" variant="secondary">
+            Incomplete
+          </Badge>
+          <p className="text-xs text-muted-foreground">
+            {client.missingCount} field{client.missingCount === 1 ? '' : 's'} missing
+          </p>
+        </div>
+      ) : (
+        <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" variant="secondary">
+          Complete
+        </Badge>
+      )
+    ),
+  },
+  {
     key: 'location',
     header: 'Location',
     hideOnMobile: true,
@@ -109,6 +136,21 @@ const columns: Column<ClientWithUser>[] = [
       </span>
     ),
   },
+  {
+    key: 'actions',
+    header: 'Actions',
+    hideOnMobile: true,
+    render: (client) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        asChild
+        onClick={(event) => event.stopPropagation()}
+      >
+        <Link href={`/admin/clients/${client.id}/edit`}>Edit</Link>
+      </Button>
+    ),
+  },
 ];
 
 export function ClientsTable({
@@ -123,6 +165,16 @@ export function ClientsTable({
       data={clients}
       columns={columns}
       searchKeys={['user.firstName', 'user.lastName', 'user.email', 'careRecipientName']}
+      filters={[
+        {
+          key: 'profileStatus',
+          label: 'Profile',
+          options: [
+            { label: 'Incomplete', value: 'INCOMPLETE' },
+            { label: 'Complete', value: 'COMPLETE' },
+          ],
+        },
+      ]}
       onRowClick={(client) => router.push(`/admin/clients/${client.id}`)}
       emptyMessage="No clients found."
     />

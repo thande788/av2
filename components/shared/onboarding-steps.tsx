@@ -46,19 +46,6 @@ export const familyOnboardingSteps: OnboardingStep[] = [
       </div>
     ),
   },
-  {
-    title: 'Emergency Contacts',
-    description:
-      'Make sure your emergency contact information is up to date. This helps our caregivers respond quickly in urgent situations.',
-    icon: 'Phone',
-    content: (
-      <div className="flex justify-center">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/client/settings">Update Contacts →</Link>
-        </Button>
-      </div>
-    ),
-  },
 ];
 
 export const employeeOnboardingSteps: OnboardingStep[] = [

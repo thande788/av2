@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { SignUpClient } from './sign-up-client';
 
 interface SignUpPageProps {
-  searchParams: Promise<{ role?: string }>;
+  searchParams: Promise<{ role?: string; clientType?: string }>;
 }
 
 export const metadata = {
@@ -18,6 +18,10 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
     params.role === 'caregiver' || params.role === 'client'
       ? params.role
       : 'client';
+  const selectedClientType =
+    params.clientType === 'SELF' || params.clientType === 'FAMILY' || params.clientType === 'FACILITY'
+      ? params.clientType
+      : 'FAMILY';
 
   return (
     <div className='grid min-h-[80vh] flex-1 lg:grid-cols-2'>
@@ -113,7 +117,36 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
             </div>
           </div>
 
-          <SignUpClient role={selectedRole} />
+          {selectedRole === 'client' && (
+            <div className="space-y-2 rounded-lg border border-border/60 p-3">
+              <p className="text-xs font-medium text-muted-foreground">Client account type</p>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: 'SELF', label: 'Self' },
+                  { value: 'FAMILY', label: 'Family' },
+                  { value: 'FACILITY', label: 'Facility' },
+                ].map((option) => (
+                  <Link
+                    key={option.value}
+                    href={`/sign-up?role=client&clientType=${option.value}`}
+                    className={cn(
+                      'rounded-md border px-2 py-1.5 text-center text-xs font-medium transition-colors',
+                      selectedClientType === option.value
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {option.label}
+                  </Link>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Self: one care recipient. Family/Facility: manage multiple care recipients.
+              </p>
+            </div>
+          )}
+
+          <SignUpClient role={selectedRole} clientType={selectedClientType} />
         </div>
       </div>
     </div>

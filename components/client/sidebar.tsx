@@ -14,6 +14,7 @@ import {
   Menu,
   Star,
   MessageSquareHeart,
+  HeartHandshake,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,6 +50,11 @@ const navItems: NavItem[] = [
     title: 'Care Team',
     href: '/client/care-team',
     icon: Users,
+  },
+  {
+    title: 'Care Recipients',
+    href: '/client/care-recipients',
+    icon: HeartHandshake,
   },
   {
     title: 'Invoices',

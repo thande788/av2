@@ -7,6 +7,7 @@
 
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
+import { ensureClientProfileForPortalUser } from '@/lib/client-provisioning';
 
 /**
  * Get the current authenticated user's clerkId
@@ -262,7 +263,40 @@ export async function getCurrentClient() {
     },
   });
 
-  return client;
+  if (client) {
+    return client;
+  }
+
+  const portalUser = await db.portalUser.findUnique({
+    where: { clerkId },
+    select: {
+      id: true,
+      role: true,
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  if (!portalUser || portalUser.role !== 'CLIENT') {
+    return null;
+  }
+
+  await ensureClientProfileForPortalUser({
+    portalUserId: portalUser.id,
+    firstName: portalUser.firstName,
+    lastName: portalUser.lastName,
+  });
+
+  return db.client.findFirst({
+    where: {
+      user: {
+        clerkId,
+      },
+    },
+    include: {
+      user: true,
+    },
+  });
 }
 
 /**

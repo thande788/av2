@@ -19,6 +19,7 @@ import { clerkMiddleware, createRouteMatcher, clerkClient } from '@clerk/nextjs/
 import { NextResponse } from 'next/server';
 
 import { isDemoGatedRoute } from '@/lib/feature-flags';
+import { ensureClientProfileForPortalUser } from '@/lib/client-provisioning';
 import { db } from '@/lib/db';
 
 async function provisionDefaultClientRole(userId: string): Promise<{ role: string; status: string } | null> {
@@ -33,30 +34,48 @@ async function provisionDefaultClientRole(userId: string): Promise<{ role: strin
       return null;
     }
 
-    const existingByClerkId = await db.portalUser.findUnique({ where: { clerkId: userId } });
+    const existingByClerkId = await db.portalUser.findUnique({
+      where: { clerkId: userId },
+      select: { id: true, firstName: true, lastName: true },
+    });
+
+    let portalUserId: string | null = null;
+    let portalFirstName = user.firstName || 'New';
+    let portalLastName = user.lastName || 'User';
 
     if (existingByClerkId) {
-      await db.portalUser.update({
+      const updatedPortalUser = await db.portalUser.update({
         where: { clerkId: userId },
         data: {
           role: 'CLIENT',
           status: 'ACTIVE',
         },
+        select: { id: true, firstName: true, lastName: true },
       });
+      portalUserId = updatedPortalUser.id;
+      portalFirstName = updatedPortalUser.firstName;
+      portalLastName = updatedPortalUser.lastName;
     } else {
-      const existingByEmail = await db.portalUser.findUnique({ where: { email: primaryEmail } });
+      const existingByEmail = await db.portalUser.findUnique({
+        where: { email: primaryEmail },
+        select: { id: true, firstName: true, lastName: true },
+      });
 
       if (existingByEmail) {
-        await db.portalUser.update({
+        const updatedPortalUser = await db.portalUser.update({
           where: { email: primaryEmail },
           data: {
             clerkId: userId,
             role: 'CLIENT',
             status: 'ACTIVE',
           },
+          select: { id: true, firstName: true, lastName: true },
         });
+        portalUserId = updatedPortalUser.id;
+        portalFirstName = updatedPortalUser.firstName;
+        portalLastName = updatedPortalUser.lastName;
       } else {
-        await db.portalUser.create({
+        const createdPortalUser = await db.portalUser.create({
           data: {
             clerkId: userId,
             email: primaryEmail,
@@ -65,8 +84,25 @@ async function provisionDefaultClientRole(userId: string): Promise<{ role: strin
             role: 'CLIENT',
             status: 'ACTIVE',
           },
+          select: { id: true, firstName: true, lastName: true },
         });
+        portalUserId = createdPortalUser.id;
+        portalFirstName = createdPortalUser.firstName;
+        portalLastName = createdPortalUser.lastName;
       }
+    }
+
+    if (portalUserId) {
+      const clientType = typeof (user.publicMetadata as { clientType?: unknown })?.clientType === 'string'
+        ? ((user.publicMetadata as { clientType?: string }).clientType ?? null)
+        : null;
+
+      await ensureClientProfileForPortalUser({
+        portalUserId,
+        firstName: portalFirstName,
+        lastName: portalLastName,
+        clientType,
+      });
     }
 
     await client.users.updateUserMetadata(userId, {

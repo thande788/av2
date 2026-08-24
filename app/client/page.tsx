@@ -15,6 +15,7 @@ import {
 import { isToday, isTomorrow } from 'date-fns';
 import { getCurrentClient, getCurrentPortalUser } from '@/lib/auth';
 import { ClientDashboardTour } from '@/components/client/dashboard-tour';
+import { ClientSetupNeeded } from '@/components/client/client-setup-needed';
 
 export const metadata = {
   title: 'Dashboard',
@@ -22,18 +23,13 @@ export const metadata = {
 };
 
 export default async function ClientDashboardPage() {
-  // Get authenticated client or fall back to first active for demo
-  let clientRecord = await getCurrentClient();
-  
-  if (!clientRecord) {
-    // Fallback for demo: use first active client
-    clientRecord = await db.client.findFirst({
-      where: { user: { status: 'ACTIVE' } },
-      include: { user: true },
-    });
-  }
+  const clientRecord = await getCurrentClient();
 
   const portalUser = await getCurrentPortalUser();
+
+  if (!clientRecord || !portalUser) {
+    return <ClientSetupNeeded />;
+  }
 
   const demoClient = clientRecord ? await db.client.findUnique({
     where: { id: clientRecord.id },
@@ -80,7 +76,7 @@ export default async function ClientDashboardPage() {
   }) : null;
 
   // Count completed shifts awaiting review
-  const pendingReviewCount = clientRecord && portalUser ? await db.careShift.count({
+  const pendingReviewCount = await db.careShift.count({
     where: {
       clientId: clientRecord.id,
       status: 'COMPLETED',
@@ -94,16 +90,10 @@ export default async function ClientDashboardPage() {
         some: { status: 'COMPLETED' },
       },
     },
-  }) : 0;
+  });
 
   if (!demoClient) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Client Data</h2>
-        <p className="text-muted-foreground">Run the seed script to create demo clients.</p>
-      </div>
-    );
+    return <ClientSetupNeeded />;
   }
 
   const serializedShifts = serialize(demoClient.careShifts);

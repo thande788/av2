@@ -5,6 +5,7 @@ interface OnboardingGateProps {
   steps: OnboardingStep[];
   portalName: string;
   accentColor?: string;
+  enabled?: boolean;
   children: React.ReactNode;
 }
 
@@ -16,6 +17,7 @@ export async function OnboardingGate({
   steps,
   portalName,
   accentColor,
+  enabled = true,
   children,
 }: OnboardingGateProps) {
   let showWizard = false;
@@ -23,7 +25,7 @@ export async function OnboardingGate({
 
   try {
     const status = await getOnboardingStatus();
-    if (status && !status.completed) {
+    if (enabled && status && !status.completed) {
       showWizard = true;
       initialStep = Math.min(status.step, steps.length - 1);
     }

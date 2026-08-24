@@ -24,9 +24,11 @@ import type {
 } from '@prisma/client';
 
 import { cn, type Serialized } from '@/lib/utils';
+import { getClientProfileCompletion } from '@/lib/client-profile-completion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 
 type ClientWithRelations = Client & {
@@ -73,6 +75,7 @@ export function ClientDetail({ client }: ClientDetailProps) {
   const bookedShifts = client.careShifts.filter(
     (s) => s.status === 'BOOKED' || s.status === 'COMPLETED'
   ).length;
+  const completion = getClientProfileCompletion(client, 'admin');
 
   return (
     <div className="space-y-6">
@@ -165,7 +168,7 @@ export function ClientDetail({ client }: ClientDetailProps) {
                 </div>
                 {client.relationship && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Relationship</p>
+                    <p className="text-sm text-muted-foreground">Relationship to Care Recipient</p>
                     <p className="font-medium">{client.relationship}</p>
                   </div>
                 )}
@@ -277,6 +280,15 @@ export function ClientDetail({ client }: ClientDetailProps) {
               <CardTitle>Overview</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Profile completion</span>
+                  <span className="font-medium">
+                    {completion.completedFields}/{completion.totalFields}
+                  </span>
+                </div>
+                <Progress value={completion.percentComplete} aria-label="Client profile completion" />
+              </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Total Shifts</span>
                 <span className="font-medium">{totalShifts}</span>
@@ -311,7 +323,7 @@ export function ClientDetail({ client }: ClientDetailProps) {
                 </div>
                 {client.emergencyRelation && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Relationship</p>
+                    <p className="text-sm text-muted-foreground">Relationship to Client</p>
                     <p className="font-medium">{client.emergencyRelation}</p>
                   </div>
                 )}
@@ -331,6 +343,11 @@ export function ClientDetail({ client }: ClientDetailProps) {
               <CardTitle>Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
+              <Button className="w-full" asChild>
+                <Link href={`/admin/clients/${client.id}/edit`}>
+                  Edit Client Profile
+                </Link>
+              </Button>
               <Button variant="outline" className="w-full" asChild>
                 <Link href={`/admin/shifts?clientId=${client.id}`}>
                   <IconCalendar className="mr-2 size-4" />

@@ -38,6 +38,7 @@ export function OnboardingWizard({
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [isPending, startTransition] = useTransition();
   const [dismissed, setDismissed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (dismissed) return null;
 
@@ -45,10 +46,15 @@ export function OnboardingWizard({
   const isLast = currentStep === steps.length - 1;
 
   function handleNext() {
+    setError(null);
     startTransition(async () => {
       if (isLast) {
-        await completeOnboarding();
-        setDismissed(true);
+        const result = await completeOnboarding();
+        if (result.success) {
+          setDismissed(true);
+          return;
+        }
+        setError(result.error ?? 'Unable to complete onboarding right now.');
       } else {
         await advanceOnboardingStep();
         setCurrentStep((s) => s + 1);
@@ -61,9 +67,14 @@ export function OnboardingWizard({
   }
 
   function handleSkip() {
+    setError(null);
     startTransition(async () => {
-      await skipOnboarding();
-      setDismissed(true);
+      const result = await skipOnboarding();
+      if (result.success) {
+        setDismissed(true);
+        return;
+      }
+      setError(result.error ?? 'Unable to skip onboarding right now.');
     });
   }
 
@@ -123,6 +134,11 @@ export function OnboardingWizard({
         </div>
 
         <div className="mt-5">{step.content}</div>
+        {error && (
+          <div className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-300">
+            {error}
+          </div>
+        )}
       </div>
 
       {/* Footer */}

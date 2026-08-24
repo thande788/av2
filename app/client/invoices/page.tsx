@@ -4,12 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  IconAlertCircle,
   IconFileInvoice,
   IconCreditCard,
   IconDownload,
   IconCheck,
 } from '@tabler/icons-react';
+import { getCurrentClient } from '@/lib/auth';
+import { ClientSetupNeeded } from '@/components/client/client-setup-needed';
 
 export const metadata = {
   title: 'Invoices',
@@ -33,26 +34,22 @@ const statusLabels: Record<string, string> = {
 };
 
 export default async function InvoicesPage() {
-  const demoClient = await db.client.findFirst({
-    where: {
-      user: { status: 'ACTIVE' },
-    },
-    include: {
-      invoices: {
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-      },
-    },
-  });
+  const currentClient = await getCurrentClient();
+
+  const demoClient = currentClient
+    ? await db.client.findUnique({
+        where: { id: currentClient.id },
+        include: {
+          invoices: {
+            orderBy: { createdAt: 'desc' },
+            take: 20,
+          },
+        },
+      })
+    : null;
 
   if (!demoClient) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Client Data</h2>
-        <p className="text-muted-foreground">Please contact your administrator.</p>
-      </div>
-    );
+    return <ClientSetupNeeded />;
   }
 
   const invoices = serialize(demoClient.invoices);

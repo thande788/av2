@@ -1,19 +1,24 @@
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import Link from 'next/link';
 import {
   IconBell,
   IconMail,
   IconDeviceMobile,
   IconLock,
-  IconAlertCircle,
   IconUser,
   IconMapPin,
 } from '@tabler/icons-react';
 import { ManageAccountButton } from '@/components/shared/manage-account-button';
+import { getCurrentClient } from '@/lib/auth';
+import { getClientProfileCompletion } from '@/lib/client-profile-completion';
+import { ClientSetupNeeded } from '@/components/client/client-setup-needed';
+import { ProfileSettingsForm } from '@/components/client/settings/profile-settings-form';
+import { CareSettingsForm } from '@/components/client/settings/care-settings-form';
 
 export const metadata = {
   title: 'Settings',
@@ -21,29 +26,53 @@ export const metadata = {
 };
 
 export default async function ClientSettingsPage() {
-  const demoClient = await db.client.findFirst({
-    where: {
-      user: { status: 'ACTIVE' },
-    },
-    include: { user: true },
-  });
+  const currentClient = await getCurrentClient();
+
+  const demoClient = currentClient
+    ? await db.client.findUnique({
+        where: { id: currentClient.id },
+        include: { user: true },
+      })
+    : null;
 
   if (!demoClient) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Account Found</h2>
-        <p className="text-muted-foreground">Please contact your administrator.</p>
-      </div>
-    );
+    return <ClientSetupNeeded />;
   }
+
+  const completion = getClientProfileCompletion(demoClient);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Settings</h1>
         <p className="text-muted-foreground">Manage your account and preferences</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button size="sm" asChild>
+            <Link href="#profile-edit">Edit Profile</Link>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="#care-edit">Update Care Information</Link>
+          </Button>
+        </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Completion</CardTitle>
+          <CardDescription>
+            {completion.completedFields}/{completion.totalFields} profile fields complete
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Progress value={completion.percentComplete} aria-label="Client profile completion" />
+          <p className="text-sm text-muted-foreground">
+            {completion.percentComplete}% complete
+            {completion.missingFields.length > 0
+              ? ` - add missing phone, care recipient, and emergency details to finish setup.`
+              : ' - your profile is complete.'}
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Profile Information */}
       <Card>
@@ -55,29 +84,14 @@ export default async function ClientSettingsPage() {
           <CardDescription>Your account details</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="text-muted-foreground">Name</Label>
-              <p className="font-medium">
-                {demoClient.user.firstName} {demoClient.user.lastName}
-              </p>
-            </div>
-            <div>
-              <Label className="text-muted-foreground">Email</Label>
-              <p className="font-medium">{demoClient.user.email}</p>
-            </div>
-            <div>
-              <Label className="text-muted-foreground">Phone</Label>
-              <p className="font-medium">{demoClient.user.phone || 'Not provided'}</p>
-            </div>
-            <div>
-              <Label className="text-muted-foreground">Relationship</Label>
-              <p className="font-medium">{demoClient.relationship || 'Not specified'}</p>
-            </div>
-          </div>
-          <Button variant="outline" disabled>
-            Edit Profile
-          </Button>
+          <ProfileSettingsForm
+            firstName={demoClient.user.firstName}
+            lastName={demoClient.user.lastName}
+            email={demoClient.user.email}
+            phone={demoClient.user.phone}
+            relationship={demoClient.relationship}
+            type={demoClient.type}
+          />
         </CardContent>
       </Card>
 
@@ -91,29 +105,38 @@ export default async function ClientSettingsPage() {
           <CardDescription>Information about the person receiving care</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="text-muted-foreground">Name</Label>
-              <p className="font-medium">{demoClient.careRecipientName || 'Same as account holder'}</p>
-            </div>
-            <div>
-              <Label className="text-muted-foreground">Service Level</Label>
-              <Badge variant="secondary">{demoClient.serviceLevel}</Badge>
-            </div>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">Care Address</Label>
-            <div className="flex items-start gap-2 mt-1">
-              <IconMapPin className="size-4 text-muted-foreground mt-0.5" />
+          <div className="rounded-lg border bg-muted/20 p-4">
+            <Label className="text-muted-foreground">Current Care Address</Label>
+            <div className="mt-1 flex items-start gap-2">
+              <IconMapPin className="mt-0.5 size-4 text-muted-foreground" />
               <p className="font-medium">
-                {demoClient.street}<br />
+                {demoClient.street}
+                <br />
                 {demoClient.city}, {demoClient.state} {demoClient.zip}
               </p>
             </div>
           </div>
-          <Button variant="outline" disabled>
-            Update Care Information
-          </Button>
+          <CareSettingsForm
+            careRecipientName={demoClient.careRecipientName}
+            careRecipientDOB={
+              demoClient.careRecipientDOB
+                ? new Date(demoClient.careRecipientDOB).toISOString().slice(0, 10)
+                : null
+            }
+            serviceLevel={demoClient.serviceLevel}
+            street={demoClient.street}
+            city={demoClient.city}
+            state={demoClient.state}
+            zip={demoClient.zip}
+            emergencyName={demoClient.emergencyName}
+            emergencyPhone={demoClient.emergencyPhone}
+            emergencyRelation={demoClient.emergencyRelation}
+            billingEmail={demoClient.billingEmail}
+            preferredTimes={demoClient.preferredTimes}
+            specialNeeds={demoClient.specialNeeds}
+            careNotes={demoClient.careNotes}
+            accessNotes={demoClient.accessNotes}
+          />
         </CardContent>
       </Card>
 

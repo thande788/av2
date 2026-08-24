@@ -5,9 +5,10 @@ import { useSyncExternalStore } from 'react';
 
 interface SignUpClientProps {
   role?: 'client' | 'caregiver';
+  clientType?: 'SELF' | 'FAMILY' | 'FACILITY';
 }
 
-export function SignUpClient({ role }: SignUpClientProps) {
+export function SignUpClient({ role, clientType }: SignUpClientProps) {
   const isMounted = useSyncExternalStore(
     () => () => undefined,
     () => true,
@@ -21,7 +22,14 @@ export function SignUpClient({ role }: SignUpClientProps) {
   return (
     <SignUp
       forceRedirectUrl='/portals'
-      unsafeMetadata={role ? { role } : undefined}
+      unsafeMetadata={
+        role
+          ? {
+              role,
+              ...(role === 'client' && clientType ? { clientType } : {}),
+            }
+          : undefined
+      }
       appearance={{
         elements: {
           rootBox: 'mx-auto lg:mx-0',

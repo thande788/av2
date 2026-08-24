@@ -16,6 +16,7 @@ import { NextResponse } from 'next/server';
 import { Webhook } from 'svix';
 import { clerkClient } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
+import { ensureClientProfileForPortalUser } from '@/lib/client-provisioning';
 import { UserRole, UserStatus } from '@prisma/client';
 
 // Clerk webhook event types
@@ -38,9 +39,11 @@ type ClerkWebhookEvent = {
     public_metadata: {
       role?: string;
       status?: string;
+      clientType?: string;
     };
     unsafe_metadata?: {
       role?: string;
+      clientType?: string;
       [key: string]: unknown;
     };
     private_metadata?: Record<string, unknown>;
@@ -160,6 +163,7 @@ export async function POST(req: Request) {
   const lastName = data.last_name ?? '';
   // Check both public_metadata and unsafe_metadata for role (signup sets unsafe_metadata)
   const roleString = data.public_metadata?.role || data.unsafe_metadata?.role;
+  const clientType = data.public_metadata?.clientType || data.unsafe_metadata?.clientType;
   const role = mapRole(roleString);
   const initialStatus =
     role === UserRole.CAREGIVER || role === UserRole.CLIENT
@@ -190,7 +194,7 @@ export async function POST(req: Request) {
         }
 
         // Create new portal user
-        await db.portalUser.create({
+        const createdPortalUser = await db.portalUser.create({
           data: {
             clerkId,
             email,
@@ -200,7 +204,19 @@ export async function POST(req: Request) {
             role,
             status: initialStatus,
           },
+          select: {
+            id: true,
+          },
         });
+
+        if (role === UserRole.CLIENT) {
+          await ensureClientProfileForPortalUser({
+            portalUserId: createdPortalUser.id,
+            firstName,
+            lastName,
+            clientType,
+          });
+        }
 
         // Sync role to Clerk publicMetadata so middleware can access it
         // This is needed because signup sets role in unsafeMetadata which isn't in sessionClaims
@@ -240,7 +256,7 @@ export async function POST(req: Request) {
 
         if (!existingUser) {
           // User doesn't exist, create them (handles out-of-order webhooks)
-          await db.portalUser.create({
+          const createdPortalUser = await db.portalUser.create({
             data: {
               clerkId,
               email,
@@ -250,7 +266,20 @@ export async function POST(req: Request) {
               role,
               status: initialStatus,
             },
+            select: {
+              id: true,
+            },
           });
+
+          if (role === UserRole.CLIENT) {
+            await ensureClientProfileForPortalUser({
+              portalUserId: createdPortalUser.id,
+              firstName,
+              lastName,
+              clientType,
+            });
+          }
+
           console.log(`Created PortalUser on update for ${email} (${clerkId})`);
         } else {
           const statusFromMetadata = data.public_metadata?.status
@@ -258,7 +287,7 @@ export async function POST(req: Request) {
             : undefined;
 
           // Update existing user
-          await db.portalUser.update({
+          const updatedPortalUser = await db.portalUser.update({
             where: { clerkId },
             data: {
               email,
@@ -269,7 +298,20 @@ export async function POST(req: Request) {
               ...(statusFromMetadata ? { status: statusFromMetadata } : {}),
               lastLoginAt: new Date(),
             },
+            select: {
+              id: true,
+            },
           });
+
+          if (role === UserRole.CLIENT) {
+            await ensureClientProfileForPortalUser({
+              portalUserId: updatedPortalUser.id,
+              firstName,
+              lastName,
+              clientType,
+            });
+          }
+
           console.log(`Updated PortalUser for ${email} (${clerkId})`);
         }
         break;

@@ -2,8 +2,9 @@ import { db } from '@/lib/db';
 import { serialize, formatDateUS } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getCurrentClient } from '@/lib/auth';
+import { ClientSetupNeeded } from '@/components/client/client-setup-needed';
 import {
-  IconAlertCircle,
   IconClock,
   IconCalendarWeek,
   IconUser,
@@ -24,43 +25,39 @@ const statusColors: Record<string, string> = {
 };
 
 export default async function ClientSchedulePage() {
-  const demoClient = await db.client.findFirst({
-    where: {
-      user: { status: 'ACTIVE' },
-    },
-    include: {
-      careShifts: {
-        where: {
-          date: {
-            gte: startOfWeek(new Date(), { weekStartsOn: 1 }),
-            lte: endOfWeek(addWeeks(new Date(), 3), { weekStartsOn: 1 }),
-          },
-        },
+  const currentClient = await getCurrentClient();
+
+  const demoClient = currentClient
+    ? await db.client.findUnique({
+        where: { id: currentClient.id },
         include: {
-          bookings: {
+          careShifts: {
             where: {
-              status: { in: ['CONFIRMED', 'ACCEPTED'] },
-            },
-            include: {
-              worker: {
-                include: { user: true },
+              date: {
+                gte: startOfWeek(new Date(), { weekStartsOn: 1 }),
+                lte: endOfWeek(addWeeks(new Date(), 3), { weekStartsOn: 1 }),
               },
             },
+            include: {
+              bookings: {
+                where: {
+                  status: { in: ['CONFIRMED', 'ACCEPTED'] },
+                },
+                include: {
+                  worker: {
+                    include: { user: true },
+                  },
+                },
+              },
+            },
+            orderBy: { date: 'asc' },
           },
         },
-        orderBy: { date: 'asc' },
-      },
-    },
-  });
+      })
+    : null;
 
   if (!demoClient) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <IconAlertCircle className="size-12 text-muted-foreground" />
-        <h2 className="mt-4 text-xl font-semibold">No Client Data</h2>
-        <p className="text-muted-foreground">Please contact your administrator.</p>
-      </div>
-    );
+    return <ClientSetupNeeded />;
   }
 
   const shifts = serialize(demoClient.careShifts);
