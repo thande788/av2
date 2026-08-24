@@ -1,5 +1,5 @@
-import { SignUp } from '@clerk/nextjs';
 import { Heart, Shield, Users, Clock } from 'lucide-react';
+import { SignUpClient } from './sign-up-client';
 
 export const metadata = {
   title: 'Create Account | Angel Touch Homecare',
@@ -72,15 +72,7 @@ export default function SignUpPage() {
 
       {/* Sign Up Form */}
       <div className='flex flex-1 items-center justify-center p-6 md:p-10 lg:justify-start'>
-        <SignUp
-          forceRedirectUrl='/portals'
-          appearance={{
-            elements: {
-              rootBox: 'mx-auto lg:mx-0',
-              card: 'shadow-none',
-            },
-          }}
-        />
+        <SignUpClient />
       </div>
     </div>
   );
