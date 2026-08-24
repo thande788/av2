@@ -161,7 +161,10 @@ export async function POST(req: Request) {
   // Check both public_metadata and unsafe_metadata for role (signup sets unsafe_metadata)
   const roleString = data.public_metadata?.role || data.unsafe_metadata?.role;
   const role = mapRole(roleString);
-  const status = mapStatus(data.public_metadata?.status);
+  const initialStatus =
+    role === UserRole.CAREGIVER || role === UserRole.CLIENT
+      ? UserStatus.ACTIVE
+      : UserStatus.PENDING;
 
   console.log(`[Clerk Webhook] Received ${type} for user ${clerkId}`);
 
@@ -195,7 +198,7 @@ export async function POST(req: Request) {
             firstName,
             lastName,
             role,
-            status: UserStatus.PENDING, // New users always start as pending
+            status: initialStatus,
           },
         });
 
@@ -245,11 +248,15 @@ export async function POST(req: Request) {
               firstName,
               lastName,
               role,
-              status,
+              status: initialStatus,
             },
           });
           console.log(`Created PortalUser on update for ${email} (${clerkId})`);
         } else {
+          const statusFromMetadata = data.public_metadata?.status
+            ? mapStatus(data.public_metadata.status)
+            : undefined;
+
           // Update existing user
           await db.portalUser.update({
             where: { clerkId },
@@ -259,7 +266,7 @@ export async function POST(req: Request) {
               firstName,
               lastName,
               role,
-              status,
+              ...(statusFromMetadata ? { status: statusFromMetadata } : {}),
               lastLoginAt: new Date(),
             },
           });

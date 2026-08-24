@@ -14,6 +14,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import type { AdminRole } from '@/lib/rbac';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export const metadata = {
   title: 'User Management',
@@ -68,6 +70,12 @@ export default async function UsersPage() {
                 role coverage balanced across recruiting, content, and oversight.
               </p>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/users/all">View All Portal Users</Link>
+            </Button>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px]">

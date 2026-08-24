@@ -21,6 +21,67 @@ import { NextResponse } from 'next/server';
 import { isDemoGatedRoute } from '@/lib/feature-flags';
 import { db } from '@/lib/db';
 
+async function provisionDefaultClientRole(userId: string): Promise<{ role: string; status: string } | null> {
+  try {
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const primaryEmail =
+      user.emailAddresses.find((email) => email.id === user.primaryEmailAddressId)?.emailAddress ||
+      user.emailAddresses[0]?.emailAddress;
+
+    if (!primaryEmail) {
+      return null;
+    }
+
+    const existingByClerkId = await db.portalUser.findUnique({ where: { clerkId: userId } });
+
+    if (existingByClerkId) {
+      await db.portalUser.update({
+        where: { clerkId: userId },
+        data: {
+          role: 'CLIENT',
+          status: 'ACTIVE',
+        },
+      });
+    } else {
+      const existingByEmail = await db.portalUser.findUnique({ where: { email: primaryEmail } });
+
+      if (existingByEmail) {
+        await db.portalUser.update({
+          where: { email: primaryEmail },
+          data: {
+            clerkId: userId,
+            role: 'CLIENT',
+            status: 'ACTIVE',
+          },
+        });
+      } else {
+        await db.portalUser.create({
+          data: {
+            clerkId: userId,
+            email: primaryEmail,
+            firstName: user.firstName || 'New',
+            lastName: user.lastName || 'User',
+            role: 'CLIENT',
+            status: 'ACTIVE',
+          },
+        });
+      }
+    }
+
+    await client.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        ...(user.publicMetadata as Record<string, unknown>),
+        role: 'client',
+      },
+    });
+
+    return { role: 'client', status: 'active' };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Get user role and status from Clerk metadata, with database fallback
  * Checks sessionClaims first, then Clerk API, then database
@@ -75,6 +136,14 @@ async function getUserRoleAndStatus(
     }
   } catch {
     // Database lookup failed
+  }
+
+  if (!role) {
+    const provisioned = await provisionDefaultClientRole(userId);
+    if (provisioned) {
+      role = provisioned.role;
+      status = provisioned.status;
+    }
   }
 
   return { role, status };

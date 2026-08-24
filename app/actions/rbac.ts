@@ -5,6 +5,49 @@ import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { ROLE_PERMISSIONS, type AdminRole } from '@/lib/rbac';
 import type { UserRole } from '@prisma/client';
+import { z } from 'zod';
+
+export type RoleMismatchType =
+  | 'none'
+  | 'missing-clerk-user'
+  | 'missing-clerk-role'
+  | 'role-mismatch';
+
+export interface PortalUserRoleDiagnostic {
+  id: string;
+  clerkId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  status: string;
+  createdAt: Date;
+  clerkRole: string | null;
+  clerkUsername: string | null;
+  mismatchType: RoleMismatchType;
+}
+
+function normalizeRoleForComparison(role?: string | null): string | null {
+  if (!role) {
+    return null;
+  }
+
+  const normalized = role.toLowerCase();
+
+  if (normalized === 'admin') return 'admin';
+  if (normalized === 'manager') return 'manager';
+  if (normalized === 'caregiver') return 'caregiver';
+  if (normalized === 'client') return 'client';
+
+  return null;
+}
+
+function dbRoleToClerkRole(role: UserRole): string {
+  if (role === 'ADMIN') return 'admin';
+  if (role === 'MANAGER') return 'manager';
+  if (role === 'CAREGIVER') return 'caregiver';
+  return 'client';
+}
 
 // =============================================================================
 // PERMISSION CHECKS
@@ -117,6 +160,155 @@ export async function getAdminUsers() {
   );
 
   return enriched;
+}
+
+/**
+ * List all portal users (all roles) with Clerk metadata mismatch diagnostics.
+ */
+export async function getAllPortalUsersWithRoleDiagnostics(): Promise<PortalUserRoleDiagnostic[]> {
+  const { userId } = await auth();
+  if (!userId) throw new Error('Unauthorized');
+
+  const currentRole = await getAdminRole(userId);
+  if (currentRole !== 'SUPER_ADMIN') {
+    throw new Error('Only Super Admins can view all portal users');
+  }
+
+  const users = await db.portalUser.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const client = await clerkClient();
+
+  const diagnostics = await Promise.all(
+    users.map(async (user): Promise<PortalUserRoleDiagnostic> => {
+      try {
+        const clerkUser = await client.users.getUser(user.clerkId);
+        const clerkRoleRaw = (clerkUser.publicMetadata as { role?: string })?.role ?? null;
+        const normalizedClerkRole = normalizeRoleForComparison(clerkRoleRaw);
+        const expectedClerkRole = dbRoleToClerkRole(user.role);
+
+        let mismatchType: RoleMismatchType = 'none';
+
+        if (!normalizedClerkRole) {
+          mismatchType = 'missing-clerk-role';
+        } else if (normalizedClerkRole !== expectedClerkRole) {
+          mismatchType = 'role-mismatch';
+        }
+
+        return {
+          ...user,
+          clerkRole: clerkRoleRaw,
+          clerkUsername: clerkUser.username ?? null,
+          mismatchType,
+        };
+      } catch {
+        return {
+          ...user,
+          clerkRole: null,
+          clerkUsername: null,
+          mismatchType: 'missing-clerk-user',
+        };
+      }
+    })
+  );
+
+  return diagnostics;
+}
+
+export async function getPortalUserById(userId: string) {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) throw new Error('Unauthorized');
+
+  const currentRole = await getAdminRole(currentUserId);
+  if (currentRole !== 'SUPER_ADMIN') {
+    throw new Error('Only Super Admins can view portal user details');
+  }
+
+  const user = await db.portalUser.findUnique({
+    where: { id: userId },
+    include: {
+      worker: {
+        select: { id: true },
+      },
+      client: {
+        select: { id: true },
+      },
+    },
+  });
+
+  if (!user) {
+    return null;
+  }
+
+  let clerkRole: string | null = null;
+  let clerkUsername: string | null = null;
+
+  try {
+    const client = await clerkClient();
+    const clerkUser = await client.users.getUser(user.clerkId);
+    clerkRole = ((clerkUser.publicMetadata as { role?: string })?.role ?? null) as string | null;
+    clerkUsername = clerkUser.username ?? null;
+  } catch {
+    clerkRole = null;
+    clerkUsername = null;
+  }
+
+  return {
+    ...user,
+    clerkRole,
+    clerkUsername,
+  };
+}
+
+const updatePortalUserSchema = z.object({
+  id: z.string().min(1, 'User ID is required'),
+  firstName: z.string().min(1, 'First name is required').max(80, 'First name is too long'),
+  lastName: z.string().min(1, 'Last name is required').max(80, 'Last name is too long'),
+  role: z.enum(['ADMIN', 'MANAGER', 'CAREGIVER', 'CLIENT']),
+  status: z.enum(['PENDING', 'ACTIVE', 'INACTIVE', 'TERMINATED']),
+});
+
+export async function updatePortalUserProfile(input: z.infer<typeof updatePortalUserSchema>) {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) throw new Error('Unauthorized');
+
+  const currentRole = await getAdminRole(currentUserId);
+  if (currentRole !== 'SUPER_ADMIN') {
+    throw new Error('Only Super Admins can update users');
+  }
+
+  const validated = updatePortalUserSchema.parse(input);
+
+  const updated = await db.portalUser.update({
+    where: { id: validated.id },
+    data: {
+      firstName: validated.firstName,
+      lastName: validated.lastName,
+      role: validated.role,
+      status: validated.status,
+    },
+  });
+
+  const clerkRole = dbRoleToClerkRole(validated.role);
+  try {
+    const client = await clerkClient();
+    const user = await client.users.getUser(updated.clerkId);
+    await client.users.updateUserMetadata(updated.clerkId, {
+      publicMetadata: {
+        ...(user.publicMetadata as Record<string, unknown>),
+        role: clerkRole,
+      },
+    });
+  } catch {
+    // Database update succeeds even if Clerk sync fails.
+  }
+
+  revalidatePath('/admin/users');
+  revalidatePath('/admin/users/all');
+  revalidatePath(`/admin/users/all/${validated.id}`);
+
+  return { success: true };
 }
 
 /**

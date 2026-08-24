@@ -3,7 +3,11 @@
 import { SignUp } from '@clerk/nextjs';
 import { useSyncExternalStore } from 'react';
 
-export function SignUpClient() {
+interface SignUpClientProps {
+  role?: 'client' | 'caregiver';
+}
+
+export function SignUpClient({ role }: SignUpClientProps) {
   const isMounted = useSyncExternalStore(
     () => () => undefined,
     () => true,
@@ -17,6 +21,7 @@ export function SignUpClient() {
   return (
     <SignUp
       forceRedirectUrl='/portals'
+      unsafeMetadata={role ? { role } : undefined}
       appearance={{
         elements: {
           rootBox: 'mx-auto lg:mx-0',

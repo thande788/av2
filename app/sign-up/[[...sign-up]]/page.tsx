@@ -1,12 +1,24 @@
 import { Heart, Shield, Users, Clock } from 'lucide-react';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import { SignUpClient } from './sign-up-client';
+
+interface SignUpPageProps {
+  searchParams: Promise<{ role?: string }>;
+}
 
 export const metadata = {
   title: 'Create Account | Angel Touch Homecare',
   description: 'Join Angel Touch Homecare to access your care portal, manage appointments, and connect with your care team.',
 };
 
-export default function SignUpPage() {
+export default async function SignUpPage({ searchParams }: SignUpPageProps) {
+  const params = await searchParams;
+  const selectedRole =
+    params.role === 'caregiver' || params.role === 'client'
+      ? params.role
+      : 'client';
+
   return (
     <div className='grid min-h-[80vh] flex-1 lg:grid-cols-2'>
       {/* Benefits Panel */}
@@ -72,7 +84,37 @@ export default function SignUpPage() {
 
       {/* Sign Up Form */}
       <div className='flex flex-1 items-center justify-center p-6 md:p-10 lg:justify-start'>
-        <SignUpClient />
+        <div className="w-full max-w-md space-y-4">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-foreground">I am signing up as</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                href="/sign-up?role=client"
+                className={cn(
+                  'rounded-lg border px-3 py-2 text-center text-sm font-medium transition-colors',
+                  selectedRole === 'client'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Client
+              </Link>
+              <Link
+                href="/sign-up?role=caregiver"
+                className={cn(
+                  'rounded-lg border px-3 py-2 text-center text-sm font-medium transition-colors',
+                  selectedRole === 'caregiver'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Caregiver
+              </Link>
+            </div>
+          </div>
+
+          <SignUpClient role={selectedRole} />
+        </div>
       </div>
     </div>
   );
