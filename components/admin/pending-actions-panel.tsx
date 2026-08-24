@@ -27,7 +27,7 @@ export function PendingActionsPanel({
       title: 'Pending Worker Approvals',
       count: pendingWorkers,
       icon: IconUsers,
-      href: '/admin/workers?status=PENDING',
+      href: '/admin/workers?tab=pending',
       color: 'text-blue-600 dark:text-blue-400',
       bgColor: 'bg-blue-500/10',
     },

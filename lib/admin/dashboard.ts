@@ -141,11 +141,6 @@ export const getAdminDashboardRecentActivityData = cache(
 export const getAdminDashboardOperationsData = cache(
   async (): Promise<AdminDashboardOperationsData | null> => {
     const features = getAdminDashboardFeatureState();
-    const hasOperationsFeatures = Object.values(features).some(Boolean);
-
-    if (!hasOperationsFeatures) {
-      return null;
-    }
 
     const today = new Date();
     const todayStart = startOfDay(today);
@@ -166,58 +161,42 @@ export const getAdminDashboardOperationsData = cache(
       expiringDocs,
       todayShifts,
     ] = await Promise.all([
-      features.workerManagement ? db.worker.count() : Promise.resolve(0),
-      features.workerManagement
-        ? db.worker.count({ where: { user: { status: 'ACTIVE' } } })
-        : Promise.resolve(0),
-      features.workerManagement
-        ? db.portalUser.count({ where: { role: 'CAREGIVER', status: 'PENDING' } })
-        : Promise.resolve(0),
-      features.clientManagement ? db.client.count() : Promise.resolve(0),
-      features.shiftScheduling
-        ? db.careShift.count({ where: { status: 'OPEN' } })
-        : Promise.resolve(0),
-      features.shiftScheduling
-        ? db.careShift.count({
-            where: {
-              date: { gte: todayStart, lte: todayEnd },
-              status: { in: ['BOOKED', 'IN_PROGRESS'] },
-            },
-          })
-        : Promise.resolve(0),
-      features.timesheets
-        ? db.timesheet.count({ where: { status: 'SUBMITTED' } })
-        : Promise.resolve(0),
-      features.complianceDocs
-        ? db.complianceDoc.count({ where: { status: 'PENDING_REVIEW' } })
-        : Promise.resolve(0),
-      features.complianceDocs
-        ? db.complianceDoc.count({
-            where: {
-              status: 'APPROVED',
-              expiresAt: { lte: thirtyDaysFromNow, gte: today },
-            },
-          })
-        : Promise.resolve(0),
-      features.shiftScheduling
-        ? db.careShift.findMany({
-            where: { date: { gte: todayStart, lte: todayEnd } },
+      db.worker.count(),
+      db.worker.count({ where: { user: { status: 'ACTIVE' } } }),
+      db.portalUser.count({ where: { role: 'CAREGIVER', status: 'PENDING' } }),
+      db.client.count(),
+      db.careShift.count({ where: { status: 'OPEN' } }),
+      db.careShift.count({
+        where: {
+          date: { gte: todayStart, lte: todayEnd },
+          status: { in: ['BOOKED', 'IN_PROGRESS'] },
+        },
+      }),
+      db.timesheet.count({ where: { status: 'SUBMITTED' } }),
+      db.complianceDoc.count({ where: { status: 'PENDING_REVIEW' } }),
+      db.complianceDoc.count({
+        where: {
+          status: 'APPROVED',
+          expiresAt: { lte: thirtyDaysFromNow, gte: today },
+        },
+      }),
+      db.careShift.findMany({
+        where: { date: { gte: todayStart, lte: todayEnd } },
+        include: {
+          client: {
+            include: { user: true },
+          },
+          bookings: {
             include: {
-              client: {
+              worker: {
                 include: { user: true },
               },
-              bookings: {
-                include: {
-                  worker: {
-                    include: { user: true },
-                  },
-                },
-              },
             },
-            orderBy: { startTime: 'asc' },
-            take: 5,
-          })
-        : Promise.resolve([]),
+          },
+        },
+        orderBy: { startTime: 'asc' },
+        take: 5,
+      }),
     ]);
 
     const normalizedTodayShifts: ShiftWithDetails[] = todayShifts.map((shift) => ({

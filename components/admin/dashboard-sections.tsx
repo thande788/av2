@@ -31,6 +31,7 @@ interface DashboardMetric {
   value: number | string;
   description?: string;
   icon: LucideIcon;
+  href?: string;
   variant?: StatCardVariant;
 }
 
@@ -59,6 +60,7 @@ function MetricsGrid({ metrics }: { metrics: DashboardMetric[] }) {
           value={metric.value}
           description={metric.description}
           icon={metric.icon}
+          href={metric.href}
           variant={metric.variant}
         />
       ))}
@@ -72,7 +74,7 @@ export function DashboardHeader() {
     hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
-    <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+    <div className="space-y-4">
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">{greeting}</h1>
         <p className="text-muted-foreground">
@@ -91,62 +93,40 @@ export async function OperationsOverviewSection() {
     return null;
   }
 
-  const metrics: DashboardMetric[] = [];
-
-  if (operations.features.workerManagement) {
-    metrics.push({
+  const metrics: DashboardMetric[] = [
+    {
       title: 'Active Workers',
       value: operations.activeWorkers,
-      description: `${operations.totalWorkers} total caregivers`,
+      description: `${operations.totalWorkers} total workers`,
       icon: Users,
+      href: '/admin/workers?tab=active',
       variant: 'success',
-    });
-  }
-
-  if (operations.features.shiftScheduling) {
-    metrics.push({
+    },
+    {
       title: 'Open Shifts',
       value: operations.openShifts,
       description: 'Coverage still needed',
       icon: Clock,
+      href: '/admin/shifts',
       variant: operations.openShifts > 0 ? 'warning' : 'default',
-    });
-    metrics.push({
+    },
+    {
       title: 'Booked Today',
       value: operations.bookedToday,
       description: 'Confirmed or in progress today',
       icon: Briefcase,
+      href: '/admin/shifts',
       variant: 'info',
-    });
-  }
-
-  if (
-    operations.features.workerManagement ||
-    operations.features.timesheets ||
-    operations.features.complianceDocs
-  ) {
-    metrics.push({
+    },
+    {
       title: 'Pending Actions',
       value: operations.pendingActionsTotal,
       description: 'Approvals and reviews waiting',
       icon: AlertTriangle,
+      href: '/admin/compliance?tab=pending',
       variant: operations.pendingActionsTotal > 0 ? 'warning' : 'default',
-    });
-  }
-
-  if (metrics.length < 4 && operations.features.clientManagement) {
-    metrics.push({
-      title: 'Total Clients',
-      value: operations.totalClients,
-      description: 'Active care relationships',
-      icon: Users,
-      variant: 'default',
-    });
-  }
-
-  if (metrics.length === 0) {
-    return null;
-  }
+    },
+  ];
 
   return (
     <section className="space-y-4">
@@ -181,12 +161,14 @@ export async function IntakeOverviewSection() {
             value: intake.applicationCount,
             description: 'All submitted candidates',
             icon: FileText,
+            href: '/admin/applications',
           },
           {
             title: 'Pending Review',
             value: intake.pendingApplications,
             description: 'Candidates waiting on a decision',
             icon: Clock,
+            href: '/admin/applications',
             variant: intake.pendingApplications > 0 ? 'warning' : 'default',
           },
           {
@@ -194,6 +176,7 @@ export async function IntakeOverviewSection() {
             value: intake.unreadContacts,
             description: `${intake.contactCount} total contact submissions`,
             icon: MessageSquare,
+            href: '/admin/contacts',
             variant: intake.unreadContacts > 0 ? 'info' : 'default',
           },
           {
@@ -201,6 +184,7 @@ export async function IntakeOverviewSection() {
             value: intake.newInquiries,
             description: `${intake.inquiryCount} service inquiries received`,
             icon: HelpCircle,
+            href: '/admin/inquiries',
             variant: intake.newInquiries > 0 ? 'warning' : 'default',
           },
         ]}
@@ -378,11 +362,8 @@ export async function OperationsWidgetsSection() {
     return null;
   }
 
-  const showSchedule = operations.features.shiftScheduling;
-  const showPendingActions =
-    operations.features.workerManagement ||
-    operations.features.timesheets ||
-    operations.features.complianceDocs;
+  const showSchedule = true;
+  const showPendingActions = true;
 
   if (!showSchedule && !showPendingActions) {
     return null;

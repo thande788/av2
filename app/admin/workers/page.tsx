@@ -9,7 +9,17 @@ export const metadata = {
   description: 'Manage caregivers and staff',
 };
 
-export default async function WorkersPage() {
+const WORKER_TABS = ['all', 'pending', 'active'] as const;
+
+type WorkerTab = (typeof WORKER_TABS)[number];
+
+interface WorkersPageProps {
+  searchParams: Promise<{ tab?: string }>;
+}
+
+export default async function WorkersPage({ searchParams }: WorkersPageProps) {
+  const params = await searchParams;
+
   const workers = await db.worker.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
@@ -27,6 +37,13 @@ export default async function WorkersPage() {
     (w) => w.user.status === 'ACTIVE'
   ).length;
 
+  const requestedTab = params.tab;
+  const defaultTab: WorkerTab = WORKER_TABS.includes(requestedTab as WorkerTab)
+    ? (requestedTab as WorkerTab)
+    : pendingCount > 0
+      ? 'pending'
+      : 'all';
+
   return (
     <div className="space-y-6">
       <div>
@@ -36,7 +53,7 @@ export default async function WorkersPage() {
         </p>
       </div>
 
-      <Tabs defaultValue={pendingCount > 0 ? 'pending' : 'all'} className="space-y-4">
+      <Tabs defaultValue={defaultTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="all">
             All Workers

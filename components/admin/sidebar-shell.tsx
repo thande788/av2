@@ -35,7 +35,10 @@ async function getAdminSidebarBadgeCounts(): Promise<AdminBadgeCounts> {
         where: {
           OR: [
             { status: DocStatus.EXPIRED },
-            { expiresAt: { lt: now } },
+            {
+              status: DocStatus.APPROVED,
+              expiresAt: { lte: now },
+            },
           ],
         },
       })),

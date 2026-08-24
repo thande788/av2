@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface StatCardProps {
   value: number | string;
   description?: string;
   icon?: LucideIcon;
+  href?: string;
   highlight?: boolean;
   variant?: StatCardVariant;
   trend?: {
@@ -40,19 +42,15 @@ export function StatCard({
   value,
   description,
   icon: Icon,
+  href,
   highlight,
   variant,
   trend,
 }: StatCardProps) {
   const resolvedVariant = variant ?? (highlight ? 'warning' : 'default');
 
-  return (
-    <div
-      className={cn(
-        'relative overflow-hidden rounded-xl border p-6 transition-all hover:shadow-md',
-        variantStyles[resolvedVariant].container
-      )}
-    >
+  const cardContent = (
+    <>
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
       <div className="relative flex items-start justify-between">
@@ -81,6 +79,20 @@ export function StatCard({
           </div>
         )}
       </div>
-    </div>
+    </>
+  );
+
+  const cardClassName = cn(
+    'relative overflow-hidden rounded-xl border p-6 transition-all hover:shadow-md',
+    variantStyles[resolvedVariant].container,
+    href && 'block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50'
+  );
+
+  if (href) {
+    return <Link href={href} className={cardClassName}>{cardContent}</Link>;
+  }
+
+  return (
+    <div className={cardClassName}>{cardContent}</div>
   );
 }

@@ -15,12 +15,31 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 
+const COMPLIANCE_TABS = ['pending', 'expiring', 'expired', 'recent'] as const;
+
+type ComplianceTab = (typeof COMPLIANCE_TABS)[number];
+
+function getExpiredDocumentsWhere(now: Date) {
+  return {
+    OR: [
+      { status: DocStatus.EXPIRED },
+      {
+        status: DocStatus.APPROVED,
+        expiresAt: { lte: now },
+      },
+    ],
+  };
+}
+
 export const metadata: Metadata = {
   title: 'Compliance Documents',
   description: 'Review worker compliance documents',
 };
 
 async function getComplianceStats() {
+  const now = new Date();
+  const cutoff = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
   const [pendingCount, expiringCount, expiredCount, totalWorkers, compliantWorkers] =
     await Promise.all([
       db.complianceDoc.count({ where: { status: DocStatus.PENDING_REVIEW } }),
@@ -28,17 +47,12 @@ async function getComplianceStats() {
         where: {
           status: DocStatus.APPROVED,
           expiresAt: {
-            lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-            gt: new Date(),
+            lte: cutoff,
+            gt: now,
           },
         },
       }),
-      db.complianceDoc.count({
-        where: {
-          status: DocStatus.APPROVED,
-          expiresAt: { lte: new Date() },
-        },
-      }),
+      db.complianceDoc.count({ where: getExpiredDocumentsWhere(now) }),
       db.worker.count(),
       db.worker.count({ where: { complianceStatus: 'COMPLIANT' } }),
     ]);
@@ -59,15 +73,15 @@ async function getPendingDocuments() {
 }
 
 async function getExpiringDocuments() {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() + 30);
+  const now = new Date();
+  const cutoff = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
   return db.complianceDoc.findMany({
     where: {
       status: DocStatus.APPROVED,
       expiresAt: {
         lte: cutoff,
-        gt: new Date(),
+        gt: now,
       },
     },
     include: {
@@ -76,6 +90,20 @@ async function getExpiringDocuments() {
       },
     },
     orderBy: { expiresAt: 'asc' },
+  });
+}
+
+async function getExpiredDocuments() {
+  const now = new Date();
+
+  return db.complianceDoc.findMany({
+    where: getExpiredDocumentsWhere(now),
+    include: {
+      worker: {
+        include: { user: true },
+      },
+    },
+    orderBy: [{ expiresAt: 'asc' }, { updatedAt: 'desc' }],
   });
 }
 
@@ -109,17 +137,19 @@ function CompliancePageSkeleton() {
   );
 }
 
-async function ComplianceContent() {
-  const [stats, pendingDocs, expiringDocs, recentDocs] = await Promise.all([
+async function ComplianceContent({ initialTab }: { initialTab: ComplianceTab }) {
+  const [stats, pendingDocs, expiringDocs, expiredDocs, recentDocs] = await Promise.all([
     getComplianceStats(),
     getPendingDocuments(),
     getExpiringDocuments(),
+    getExpiredDocuments(),
     getRecentlyReviewed(),
   ]);
 
   // Serialize Prisma objects to plain objects for client components
   const serializedPending = serialize(pendingDocs);
   const serializedExpiring = serialize(expiringDocs);
+  const serializedExpired = serialize(expiredDocs);
   const serializedRecent = serialize(recentDocs);
 
   const complianceRate =
@@ -169,7 +199,7 @@ async function ComplianceContent() {
       )}
 
       {/* Tabs */}
-      <Tabs defaultValue="pending" className="space-y-4">
+      <Tabs defaultValue={initialTab} className="space-y-4">
         <TabsList className="bg-transparent border border-border">
           <TabsTrigger value="pending">
             Pending Review
@@ -187,6 +217,14 @@ async function ComplianceContent() {
               </Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="expired">
+            Expired
+            {stats.expiredCount > 0 && (
+              <Badge variant="secondary" className="ml-2 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500">
+                {stats.expiredCount}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="recent">Recent Activity</TabsTrigger>
         </TabsList>
 
@@ -196,6 +234,10 @@ async function ComplianceContent() {
 
         <TabsContent value="expiring">
           <ComplianceReviewQueue documents={serializedExpiring} showExpiry />
+        </TabsContent>
+
+        <TabsContent value="expired">
+          <ComplianceReviewQueue documents={serializedExpired} showExpiry showStatus />
         </TabsContent>
 
         <TabsContent value="recent">
@@ -240,10 +282,20 @@ function StatCard({
   );
 }
 
-export default function CompliancePage() {
+interface CompliancePageProps {
+  searchParams: Promise<{ tab?: string }>;
+}
+
+export default async function CompliancePage({ searchParams }: CompliancePageProps) {
+  const params = await searchParams;
+  const requestedTab = params.tab;
+  const initialTab: ComplianceTab = COMPLIANCE_TABS.includes(requestedTab as ComplianceTab)
+    ? (requestedTab as ComplianceTab)
+    : 'pending';
+
   return (
     <Suspense fallback={<CompliancePageSkeleton />}>
-      <ComplianceContent />
+      <ComplianceContent initialTab={initialTab} />
     </Suspense>
   );
 }
