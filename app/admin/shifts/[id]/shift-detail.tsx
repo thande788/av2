@@ -72,6 +72,7 @@ import {
   updateShift,
 } from '@/app/actions/shifts';
 import { sendShiftNotification } from '@/app/actions/sms-notifications';
+import type { ServiceTypeOption } from '@/lib/service-types';
 import { AdminShiftRating } from './admin-shift-rating';
 
 type ShiftWithRelations = CareShift & {
@@ -95,14 +96,8 @@ interface ShiftDetailProps {
   clients: Serialized<(Client & {
     user: Pick<PortalUser, 'firstName' | 'lastName'>;
   })[]>;
+  serviceTypes: ServiceTypeOption[];
 }
-
-const SERVICE_LEVELS = [
-  { value: 'COMPANION', label: 'Companion Care' },
-  { value: 'PERSONAL', label: 'Personal Care' },
-  { value: 'SKILLED', label: 'Skilled Nursing' },
-  { value: 'LIVE_IN', label: 'Live-In Care' },
-] as const;
 
 const SKILLS = [
   'Personal Care',
@@ -135,7 +130,9 @@ const bookingStatusColors: Record<BookingStatus, string> = {
   NO_SHOW: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500',
 };
 
-export function ShiftDetail({ shift, availableWorkers, clients }: ShiftDetailProps) {
+export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: ShiftDetailProps) {
+  const currentServiceTypeOption =
+    serviceTypes.find((item) => item.label === shift.serviceType) ?? serviceTypes[0];
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
   const [isNotifying, setIsNotifying] = React.useState(false);
@@ -151,7 +148,9 @@ export function ShiftDetail({ shift, availableWorkers, clients }: ShiftDetailPro
   );
   const [startTimeInput, setStartTimeInput] = React.useState(shift.startTime);
   const [endTimeInput, setEndTimeInput] = React.useState(shift.endTime);
-  const [serviceTypeInput, setServiceTypeInput] = React.useState(shift.serviceType);
+  const [serviceTypeIdInput, setServiceTypeIdInput] = React.useState(
+    currentServiceTypeOption?.id ?? ''
+  );
   const [selectedSkills, setSelectedSkills] = React.useState<string[]>(
     shift.skillsRequired || []
   );
@@ -169,6 +168,14 @@ export function ShiftDetail({ shift, availableWorkers, clients }: ShiftDetailPro
   const pendingBookings = shift.bookings.filter((b) => b.status === 'PENDING');
   const isOpen = shift.status === 'OPEN' || shift.status === 'PENDING_BOOK';
   const isBooked = shift.status === 'BOOKED' || shift.status === 'IN_PROGRESS';
+  const getDefaultPercentForServiceType = (serviceTypeId: string) => {
+    return serviceTypes.find((item) => item.id === serviceTypeId)?.defaultWorkerRatePercent ?? 65;
+  };
+  const availableServiceTypes = serviceTypes.filter((item) => {
+    const selected = serviceTypes.find((serviceType) => serviceType.id === serviceTypeIdInput);
+    return item.isActive || selected?.id === item.id;
+  });
+  const serviceTypeLabel = shift.serviceType;
 
   const handleSendNotification = async () => {
     setIsNotifying(true);
@@ -223,7 +230,7 @@ export function ShiftDetail({ shift, availableWorkers, clients }: ShiftDetailPro
     setDateInput(new Date(shift.date).toISOString().split('T')[0]);
     setStartTimeInput(shift.startTime);
     setEndTimeInput(shift.endTime);
-    setServiceTypeInput(shift.serviceType);
+    setServiceTypeIdInput(currentServiceTypeOption?.id ?? '');
     setSelectedSkills(shift.skillsRequired || []);
     setNotesInput(shift.notes || '');
     setClientRateInput(Number(shift.clientRate).toFixed(2));
@@ -267,7 +274,7 @@ export function ShiftDetail({ shift, availableWorkers, clients }: ShiftDetailPro
       date: dateInput,
       startTime: startTimeInput,
       endTime: endTimeInput,
-      serviceType: serviceTypeInput,
+      serviceTypeId: serviceTypeIdInput,
       skillsRequired: selectedSkills,
       notes: notesInput || undefined,
       clientRate,
@@ -383,16 +390,23 @@ export function ShiftDetail({ shift, availableWorkers, clients }: ShiftDetailPro
                   <div className="space-y-2">
                     <Label htmlFor="serviceType">Service Type</Label>
                     <Select
-                      value={serviceTypeInput}
-                      onValueChange={(value) => setServiceTypeInput(value as typeof serviceTypeInput)}
+                      value={serviceTypeIdInput}
+                      onValueChange={(value) => {
+                        setServiceTypeIdInput(value);
+                        if (workerRateMode === 'percentage') {
+                          setWorkerRatePercentInput(
+                            String(getDefaultPercentForServiceType(value))
+                          );
+                        }
+                      }}
                     >
                       <SelectTrigger id="serviceType">
                         <SelectValue placeholder="Select service type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {SERVICE_LEVELS.map((level) => (
-                          <SelectItem key={level.value} value={level.value}>
-                            {level.label}
+                        {availableServiceTypes.map((serviceType) => (
+                          <SelectItem key={serviceType.id} value={serviceType.id}>
+                            {serviceType.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -647,7 +661,7 @@ export function ShiftDetail({ shift, availableWorkers, clients }: ShiftDetailPro
               <IconUser className="size-4 text-muted-foreground" />
               <div>
                 <p className="font-medium text-foreground">Service Type</p>
-                <p className="text-sm text-muted-foreground">{shift.serviceType}</p>
+                <p className="text-sm text-muted-foreground">{serviceTypeLabel}</p>
               </div>
             </div>
 

@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { getServiceTypeOptions } from '@/lib/service-types';
 import { serialize } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ export default async function ShiftsPage() {
 
   // Serialize Prisma objects to plain objects for client components
   const serializedShifts = serialize(shifts);
+  const serviceTypes = await getServiceTypeOptions({ includeInactive: true });
 
   const openShifts = serializedShifts.filter((s) => s.status === 'OPEN');
   const bookedShifts = serializedShifts.filter((s) => ['BOOKED', 'IN_PROGRESS'].includes(s.status));
@@ -88,19 +90,19 @@ export default async function ShiftsPage() {
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
-          <ShiftsTable shifts={serializedShifts} />
+          <ShiftsTable shifts={serializedShifts} serviceTypes={serviceTypes} />
         </TabsContent>
 
         <TabsContent value="open" className="mt-4">
-          <ShiftsTable shifts={openShifts} />
+          <ShiftsTable shifts={openShifts} serviceTypes={serviceTypes} />
         </TabsContent>
 
         <TabsContent value="booked" className="mt-4">
-          <ShiftsTable shifts={bookedShifts} />
+          <ShiftsTable shifts={bookedShifts} serviceTypes={serviceTypes} />
         </TabsContent>
 
         <TabsContent value="completed" className="mt-4">
-          <ShiftsTable shifts={completedShifts} />
+          <ShiftsTable shifts={completedShifts} serviceTypes={serviceTypes} />
         </TabsContent>
       </Tabs>
     </div>

@@ -108,7 +108,7 @@ function EmployeeMobileSidebarFooter() {
   );
 }
 
-function EmployeeDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
+function EmployeeDesktopSidebarFooter() {
   const { setTheme, resolvedTheme } = useTheme();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
@@ -250,7 +250,7 @@ export function EmployeeSidebar() {
 
         <div className="flex min-h-0 flex-1 flex-col">
           {navLinks({ compact: collapsed })}
-          <EmployeeDesktopSidebarFooter collapsed={collapsed} />
+          <EmployeeDesktopSidebarFooter />
         </div>
       </aside>
     </>

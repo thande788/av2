@@ -172,6 +172,7 @@ const ROUTE_FEATURE_MAP: Record<string, FeatureKey> = {
   '/employee': 'employeePortal',
   '/client': 'clientPortal',
   '/admin/shifts': 'shiftScheduling',
+  '/admin/service-types': 'shiftScheduling',
   '/admin/workers': 'workerManagement',
   '/admin/clients': 'clientManagement',
   '/admin/timesheets': 'timesheets',

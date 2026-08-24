@@ -1335,7 +1335,7 @@ function generateDemoShifts() {
     startTime: string;
     endTime: string;
     duration: number;
-    serviceType: ServiceLevel;
+    serviceType: string;
     skillsRequired: string[];
     status: ShiftStatus;
     clientRate: number;
@@ -1362,7 +1362,7 @@ function generateDemoShifts() {
       startTime: '08:00',
       endTime: '12:00',
       duration: 4,
-      serviceType: ServiceLevel.PERSONAL,
+      serviceType: 'Personal Care',
       skillsRequired: ['Personal Care', 'Mobility Assistance'],
       status: i < 0 ? ShiftStatus.COMPLETED : (i < 5 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
       clientRate: 32.00,
@@ -1387,7 +1387,7 @@ function generateDemoShifts() {
       startTime: '08:00',
       endTime: '12:00',
       duration: 4,
-      serviceType: ServiceLevel.PERSONAL,
+      serviceType: 'Personal Care',
       skillsRequired: ['Personal Care', 'Mobility Assistance'],
       status: ShiftStatus.OPEN,
       clientRate: 32.00,
@@ -1412,7 +1412,7 @@ function generateDemoShifts() {
       startTime: '13:00',
       endTime: '17:00',
       duration: 4,
-      serviceType: ServiceLevel.COMPANION,
+      serviceType: 'Companion Care',
       skillsRequired: ['Companionship'],
       status: i < 0 ? ShiftStatus.COMPLETED : (i < 7 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
       clientRate: 28.00,
@@ -1433,7 +1433,7 @@ function generateDemoShifts() {
       startTime: '07:00',
       endTime: '19:00',
       duration: 12,
-      serviceType: ServiceLevel.SKILLED,
+      serviceType: 'Skilled Nursing',
       skillsRequired: ['Dementia Care', 'Medication Reminders'],
       status: i < 0 ? ShiftStatus.COMPLETED : (i < 10 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
       clientRate: 38.00,
@@ -1458,7 +1458,7 @@ function generateDemoShifts() {
       startTime: '09:00',
       endTime: '12:00',
       duration: 3,
-      serviceType: ServiceLevel.COMPANION,
+      serviceType: 'Companion Care',
       skillsRequired: ['Companionship', 'Light Housekeeping'],
       status: i < 0 ? ShiftStatus.COMPLETED : (i < 7 ? ShiftStatus.BOOKED : ShiftStatus.OPEN),
       clientRate: 28.00,
@@ -1536,6 +1536,41 @@ const seedPricingTiers = [
   { slug: 'specialized', title: 'Specialized Care', price: 40, period: 'hour', description: 'Memory care, post-surgery recovery, complex needs', features: ['All Personal Care services', 'Dementia/Alzheimer\'s care', 'Post-surgery recovery', 'Chronic condition support', 'Specialized training'], isPopular: false, sortOrder: 3 },
 ];
 
+const seedServiceTypeConfigs = [
+  {
+    key: 'companion-care',
+    label: 'Companion Care',
+    description: 'Basic companionship and social support.',
+    defaultWorkerRatePercent: 65,
+    isActive: true,
+    sortOrder: 0,
+  },
+  {
+    key: 'personal-care',
+    label: 'Personal Care',
+    description: 'Hands-on support with activities of daily living.',
+    defaultWorkerRatePercent: 65,
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    key: 'skilled-nursing',
+    label: 'Skilled Nursing',
+    description: 'Higher-acuity support requiring advanced skills.',
+    defaultWorkerRatePercent: 70,
+    isActive: true,
+    sortOrder: 2,
+  },
+  {
+    key: 'live-in-care',
+    label: 'Live-In Care',
+    description: 'Extended and overnight care coverage.',
+    defaultWorkerRatePercent: 68,
+    isActive: true,
+    sortOrder: 3,
+  },
+];
+
 // =============================================================================
 // SEED FUNCTION
 // =============================================================================
@@ -1554,6 +1589,7 @@ async function main() {
   await prisma.serviceCategory.deleteMany();
   await prisma.fAQ.deleteMany();
   await prisma.pricingTier.deleteMany();
+  await prisma.serviceTypeConfig.deleteMany();
   console.log('   ✓ Existing data cleared\n');
 
   // Seed Jobs
@@ -1643,6 +1679,16 @@ async function main() {
     console.log(`   ✓ Created tier: ${tier.title} ($${tier.price}/${tier.period})`);
   }
   console.log(`   Total: ${seedPricingTiers.length} tiers\n`);
+
+  // Seed Service Type Configs
+  console.log('⚙️ Seeding service type configs...');
+  for (const config of seedServiceTypeConfigs) {
+    await prisma.serviceTypeConfig.create({ data: config });
+    console.log(
+      `   ✓ Created service type config: ${config.label} (${config.defaultWorkerRatePercent}%)`
+    );
+  }
+  console.log(`   Total: ${seedServiceTypeConfigs.length} service type configs\n`);
 
   // ==========================================================================
   // PORTAL DATA (Demo MVP)

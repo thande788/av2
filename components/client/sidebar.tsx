@@ -96,7 +96,7 @@ function ClientMobileSidebarFooter() {
   );
 }
 
-function ClientDesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
+function ClientDesktopSidebarFooter() {
   const { setTheme, resolvedTheme } = useTheme();
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
@@ -238,7 +238,7 @@ export function ClientSidebar() {
 
         <div className="flex min-h-0 flex-1 flex-col">
           {navLinks({ compact: collapsed })}
-          <ClientDesktopSidebarFooter collapsed={collapsed} />
+          <ClientDesktopSidebarFooter />
         </div>
       </aside>
     </>

@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { ShiftStatus, ServiceLevel } from '@prisma/client';
+import { ShiftStatus } from '@prisma/client';
 import { z } from 'zod';
 import { sendShiftConfirmation, sendShiftCancellation } from './sms-notifications';
 
@@ -12,7 +12,7 @@ const createShiftSchema = z.object({
   date: z.string().min(1, 'Date is required'),
   startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
   endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
-  serviceType: z.nativeEnum(ServiceLevel),
+  serviceTypeId: z.string().min(1, 'Service type is required'),
   skillsRequired: z.array(z.string()).default([]),
   notes: z.string().optional(),
   clientRate: z.number().positive('Client rate must be positive'),
@@ -81,7 +81,7 @@ const updateShiftSchema = z
     date: z.string().min(1, 'Date is required'),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
-    serviceType: z.nativeEnum(ServiceLevel),
+    serviceTypeId: z.string().min(1, 'Service type is required'),
     skillsRequired: z.array(z.string()).default([]),
     notes: z.string().optional(),
     clientRate: z.number().positive('Client rate must be positive'),
@@ -145,6 +145,15 @@ export async function createShift(
       return { success: false, error: 'Client not found' };
     }
 
+    const serviceTypeConfig = await db.serviceTypeConfig.findUnique({
+      where: { id: validated.serviceTypeId },
+      select: { label: true },
+    });
+
+    if (!serviceTypeConfig) {
+      return { success: false, error: 'Service type not found' };
+    }
+
     const shift = await db.careShift.create({
       data: {
         clientId: validated.clientId,
@@ -152,7 +161,7 @@ export async function createShift(
         startTime: validated.startTime,
         endTime: validated.endTime,
         duration,
-        serviceType: validated.serviceType,
+        serviceType: serviceTypeConfig.label,
         skillsRequired: validated.skillsRequired,
         notes: validated.notes,
         clientRate: validated.clientRate,
@@ -249,6 +258,15 @@ export async function updateShift(
       return { success: false, error: 'Client not found' };
     }
 
+    const serviceTypeConfig = await db.serviceTypeConfig.findUnique({
+      where: { id: validated.serviceTypeId },
+      select: { label: true },
+    });
+
+    if (!serviceTypeConfig) {
+      return { success: false, error: 'Service type not found' };
+    }
+
     const [startHour, startMin] = validated.startTime.split(':').map(Number);
     const [endHour, endMin] = validated.endTime.split(':').map(Number);
     const startMinutes = startHour * 60 + startMin;
@@ -272,7 +290,7 @@ export async function updateShift(
         startTime: validated.startTime,
         endTime: validated.endTime,
         duration,
-        serviceType: validated.serviceType,
+        serviceType: serviceTypeConfig.label,
         skillsRequired: validated.skillsRequired,
         notes: validated.notes,
         clientRate: validated.clientRate,

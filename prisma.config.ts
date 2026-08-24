@@ -1,15 +1,16 @@
-import path from "node:path";
-import { defineConfig } from "prisma/config";
-import { config } from "dotenv";
+import path from 'node:path';
+import { defineConfig } from 'prisma/config';
+import { config } from 'dotenv';
 
-// Load .env.local for local development
-config({ path: ".env.local" });
+// Load .env first, then allow .env.local to override for local development.
+config({ path: '.env' });
+config({ path: '.env.local', override: true });
 
 export default defineConfig({
-  schema: path.join(__dirname, "prisma", "schema.prisma"),
+  schema: path.join(__dirname, 'prisma', 'schema.prisma'),
 
   migrations: {
-    seed: "npx tsx prisma/seed.ts",
+    seed: 'npx tsx prisma/seed.ts',
   },
 
   datasource: {

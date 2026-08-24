@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { DataTable, type Column } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
 import type { Serialized } from '@/lib/utils';
+import type { ServiceTypeOption } from '@/lib/service-types';
 import type {
   CareShift,
   ShiftStatus,
@@ -112,15 +113,38 @@ const columns: Column<ShiftWithRelations>[] = [
 
 export function ShiftsTable({
   shifts,
+  serviceTypes,
 }: {
   shifts: ShiftWithRelations[];
+  serviceTypes: ServiceTypeOption[];
 }) {
   const router = useRouter();
+  const serviceTypeLabels = new Map(
+    serviceTypes.map((serviceType) => [serviceType.label, serviceType.label])
+  );
+
+  const tableColumns: Column<ShiftWithRelations>[] = columns.map((column) =>
+    column.key === 'client'
+      ? {
+          ...column,
+          render: (shift) => (
+            <div>
+              <p className="font-medium">
+                {shift.client.user.firstName} {shift.client.user.lastName}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {serviceTypeLabels.get(shift.serviceType) || shift.serviceType}
+              </p>
+            </div>
+          ),
+        }
+      : column
+  );
 
   return (
     <DataTable
       data={shifts}
-      columns={columns}
+      columns={tableColumns}
       searchKeys={['client.user.firstName', 'client.user.lastName', 'serviceType']}
       onRowClick={(shift) => router.push(`/admin/shifts/${shift.id}`)}
       emptyMessage="No shifts found."

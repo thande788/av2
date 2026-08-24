@@ -146,6 +146,15 @@ export const adminNavItems: AdminNavItem[] = [
     keywords: ['schedule', 'calendar'],
   },
   {
+    id: 'service-types',
+    title: 'Service Types',
+    href: '/admin/service-types',
+    icon: Layers,
+    section: 'care-delivery',
+    feature: 'shiftScheduling',
+    keywords: ['shift service types', 'care level config', 'default rate %'],
+  },
+  {
     id: 'timesheets',
     title: 'Timesheets',
     href: '/admin/timesheets',

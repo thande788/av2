@@ -18,12 +18,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { createShift, type CreateShiftInput } from '@/app/actions/shifts';
 import { IconLoader2, IconCalendarPlus } from '@tabler/icons-react';
+import type { ServiceLevel } from '@prisma/client';
+import type { ServiceTypeOption } from '@/lib/service-types';
 
 interface Client {
   id: string;
   careRecipientName: string | null;
   billingRate: number;
-  serviceLevel: string;
+  serviceLevel: ServiceLevel;
   city: string;
   user: {
     firstName: string;
@@ -33,14 +35,8 @@ interface Client {
 
 interface CreateShiftFormProps {
   clients: Client[];
+  serviceTypes: ServiceTypeOption[];
 }
-
-const SERVICE_LEVELS = [
-  { value: 'COMPANION', label: 'Companion Care' },
-  { value: 'PERSONAL', label: 'Personal Care' },
-  { value: 'SKILLED', label: 'Skilled Nursing' },
-  { value: 'LIVE_IN', label: 'Live-In Care' },
-];
 
 const SKILLS = [
   'Personal Care',
@@ -53,13 +49,23 @@ const SKILLS = [
   'Transportation',
 ];
 
-export function CreateShiftForm({ clients }: CreateShiftFormProps) {
+export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [workerRateMode, setWorkerRateMode] = useState<'fixed' | 'percentage'>('percentage');
+  const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>(
+    serviceTypes[0]?.id ?? ''
+  );
+  const [workerRatePercentInput, setWorkerRatePercentInput] = useState<string>(
+    String(serviceTypes[0]?.defaultWorkerRatePercent ?? 65)
+  );
+
+  function getDefaultPercentForServiceType(serviceTypeId: string) {
+    return serviceTypes.find((type) => type.id === serviceTypeId)?.defaultWorkerRatePercent ?? 65;
+  }
 
   async function handleSubmit(formData: FormData) {
     setIsPending(true);
@@ -70,7 +76,7 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
       const date = formData.get('date') as string;
       const startTime = formData.get('startTime') as string;
       const endTime = formData.get('endTime') as string;
-      const serviceType = formData.get('serviceType') as 'COMPANION' | 'PERSONAL' | 'SKILLED' | 'LIVE_IN';
+      const serviceTypeId = formData.get('serviceTypeId') as string;
       const clientRate = parseFloat(formData.get('clientRate') as string);
       const workerRate = parseFloat(formData.get('workerRate') as string);
       const workerRateModeValue = formData.get('workerRateMode') as 'fixed' | 'percentage';
@@ -82,7 +88,7 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
         date,
         startTime,
         endTime,
-        serviceType,
+        serviceTypeId,
         skillsRequired: selectedSkills,
         clientRate,
         workerRateMode: workerRateModeValue,
@@ -111,6 +117,9 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
   function handleClientChange(clientId: string) {
     const client = clients.find((c) => c.id === clientId);
     setSelectedClient(client || null);
+    if (client && workerRateMode === 'percentage') {
+      setWorkerRatePercentInput(String(getDefaultPercentForServiceType(selectedServiceTypeId)));
+    }
   }
 
   function toggleSkill(skill: string) {
@@ -231,16 +240,22 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
           <div className="space-y-2">
             <Label htmlFor="serviceType">Service Type *</Label>
             <Select
-              name="serviceType"
-              defaultValue={selectedClient?.serviceLevel || 'PERSONAL'}
+              name="serviceTypeId"
+              value={selectedServiceTypeId}
+              onValueChange={(value) => {
+                setSelectedServiceTypeId(value);
+                if (workerRateMode === 'percentage') {
+                  setWorkerRatePercentInput(String(getDefaultPercentForServiceType(value)));
+                }
+              }}
             >
               <SelectTrigger id="serviceType">
                 <SelectValue placeholder="Select service type" />
               </SelectTrigger>
               <SelectContent>
-                {SERVICE_LEVELS.map((level) => (
-                  <SelectItem key={level.value} value={level.value}>
-                    {level.label}
+                {serviceTypes.map((serviceType) => (
+                  <SelectItem key={serviceType.id} value={serviceType.id}>
+                    {serviceType.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -331,7 +346,8 @@ export function CreateShiftForm({ clients }: CreateShiftFormProps) {
                     step="0.1"
                     min="1"
                     max="100"
-                    defaultValue="65"
+                    value={workerRatePercentInput}
+                    onChange={(event) => setWorkerRatePercentInput(event.target.value)}
                     required
                   />
                   <p className="text-xs text-muted-foreground">

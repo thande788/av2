@@ -4,7 +4,7 @@ import { UserButton } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -275,8 +275,11 @@ export function AdminSidebar({ badgeCounts = {} }: AdminSidebarProps) {
     getSidebarCollapsedSnapshot,
     () => false
   );
-  const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => setHasMounted(true), []);
+  const hasMounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
   const collapsed = hasMounted ? storedCollapsed : false;
   const [mobileOpen, setMobileOpen] = useState(false);
 

@@ -518,6 +518,22 @@ enum ServiceLevel {
   LIVE_IN       // 24-hour care
 }
 
+/// Admin-configurable metadata for operational service types used in shift workflows.
+model ServiceTypeConfig {
+  id                       String       @id @default(cuid())
+  key                      String       @unique
+  label                    String
+  description              String?
+  defaultWorkerRatePercent Float        @default(65)
+  isActive                 Boolean      @default(true)
+  sortOrder                Int          @default(0)
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+
+  @@unique([label])
+  @@index([isActive, sortOrder])
+}
+
 // =============================================================================
 // SHIFTS & SCHEDULING
 // =============================================================================
@@ -534,7 +550,7 @@ model CareShift {
   duration        Decimal         @db.Decimal(4, 2) // Hours (calculated)
   
   // Requirements
-  serviceType     ServiceLevel
+  serviceType     String
   skillsRequired  String[]
   notes           String?         @db.Text
   

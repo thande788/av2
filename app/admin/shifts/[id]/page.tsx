@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { serialize } from '@/lib/utils';
+import { getServiceTypeOptions } from '@/lib/service-types';
 import { ShiftDetail } from './shift-detail';
 
 export const metadata = {
@@ -79,11 +80,14 @@ export default async function ShiftDetailPage({ params }: ShiftDetailPageProps) 
     },
   });
 
+  const serviceTypes = await getServiceTypeOptions({ includeInactive: true });
+
   return (
     <ShiftDetail 
       shift={serialize(shift)}
       availableWorkers={serialize(availableWorkers)}
       clients={serialize(clients)}
+      serviceTypes={serviceTypes}
     />
   );
 }

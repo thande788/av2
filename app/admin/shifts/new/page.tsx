@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { serialize } from '@/lib/utils';
+import { getServiceTypeOptions } from '@/lib/service-types';
 import { CreateShiftForm } from '@/components/admin/create-shift-form';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,8 @@ export default async function CreateShiftPage() {
     user: client.user,
   }));
 
+  const serviceTypes = await getServiceTypeOptions();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -59,7 +62,7 @@ export default async function CreateShiftPage() {
       </div>
 
       <div className="max-w-2xl">
-        <CreateShiftForm clients={serializedClients} />
+        <CreateShiftForm clients={serializedClients} serviceTypes={serviceTypes} />
       </div>
     </div>
   );

@@ -1,14 +1,14 @@
 "use client";
 
 import { SignUp } from '@clerk/nextjs';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 export function SignUpClient() {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
 
   if (!isMounted) {
     return <div className="h-16 w-16 animate-pulse rounded-full bg-muted" />;
