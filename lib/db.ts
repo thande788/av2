@@ -9,6 +9,11 @@
 
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
+import {
+  transformPrismaResult,
+  transformPrismaWhereArgs,
+  transformPrismaWriteArgs,
+} from "@/lib/pii";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -16,14 +21,51 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient() {
   const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
-  
-  return new PrismaClient({
+
+  const client = new PrismaClient({
     adapter,
     log:
       process.env.NODE_ENV === "development"
         ? ["query", "error", "warn"]
         : ["error"],
   });
+
+  return client.$extends({
+    query: {
+      $allModels: {
+        async $allOperations({ args, operation, query }) {
+          if (
+            operation === "findUnique" ||
+            operation === "findUniqueOrThrow" ||
+            operation === "findFirst" ||
+            operation === "findFirstOrThrow" ||
+            operation === "findMany" ||
+            operation === "update" ||
+            operation === "updateMany" ||
+            operation === "upsert" ||
+            operation === "delete" ||
+            operation === "deleteMany"
+          ) {
+            transformPrismaWhereArgs(args);
+          }
+
+          if (
+            operation === "create" ||
+            operation === "createMany" ||
+            operation === "update" ||
+            operation === "updateMany" ||
+            operation === "upsert"
+          ) {
+            transformPrismaWriteArgs(args);
+          }
+
+          const result = await query(args);
+          transformPrismaResult(result);
+          return result;
+        },
+      },
+    },
+  }) as unknown as PrismaClient;
 }
 
 export const db = globalForPrisma.prisma ?? createPrismaClient();

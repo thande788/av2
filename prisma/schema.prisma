@@ -55,6 +55,7 @@ model Application {
   firstName         String
   lastName          String
   email             String
+  emailHash         String?
   phone             String
   street            String?
   city              String?
@@ -91,6 +92,7 @@ model Application {
 
   @@index([jobId])
   @@index([status])
+  @@index([emailHash])
   @@index([email])
   @@index([submittedAt])
 }
@@ -142,6 +144,7 @@ model ContactSubmission {
   id          String   @id @default(cuid())
   name        String
   email       String
+  emailHash   String?
   phone       String?
   service     String?  // Service of interest
   urgency     String?  // Urgency level
@@ -154,6 +157,7 @@ model ContactSubmission {
   isRead      Boolean  @default(false)
   
   @@index([isRead])
+  @@index([emailHash])
   @@index([submittedAt])
   @@index([preferredCaregiverId])
 }
@@ -216,6 +220,7 @@ model ServiceInquiry {
   id           String   @id @default(cuid())
   name         String
   email        String
+  emailHash    String?
   phone        String
   serviceType  String   // Which service they're interested in
   careRecipient String? // Who needs care
@@ -226,6 +231,7 @@ model ServiceInquiry {
   status       InquiryStatus @default(NEW)
   
   @@index([status])
+  @@index([emailHash])
   @@index([submittedAt])
 }
 
@@ -245,7 +251,9 @@ model PortalUser {
   id              String     @id @default(cuid())
   clerkId         String     @unique // Clerk user ID
   email           String     @unique
+  emailHash       String?    @unique
   phone           String?
+  phoneHash       String?
   firstName       String
   lastName        String
   role            UserRole
@@ -266,6 +274,8 @@ model PortalUser {
   lastLoginAt     DateTime?
   
   @@index([clerkId])
+  @@index([emailHash])
+  @@index([phoneHash])
   @@index([role])
   @@index([status])
 }
@@ -317,6 +327,7 @@ model Worker {
   
   // Address (for proximity matching)
   street            String?
+  streetHash        String?
   city              String?
   state             String?
   zip               String?
@@ -346,6 +357,7 @@ model Worker {
   updatedAt         DateTime          @updatedAt
 
   @@index([complianceStatus])
+  @@index([streetHash])
   @@index([zip])
   @@index([profileStatus])
   @@index([isPublicProfile])
@@ -466,6 +478,8 @@ model Client {
   // Care recipient info (if different from user)
   careRecipientName String?
   careRecipientDOB  DateTime?
+  careRecipientDOBEnc String?
+  careRecipientDOBHash String?
   relationship      String?       // "Mother", "Self", "Spouse"
   
   // Service details
@@ -475,6 +489,7 @@ model Client {
   
   // Address (care location)
   street            String
+  streetHash        String?
   city              String
   state             String
   zip               String
@@ -483,12 +498,15 @@ model Client {
   
   // Emergency contact
   emergencyName     String?
+  emergencyNameHash String?
   emergencyPhone    String?
+  emergencyPhoneHash String?
   emergencyRelation String?
   
   // Billing
   billingRate       Decimal       @db.Decimal(10, 2)
   billingEmail      String?
+  billingEmailHash  String?
   
   // Care plans & shifts
   careRecipients    CareRecipient[]
@@ -503,6 +521,11 @@ model Client {
   updatedAt         DateTime      @updatedAt
 
   @@index([type])
+  @@index([careRecipientDOBHash])
+  @@index([streetHash])
+  @@index([billingEmailHash])
+  @@index([emergencyNameHash])
+  @@index([emergencyPhoneHash])
   @@index([zip])
 }
 
@@ -512,14 +535,17 @@ model CareRecipient {
   clientId    String
   fullName    String
   dateOfBirth DateTime?
+  dateOfBirthEnc String?
+  dateOfBirthHash String?
   relationship String?
   isPrimary   Boolean   @default(false)
   notes       String?   @db.Text
-   shifts      CareShift[]
+  shifts      CareShift[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@index([clientId])
+  @@index([dateOfBirthHash])
   @@index([isPrimary])
 }
 
