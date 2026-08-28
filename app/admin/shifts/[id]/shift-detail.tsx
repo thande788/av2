@@ -559,7 +559,7 @@ export function ShiftDetail({
             </DialogContent>
           </Dialog>
 
-          {isOpen && (
+          {isOpen && !enableShiftBroadcast && (
             <Button
               variant="outline"
               onClick={handleSendNotification}
@@ -649,7 +649,11 @@ export function ShiftDetail({
       )}
 
       {enableShiftBroadcast && isOpen && broadcastFilterOptions && (
-        <BroadcastControls shiftId={shift.id} filterOptions={broadcastFilterOptions} />
+        <BroadcastControls
+          shiftId={shift.id}
+          defaultSkills={shift.skillsRequired}
+          filterOptions={broadcastFilterOptions}
+        />
       )}
 
       {enableShiftNotes && (

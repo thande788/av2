@@ -177,14 +177,23 @@ function QuickActionsMenu({
 
 function MobileSidebarFooter() {
   const { setTheme, resolvedTheme } = useTheme();
+  const isMounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
     <div className="w-full border-t border-primary/10 p-3 flex items-center justify-evenly">
-      <UserButton
-        appearance={{ elements: { avatarBox: 'size-9' } }}
-        afterSignOutUrl="/portals"
-      />
+      {isMounted ? (
+        <UserButton
+          appearance={{ elements: { avatarBox: 'size-9' } }}
+          afterSignOutUrl="/portals"
+        />
+      ) : (
+        <div className="size-9 rounded-full bg-muted" aria-hidden="true" />
+      )}
       <div
         role="button"
         tabIndex={0}
@@ -201,16 +210,25 @@ function MobileSidebarFooter() {
 
 function DesktopSidebarFooter({ collapsed }: { collapsed: boolean }) {
   const { setTheme, resolvedTheme } = useTheme();
+  const isMounted = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
   const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
     <div className="w-full border-t border-primary/10 p-3 flex items-center justify-evenly">
       <SidebarTooltip label="Account" disabled={!collapsed}>
         <div>
-          <UserButton
-            appearance={{ elements: { avatarBox: 'size-9' } }}
-            afterSignOutUrl="/portals"
-          />
+          {isMounted ? (
+            <UserButton
+              appearance={{ elements: { avatarBox: 'size-9' } }}
+              afterSignOutUrl="/portals"
+            />
+          ) : (
+            <div className="size-9 rounded-full bg-muted" aria-hidden="true" />
+          )}
         </div>
       </SidebarTooltip>
       <SidebarTooltip label="Toggle theme" disabled={!collapsed}>

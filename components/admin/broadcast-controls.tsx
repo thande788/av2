@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 
 interface BroadcastControlsProps {
   shiftId: string;
+  defaultSkills?: string[];
   filterOptions: {
     skills: string[];
     cities: string[];
@@ -29,12 +30,13 @@ interface BroadcastControlsProps {
   };
 }
 
-export function BroadcastControls({ shiftId, filterOptions }: BroadcastControlsProps) {
+export function BroadcastControls({ shiftId, defaultSkills = [], filterOptions }: BroadcastControlsProps) {
+  const initialSkills = defaultSkills.filter((skill) => filterOptions.skills.includes(skill));
   const [isPending, startTransition] = useTransition();
   const [showFilters, setShowFilters] = useState(false);
   const [preview, setPreview] = useState<BroadcastPreview | null>(null);
   const [filter, setFilter] = useState<BroadcastFilter>({
-    skills: [],
+    skills: initialSkills,
     cities: [],
     languages: [],
     complianceOnly: true,
@@ -62,6 +64,11 @@ export function BroadcastControls({ shiftId, filterOptions }: BroadcastControlsP
   };
 
   const handleSend = () => {
+    if (!preview) {
+      toast.error('Preview recipients before sending the broadcast');
+      return;
+    }
+
     startTransition(async () => {
       const res = await sendTargetedBroadcast(shiftId, filter);
       if (res.success) {
@@ -152,7 +159,10 @@ export function BroadcastControls({ shiftId, filterOptions }: BroadcastControlsP
             <input
               type="checkbox"
               checked={filter.complianceOnly}
-              onChange={(e) => setFilter((p) => ({ ...p, complianceOnly: e.target.checked }))}
+              onChange={(e) => {
+                setFilter((p) => ({ ...p, complianceOnly: e.target.checked }));
+                setPreview(null);
+              }}
               className="rounded border-border"
             />
             <span>Compliant workers only</span>
@@ -214,12 +224,17 @@ export function BroadcastControls({ shiftId, filterOptions }: BroadcastControlsP
         <Button
           size="sm"
           onClick={handleSend}
-          disabled={isPending || (preview !== null && preview.totalMatching === 0)}
+          disabled={isPending || !preview || preview.totalMatching === 0}
         >
           <Send className="mr-1.5 size-3.5" />
           {isPending ? 'Sending…' : 'Send Broadcast'}
         </Button>
       </div>
+      {!preview && (
+        <p className="text-xs text-muted-foreground">
+          Preview recipients first, then send broadcast.
+        </p>
+      )}
     </div>
   );
 }
