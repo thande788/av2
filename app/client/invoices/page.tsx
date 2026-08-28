@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { serialize, formatDateUS } from '@/lib/utils';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import {
 } from '@tabler/icons-react';
 import { getCurrentClient } from '@/lib/auth';
 import { ClientSetupNeeded } from '@/components/client/client-setup-needed';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export const metadata = {
   title: 'Invoices',
@@ -35,6 +37,7 @@ const statusLabels: Record<string, string> = {
 
 export default async function InvoicesPage() {
   const currentClient = await getCurrentClient();
+  const invoicePaymentsEnabled = isFeatureEnabled('invoicePayments');
 
   const demoClient = currentClient
     ? await db.client.findUnique({
@@ -136,15 +139,27 @@ export default async function InvoicesPage() {
                   <p className="text-lg font-semibold">
                     ${Number(invoice.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>
-                  <Button size="sm" disabled>
-                    Pay Now
-                  </Button>
+                  {invoicePaymentsEnabled ? (
+                    <Button size="sm" asChild>
+                      <Link href={`/client/invoices/${invoice.id}`}>Open Invoice</Link>
+                    </Button>
+                  ) : (
+                    <Button size="sm" disabled>
+                      Pay Now
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
-            <p className="text-center text-sm text-muted-foreground pt-2">
-              Online payments coming soon. Please contact us for payment options.
-            </p>
+            {invoicePaymentsEnabled ? (
+              <p className="text-center text-sm text-muted-foreground pt-2">
+                Open any invoice to complete secure online payment.
+              </p>
+            ) : (
+              <p className="text-center text-sm text-muted-foreground pt-2">
+                Online payments coming soon. Please contact us for payment options.
+              </p>
+            )}
           </CardContent>
         </Card>
       )}

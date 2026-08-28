@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ShiftBooking, CareShift, Client, PortalUser } from '@prisma/client';
 import type { Serialized } from '@/lib/utils';
@@ -172,8 +173,13 @@ export function UpcomingShiftsList({ bookings, showCompleted }: UpcomingShiftsLi
                 </div>
 
                 {/* Actions */}
-                {!showCompleted && (
-                  <div className="flex gap-2 sm:flex-col">
+                <div className="flex gap-2 sm:flex-col">
+                  <Button variant="outline" asChild className="flex-1 sm:flex-none">
+                    <Link href={`/employee/shifts/${booking.id}`}>View Details</Link>
+                  </Button>
+
+                  {!showCompleted && (
+                    <>
                     {canCheckIn && (
                       <Button
                         onClick={() => handleCheckIn(booking.id)}
@@ -221,8 +227,9 @@ export function UpcomingShiftsList({ bookings, showCompleted }: UpcomingShiftsLi
                         Cancel
                       </Button>
                     )}
-                  </div>
-                )}
+                    </>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

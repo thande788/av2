@@ -171,6 +171,7 @@ export function getEnabledFeatures(): FeatureKey[] {
 const ROUTE_FEATURE_MAP: Record<string, FeatureKey> = {
   '/employee': 'employeePortal',
   '/client': 'clientPortal',
+  '/client/invoices/': 'invoicePayments',
   '/admin/shifts': 'shiftScheduling',
   '/admin/service-types': 'shiftScheduling',
   '/admin/workers': 'workerManagement',

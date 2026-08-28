@@ -32,9 +32,9 @@ export async function addShiftNote(
     const shift = await db.careShift.findUnique({ where: { id: parsed.shiftId } });
     if (!shift) return { success: false, error: 'Shift not found' };
 
-    // Determine author role
+    // Determine author role (caregivers are stored as ADMIN conceptually)
     const isAdmin = await isAdminOrManager();
-    const authorRole = isAdmin ? 'ADMIN' : 'CLIENT';
+    const authorRole = isAdmin || portalUser.role !== 'CLIENT' ? 'ADMIN' : 'CLIENT';
 
     await db.shiftNote.create({
       data: {

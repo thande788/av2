@@ -72,6 +72,8 @@ import {
 } from '@/app/actions/shifts';
 import { sendShiftNotification } from '@/app/actions/sms-notifications';
 import type { ServiceTypeOption } from '@/lib/service-types';
+import { BroadcastControls } from '@/components/admin/broadcast-controls';
+import { ShiftNotes } from '@/components/shared/shift-notes';
 import { AdminShiftRating } from './admin-shift-rating';
 
 type ShiftWithRelations = CareShift & {
@@ -96,6 +98,33 @@ interface ShiftDetailProps {
     user: Pick<PortalUser, 'firstName' | 'lastName'>;
   })[]>;
   serviceTypes: ServiceTypeOption[];
+  enableShiftBroadcast: boolean;
+  enableShiftNotes: boolean;
+  broadcastFilterOptions: {
+    skills: string[];
+    cities: string[];
+    languages: string[];
+  } | null;
+  notes: Array<{
+    id: string;
+    authorName: string;
+    authorRole: string;
+    content: string;
+    category: 'GENERAL' | 'CARE_UPDATE' | 'MEDICATION' | 'INCIDENT' | 'HANDOFF';
+    isVisibleToClient: boolean;
+    isPinned: boolean;
+    createdAt: Date | string;
+  }>;
+  handoffNotes: Array<{
+    id: string;
+    authorName: string;
+    authorRole: string;
+    content: string;
+    category: 'GENERAL' | 'CARE_UPDATE' | 'MEDICATION' | 'INCIDENT' | 'HANDOFF';
+    isVisibleToClient: boolean;
+    isPinned: boolean;
+    createdAt: Date | string;
+  }>;
 }
 
 const statusColors: Record<ShiftStatus, string> = {
@@ -118,7 +147,17 @@ const bookingStatusColors: Record<BookingStatus, string> = {
   NO_SHOW: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500',
 };
 
-export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: ShiftDetailProps) {
+export function ShiftDetail({
+  shift,
+  availableWorkers,
+  clients,
+  serviceTypes,
+  enableShiftBroadcast,
+  enableShiftNotes,
+  broadcastFilterOptions,
+  notes,
+  handoffNotes,
+}: ShiftDetailProps) {
   const currentServiceTypeOption =
     serviceTypes.find((item) => item.label === shift.serviceType) ?? serviceTypes[0];
   const router = useRouter();
@@ -607,6 +646,18 @@ export function ShiftDetail({ shift, availableWorkers, clients, serviceTypes }: 
             )}
           </p>
         </div>
+      )}
+
+      {enableShiftBroadcast && isOpen && broadcastFilterOptions && (
+        <BroadcastControls shiftId={shift.id} filterOptions={broadcastFilterOptions} />
+      )}
+
+      {enableShiftNotes && (
+        <ShiftNotes
+          shiftId={shift.id}
+          notes={notes}
+          handoffNotes={handoffNotes}
+        />
       )}
 
       {/* Content Grid */}
