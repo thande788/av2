@@ -6,6 +6,41 @@ import { ShiftStatus } from '@prisma/client';
 import { z } from 'zod';
 import { sendShiftConfirmation, sendShiftCancellation } from './sms-notifications';
 
+const recurrenceSchema = z
+  .object({
+    pattern: z.enum(['DAILY', 'WEEKLY']),
+    interval: z.number().int().min(1).max(30).default(1),
+    weekdays: z.array(z.number().int().min(0).max(6)).optional(),
+    endType: z.enum(['COUNT', 'UNTIL']).default('COUNT'),
+    occurrences: z.number().int().min(1).max(180).optional(),
+    untilDate: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.weekdays || data.weekdays.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Select at least one day for recurrence',
+        path: ['weekdays'],
+      });
+    }
+
+    if (data.endType === 'COUNT' && data.occurrences === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Occurrences are required when ending by count',
+        path: ['occurrences'],
+      });
+    }
+
+    if (data.endType === 'UNTIL' && !data.untilDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End date is required when ending by date',
+        path: ['untilDate'],
+      });
+    }
+  });
+
 // Validation schema for shift creation
 const createShiftSchema = z.object({
   clientId: z.string().min(1, 'Client is required'),
@@ -18,6 +53,7 @@ const createShiftSchema = z.object({
   workerRateMode: z.enum(['fixed', 'percentage']).default('percentage'),
   workerRate: z.number().positive('Worker rate must be positive').optional(),
   workerRatePercent: z.number().min(1, 'Rate percentage must be at least 1').max(100, 'Rate percentage cannot exceed 100').optional(),
+  recurrence: recurrenceSchema.optional(),
 }).superRefine((data, ctx) => {
   if (data.workerRateMode === 'fixed' && data.workerRate === undefined) {
     ctx.addIssue({
@@ -37,6 +73,51 @@ const createShiftSchema = z.object({
 });
 
 export type CreateShiftInput = z.infer<typeof createShiftSchema>;
+
+function parseDateInput(date: string): Date {
+  return new Date(`${date}T00:00:00`);
+}
+
+function getRecurringShiftDates(startDate: Date, recurrence?: z.infer<typeof recurrenceSchema>): Date[] {
+  if (!recurrence) {
+    return [startDate];
+  }
+
+  const days = new Set(recurrence.weekdays ?? []);
+  const generated: Date[] = [];
+  const cursor = new Date(startDate);
+  const endDate = recurrence.endType === 'UNTIL' && recurrence.untilDate
+    ? parseDateInput(recurrence.untilDate)
+    : null;
+  const maxOccurrences = recurrence.endType === 'COUNT' ? recurrence.occurrences ?? 1 : null;
+
+  const MAX_ITERATIONS = 730;
+  for (let i = 0; i < MAX_ITERATIONS; i++) {
+    if (endDate && cursor > endDate) break;
+
+    const day = cursor.getDay();
+    const dayOffset = Math.floor((cursor.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    let include = false;
+    if (recurrence.pattern === 'DAILY') {
+      include = days.has(day) && dayOffset % recurrence.interval === 0;
+    } else {
+      const weeksOffset = Math.floor(dayOffset / 7);
+      include = days.has(day) && weeksOffset % recurrence.interval === 0;
+    }
+
+    if (include) {
+      generated.push(new Date(cursor));
+      if (maxOccurrences && generated.length >= maxOccurrences) {
+        break;
+      }
+    }
+
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return generated;
+}
 
 const updateShiftRatesSchema = z
   .object({
@@ -119,7 +200,7 @@ export type UpdateShiftInput = z.infer<typeof updateShiftSchema>;
  */
 export async function createShift(
   input: CreateShiftInput
-): Promise<{ success: boolean; error?: string; shiftId?: string }> {
+): Promise<{ success: boolean; error?: string; shiftId?: string; createdCount?: number }> {
   try {
     const validated = createShiftSchema.parse(input);
 
@@ -152,37 +233,87 @@ export async function createShift(
       return { success: false, error: 'Service type not found' };
     }
 
-    const shift = await db.careShift.create({
-      data: {
-        clientId: validated.clientId,
-        date: new Date(validated.date),
-        startTime: validated.startTime,
-        endTime: validated.endTime,
-        duration,
-        serviceType: serviceTypeConfig.label,
-        skillsRequired: serviceTypeConfig.skills.map((skill) => skill.label),
-        notes: validated.notes,
-        clientRate: validated.clientRate,
-        workerRate:
-          validated.workerRateMode === 'percentage'
-            ? validated.clientRate * ((validated.workerRatePercent ?? 65) / 100)
-            : validated.workerRate ?? validated.clientRate * 0.65,
-        status: 'OPEN',
-        createdBy: 'admin', // TODO: Get from auth session
-      },
-    });
+    const baseDate = parseDateInput(validated.date);
+    const shiftDates = getRecurringShiftDates(baseDate, validated.recurrence);
+
+    if (shiftDates.length === 0) {
+      return {
+        success: false,
+        error: 'Recurrence did not generate any shifts. Adjust days, interval, or end settings.',
+      };
+    }
+
+    const recurringId =
+      shiftDates.length > 1
+        ? (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`)
+        : null;
+    const workerRate =
+      validated.workerRateMode === 'percentage'
+        ? validated.clientRate * ((validated.workerRatePercent ?? 65) / 100)
+        : validated.workerRate ?? validated.clientRate * 0.65;
+
+    let firstShiftId: string | undefined;
+
+    if (shiftDates.length === 1) {
+      const shift = await db.careShift.create({
+        data: {
+          clientId: validated.clientId,
+          date: shiftDates[0],
+          startTime: validated.startTime,
+          endTime: validated.endTime,
+          duration,
+          serviceType: serviceTypeConfig.label,
+          skillsRequired: serviceTypeConfig.skills.map((skill) => skill.label),
+          notes: validated.notes,
+          clientRate: validated.clientRate,
+          workerRate,
+          status: 'OPEN',
+          recurringId,
+          createdBy: 'admin', // TODO: Get from auth session
+        },
+      });
+      firstShiftId = shift.id;
+    } else {
+      await db.careShift.createMany({
+        data: shiftDates.map((date) => ({
+          clientId: validated.clientId,
+          date,
+          startTime: validated.startTime,
+          endTime: validated.endTime,
+          duration,
+          serviceType: serviceTypeConfig.label,
+          skillsRequired: serviceTypeConfig.skills.map((skill) => skill.label),
+          notes: validated.notes,
+          clientRate: validated.clientRate,
+          workerRate,
+          status: 'OPEN',
+          recurringId,
+          createdBy: 'admin', // TODO: Get from auth session
+        })),
+      });
+
+      const firstShift = await db.careShift.findFirst({
+        where: { recurringId: recurringId ?? undefined },
+        orderBy: { date: 'asc' },
+        select: { id: true },
+      });
+      firstShiftId = firstShift?.id;
+    }
 
     revalidatePath('/admin/shifts');
     revalidatePath('/employee/shifts');
     revalidatePath(`/admin/clients/${validated.clientId}`);
 
-    return { success: true, shiftId: shift.id };
+    return { success: true, shiftId: firstShiftId, createdCount: shiftDates.length };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0].message };
     }
     console.error('Failed to create shift:', error);
-    return { success: false, error: 'Failed to create shift' };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create shift',
+    };
   }
 }
 
