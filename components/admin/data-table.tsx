@@ -362,83 +362,85 @@ export function DataTable<T extends { id: string }>({
       )}
 
       {/* Desktop Table View */}
-      <div className="hidden md:block rounded-xl border border-border/50 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/30">
-            <tr className="border-b border-border/50">
-              {selectable && (
-                <th className="w-12 px-4">
-                  <Checkbox
-                    checked={allPageSelected ? true : somePageSelected ? 'indeterminate' : false}
-                    onCheckedChange={toggleSelectAll}
-                    aria-label="Select all"
-                  />
-                </th>
-              )}
-              {columns.map((col) => (
-                <th
-                  key={String(col.key)}
-                  className={cn(
-                    'h-12 px-4 text-left font-medium text-muted-foreground',
-                    col.sortable && 'cursor-pointer select-none hover:bg-muted/50 transition-colors',
-                    col.className
-                  )}
-                  onClick={() => col.sortable && handleSort(String(col.key))}
-                >
-                  <span className="flex items-center gap-1">
-                    {col.header}
-                    {col.sortable && sortKey === col.key && (
-                      <span className="text-xs">
-                        {sortDir === 'asc' ? '↑' : '↓'}
-                      </span>
+      <div className="hidden md:block overflow-hidden rounded-xl border border-border/50">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[56rem] text-sm">
+            <thead className="bg-muted/30">
+              <tr className="border-b border-border/50">
+                {selectable && (
+                  <th className="w-12 px-4">
+                    <Checkbox
+                      checked={allPageSelected ? true : somePageSelected ? 'indeterminate' : false}
+                      onCheckedChange={toggleSelectAll}
+                      aria-label="Select all"
+                    />
+                  </th>
+                )}
+                {columns.map((col) => (
+                  <th
+                    key={String(col.key)}
+                    className={cn(
+                      'h-12 px-4 text-left font-medium text-muted-foreground',
+                      col.sortable && 'cursor-pointer select-none hover:bg-muted/50 transition-colors',
+                      col.className
                     )}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  {emptyMessage}
-                </td>
+                    onClick={() => col.sortable && handleSort(String(col.key))}
+                  >
+                    <span className="flex items-center gap-1">
+                      {col.header}
+                      {col.sortable && sortKey === col.key && (
+                        <span className="text-xs">
+                          {sortDir === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </span>
+                  </th>
+                ))}
               </tr>
-            ) : (
-              paginatedData.map((item) => (
-                <tr
-                  key={item.id}
-                  className={cn(
-                    'border-b border-border/50 transition-colors hover:bg-muted/30',
-                    onRowClick && 'cursor-pointer',
-                    selectedIds.has(item.id) && 'bg-primary/5'
-                  )}
-                  onClick={() => onRowClick?.(item)}
-                >
-                  {selectable && (
-                    <td className="w-12 px-4" onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selectedIds.has(item.id)}
-                        onCheckedChange={() => toggleSelect(item.id)}
-                        aria-label={`Select row`}
-                      />
-                    </td>
-                  )}
-                  {columns.map((col) => (
-                    <td key={String(col.key)} className={cn('p-4', col.className)}>
-                      {col.render
-                        ? col.render(item)
-                        : String(getValue(item, String(col.key)) ?? '-')}
-                    </td>
-                  ))}
+            </thead>
+            <tbody>
+              {paginatedData.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={columns.length + (selectable ? 1 : 0)}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    {emptyMessage}
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                paginatedData.map((item) => (
+                  <tr
+                    key={item.id}
+                    className={cn(
+                      'border-b border-border/50 transition-colors hover:bg-muted/30',
+                      onRowClick && 'cursor-pointer',
+                      selectedIds.has(item.id) && 'bg-primary/5'
+                    )}
+                    onClick={() => onRowClick?.(item)}
+                  >
+                    {selectable && (
+                      <td className="w-12 px-4" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedIds.has(item.id)}
+                          onCheckedChange={() => toggleSelect(item.id)}
+                          aria-label={`Select row`}
+                        />
+                      </td>
+                    )}
+                    {columns.map((col) => (
+                      <td key={String(col.key)} className={cn('p-4', col.className)}>
+                        {col.render
+                          ? col.render(item)
+                          : String(getValue(item, String(col.key)) ?? '-')}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Mobile Card View */}

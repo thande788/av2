@@ -6,6 +6,7 @@ import { IconCheck, IconX, IconLoader2 } from '@tabler/icons-react';
 import { DataTable, type Column } from '@/components/admin/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { approveWorker, rejectWorker } from '@/app/actions/workers';
 import type { Worker, PortalUser, UserStatus, ComplianceStatus } from '@prisma/client';
 import type { Serialized } from '@/lib/utils';
@@ -136,30 +137,41 @@ export function WorkersTable({
         const isLoading = loadingId === worker.id;
         return (
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-emerald-600 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950"
-              onClick={(e) => handleApprove(e, worker.id)}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <IconLoader2 className="mr-1 size-3.5 animate-spin" />
-              ) : (
-                <IconCheck className="mr-1 size-3.5" />
-              )}
-              Approve
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950"
-              onClick={(e) => handleReject(e, worker.id)}
-              disabled={isLoading}
-            >
-              <IconX className="mr-1 size-3.5" />
-              Reject
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="size-8 border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                  onClick={(e) => handleApprove(e, worker.id)}
+                  disabled={isLoading}
+                  aria-label="Approve worker"
+                >
+                  {isLoading ? (
+                    <IconLoader2 className="size-4 animate-spin" />
+                  ) : (
+                    <IconCheck className="size-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Approve</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="size-8 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                  onClick={(e) => handleReject(e, worker.id)}
+                  disabled={isLoading}
+                  aria-label="Reject worker"
+                >
+                  <IconX className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Reject</TooltipContent>
+            </Tooltip>
           </div>
         );
       },

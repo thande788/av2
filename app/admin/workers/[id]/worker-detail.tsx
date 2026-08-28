@@ -735,7 +735,15 @@ export function WorkerDetail({ worker }: WorkerDetailProps) {
                   className="flex items-center justify-between rounded-lg border p-3"
                 >
                   <div>
-                    <p className="font-medium text-foreground">{doc.name}</p>
+                    <a
+                      href={doc.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-medium text-foreground hover:text-primary hover:underline"
+                    >
+                      {doc.name}
+                      <IconEye className="size-4" />
+                    </a>
                     <p className="text-sm text-muted-foreground">
                       Expires: {doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString('en-US') : 'N/A'}
                     </p>
