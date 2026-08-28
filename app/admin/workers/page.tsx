@@ -3,6 +3,9 @@ import { serialize } from '@/lib/utils';
 import { WorkersTable } from './workers-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export const metadata = {
   title: 'Workers',
@@ -19,6 +22,7 @@ interface WorkersPageProps {
 
 export default async function WorkersPage({ searchParams }: WorkersPageProps) {
   const params = await searchParams;
+  const availabilityCalendarEnabled = isFeatureEnabled('availabilityCalendar');
 
   const workers = await db.worker.findMany({
     orderBy: { createdAt: 'desc' },
@@ -46,11 +50,18 @@ export default async function WorkersPage({ searchParams }: WorkersPageProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Workers</h1>
-        <p className="text-muted-foreground">
-          Manage caregivers and staff members
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Workers</h1>
+          <p className="text-muted-foreground">
+            Manage caregivers and staff members
+          </p>
+        </div>
+        {availabilityCalendarEnabled && (
+          <Button asChild variant="outline">
+            <Link href="/admin/workers/availability">Availability View</Link>
+          </Button>
+        )}
       </div>
 
       <Tabs defaultValue={defaultTab} className="space-y-4">

@@ -5,6 +5,7 @@ import {
   BarChart3,
   Briefcase,
   Calendar,
+  CalendarClock,
   CircleHelp,
   ClipboardCheck,
   CreditCard,
@@ -144,6 +145,15 @@ export const adminNavItems: AdminNavItem[] = [
     section: 'care-delivery',
     feature: 'shiftScheduling',
     keywords: ['schedule', 'calendar'],
+  },
+  {
+    id: 'availability',
+    title: 'Availability',
+    href: '/admin/workers/availability',
+    icon: CalendarClock,
+    section: 'care-delivery',
+    feature: 'availabilityCalendar',
+    keywords: ['worker availability', 'weekly coverage', 'staff schedule'],
   },
   {
     id: 'service-types',

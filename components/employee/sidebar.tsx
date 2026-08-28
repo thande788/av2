@@ -28,6 +28,7 @@ import { useState, useSyncExternalStore } from 'react';
 import { UserButton } from '@clerk/nextjs';
 import { useTheme } from 'next-themes';
 import { AnimatedThemeToggle } from '@/components/ui/animated-theme-toggle';
+import { NotificationBell } from '@/components/admin/notification-bell';
 
 interface NavItem {
   title: string;
@@ -232,11 +233,14 @@ export function EmployeeSidebar() {
           </div>
           <span className="truncate font-semibold text-emerald-600 dark:text-emerald-500">Employee Portal</span>
         </Link>
+        <div className="ml-auto">
+          <NotificationBell />
+        </div>
       </div>
 
-      <aside
-        className={cn(
-          'sticky top-0 hidden h-screen shrink-0 overflow-hidden border-r border-emerald-500/40 bg-emerald-500/5 transition-all duration-300 lg:flex lg:flex-col',
+        <aside
+          className={cn(
+          'sticky top-0 hidden h-screen shrink-0 overflow-visible border-r border-emerald-500/40 bg-emerald-500/5 transition-all duration-300 lg:flex lg:flex-col',
           collapsed ? 'w-20' : 'w-72'
         )}
       >
@@ -264,6 +268,9 @@ export function EmployeeSidebar() {
         >
           {collapsed ? <Menu className="size-5" /> : <ChevronLeft className="size-5" />}
         </Button>
+        <div className={cn(collapsed && 'absolute left-3')}>
+          <NotificationBell />
+        </div>
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col">

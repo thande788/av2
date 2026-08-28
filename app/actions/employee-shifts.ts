@@ -165,10 +165,16 @@ export async function checkOutFromShift(
       },
     });
 
-    // Update shift status to COMPLETED
+    const remainingConfirmed = await db.shiftBooking.count({
+      where: {
+        shiftId: booking.shiftId,
+        status: 'CONFIRMED',
+      },
+    });
+
     await db.careShift.update({
       where: { id: booking.shiftId },
-      data: { status: 'COMPLETED' },
+      data: { status: remainingConfirmed > 0 ? 'IN_PROGRESS' : 'COMPLETED' },
     });
 
     revalidatePath('/employee');

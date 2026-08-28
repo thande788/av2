@@ -23,6 +23,7 @@ import type {
   ShiftBooking,
   BookingStatus,
   Worker,
+  Availability,
   Client,
   PortalUser,
 } from '@prisma/client';
@@ -89,6 +90,12 @@ type ShiftWithRelations = CareShift & {
 
 type WorkerWithUser = Worker & {
   user: PortalUser;
+  availabilities: Availability[];
+  shiftBookings: Array<
+    ShiftBooking & {
+      shift: Pick<CareShift, 'startTime' | 'endTime'>;
+    }
+  >;
 };
 
 interface ShiftDetailProps {
@@ -158,6 +165,21 @@ export function ShiftDetail({
   notes,
   handoffNotes,
 }: ShiftDetailProps) {
+  const toMinutes = (value: string) => {
+    const [hours, minutes] = value.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+  const getSlotRange = (start: string, end: string) => {
+    const slotStart = toMinutes(start);
+    let slotEnd = toMinutes(end);
+    if (slotEnd <= slotStart) {
+      slotEnd += 24 * 60;
+    }
+    return { start: slotStart, end: slotEnd };
+  };
+  const hasOverlap = (startA: number, endA: number, startB: number, endB: number) =>
+    startA < endB && startB < endA;
+
   const currentServiceTypeOption =
     serviceTypes.find((item) => item.label === shift.serviceType) ?? serviceTypes[0];
   const router = useRouter();
@@ -188,7 +210,8 @@ export function ShiftDetail({
   const [rateError, setRateError] = React.useState<string | null>(null);
   const [isSavingRates, setIsSavingRates] = React.useState(false);
 
-  const confirmedBooking = shift.bookings.find((b) => b.status === 'CONFIRMED');
+  const confirmedBookings = shift.bookings.filter((b) => b.status === 'CONFIRMED');
+  const confirmedBooking = confirmedBookings[0];
   const pendingBookings = shift.bookings.filter((b) => b.status === 'PENDING');
   const isOpen = shift.status === 'OPEN' || shift.status === 'PENDING_BOOK';
   const isBooked = shift.status === 'BOOKED' || shift.status === 'IN_PROGRESS';
@@ -319,9 +342,30 @@ export function ShiftDetail({
 
   // Filter out workers that already have bookings for this shift
   const bookedWorkerIds = shift.bookings.map((b) => b.workerId);
-  const filteredWorkers = availableWorkers.filter(
-    (w) => !bookedWorkerIds.includes(w.id)
-  );
+  const shiftStart = toMinutes(shift.startTime);
+  const shiftEnd = toMinutes(shift.endTime);
+  const filteredWorkers = availableWorkers.filter((worker) => {
+    if (bookedWorkerIds.includes(worker.id)) {
+      return false;
+    }
+
+    const coversShiftWindow = worker.availabilities.some((slot) => {
+      const { start: slotStart, end: slotEnd } = getSlotRange(slot.startTime, slot.endTime);
+      return slotStart <= shiftStart && slotEnd >= shiftEnd;
+    });
+
+    if (!coversShiftWindow) {
+      return false;
+    }
+
+    const hasConflict = worker.shiftBookings.some((booking) => {
+      const bookingStart = toMinutes(booking.shift.startTime);
+      const bookingEnd = toMinutes(booking.shift.endTime);
+      return hasOverlap(shiftStart, shiftEnd, bookingStart, bookingEnd);
+    });
+
+    return !hasConflict;
+  });
 
   return (
     <div className="space-y-6">
@@ -695,6 +739,16 @@ export function ShiftDetail({
               </div>
             </div>
 
+            <div className="flex items-center gap-3">
+              <IconUsers className="size-4 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-foreground">Staffing</p>
+                <p className="text-sm text-muted-foreground">
+                  {confirmedBookings.length} of {shift.requiredWorkers} assigned
+                </p>
+              </div>
+            </div>
+
             {shift.skillsRequired.length > 0 && (
               <div>
                 <p className="mb-2 text-sm font-medium text-muted-foreground">Required Skills</p>
@@ -734,6 +788,9 @@ export function ShiftDetail({
           <CardContent className="space-y-3">
             <p className="font-medium text-foreground">
               {shift.client.user.firstName} {shift.client.user.lastName}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Recipient: {shift.client.careRecipientName || 'General coverage'}
             </p>
             {shift.client.user.phone && (
               <p className="text-sm text-muted-foreground">{shift.client.user.phone}</p>
@@ -797,7 +854,7 @@ export function ShiftDetail({
 
             {filteredWorkers.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                All available workers have already been sent requests for this shift.
+                No eligible workers found. Workers must be available for the full shift window and not have overlapping confirmed assignments.
               </p>
             )}
           </CardContent>
@@ -854,29 +911,32 @@ export function ShiftDetail({
         </Card>
       )}
 
-      {/* Assigned Worker */}
-      {confirmedBooking && (
+      {/* Assigned Workers */}
+      {confirmedBookings.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <IconUser className="size-5" />
-              Assigned Worker
+              Assigned Workers ({confirmedBookings.length}/{shift.requiredWorkers})
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
-                <IconUser className="size-6 text-primary" />
+          <CardContent className="space-y-3">
+            {confirmedBookings.map((assignedBooking) => (
+              <div key={assignedBooking.id} className="flex items-center gap-4 rounded-lg border p-3">
+                <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+                  <IconUser className="size-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">
+                    {assignedBooking.worker.user.firstName} {assignedBooking.worker.user.lastName}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {assignedBooking.worker.employeeId || assignedBooking.worker.user.email}
+                    {assignedBooking.worker.user.phone ? ` • ${assignedBooking.worker.user.phone}` : ''}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium text-foreground">
-                  {confirmedBooking.worker.user.firstName} {confirmedBooking.worker.user.lastName}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {confirmedBooking.worker.employeeId} • {confirmedBooking.worker.user.phone}
-                </p>
-              </div>
-            </div>
+            ))}
           </CardContent>
         </Card>
       )}

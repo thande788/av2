@@ -25,6 +25,11 @@ import type { ServiceTypeOption } from '@/lib/service-types';
 interface Client {
   id: string;
   careRecipientName: string | null;
+  careRecipients: Array<{
+    id: string;
+    fullName: string;
+    isPrimary: boolean;
+  }>;
   billingRate: number;
   serviceLevel: ServiceLevel;
   city: string;
@@ -54,6 +59,7 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedCareRecipientId, setSelectedCareRecipientId] = useState<string>('__none');
   const [workerRateMode, setWorkerRateMode] = useState<'fixed' | 'percentage'>('percentage');
   const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>(
     serviceTypes[0]?.id ?? ''
@@ -243,9 +249,13 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
 
     try {
       const clientId = formData.get('clientId') as string;
+      const careRecipientIdRaw = formData.get('careRecipientId') as string;
+      const careRecipientId =
+        careRecipientIdRaw && careRecipientIdRaw !== '__none' ? careRecipientIdRaw : undefined;
       const date = formData.get('date') as string;
       const startTime = formData.get('startTime') as string;
       const endTime = formData.get('endTime') as string;
+      const requiredWorkers = Number(formData.get('requiredWorkers') as string);
       const serviceTypeId = formData.get('serviceTypeId') as string;
       const clientRate = parseFloat(formData.get('clientRate') as string);
       const workerRate = parseFloat(formData.get('workerRate') as string);
@@ -267,9 +277,11 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
 
       const input: CreateShiftInput = {
         clientId,
+        careRecipientId,
         date,
         startTime,
         endTime,
+        requiredWorkers,
         serviceTypeId,
         clientRate,
         workerRateMode: workerRateModeValue,
@@ -299,6 +311,8 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
   function handleClientChange(clientId: string) {
     const client = clients.find((c) => c.id === clientId);
     setSelectedClient(client || null);
+    const primaryRecipient = client?.careRecipients.find((recipient) => recipient.isPrimary);
+    setSelectedCareRecipientId(primaryRecipient?.id ?? '__none');
     if (client && workerRateMode === 'percentage') {
       setWorkerRatePercentInput(String(getDefaultPercentForServiceType(selectedServiceTypeId)));
     }
@@ -362,6 +376,28 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
               </p>
             </div>
           )}
+
+          {selectedClient && selectedClient.careRecipients.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="careRecipientId">Care Recipient</Label>
+              <Select name="careRecipientId" value={selectedCareRecipientId} onValueChange={setSelectedCareRecipientId}>
+                <SelectTrigger id="careRecipientId">
+                  <SelectValue placeholder="General facility coverage" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">General facility coverage (no specific recipient)</SelectItem>
+                  {selectedClient.careRecipients.map((recipient) => (
+                    <SelectItem key={recipient.id} value={recipient.id}>
+                      {recipient.fullName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Optional. Leave as general coverage for facility-level shifts.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -415,6 +451,22 @@ export function CreateShiftForm({ clients, serviceTypes }: CreateShiftFormProps)
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="requiredWorkers">Workers Needed *</Label>
+            <Input
+              type="number"
+              id="requiredWorkers"
+              name="requiredWorkers"
+              min="1"
+              max="12"
+              defaultValue="1"
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              Set how many workers this shift can be assigned to.
+            </p>
           </div>
 
           <div className="space-y-4 rounded-lg border border-border/50 bg-muted/20 p-4">

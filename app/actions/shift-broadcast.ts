@@ -9,6 +9,7 @@ import {
   type ShiftNotificationData,
 } from '@/lib/twilio';
 import { formatDateUS } from '@/lib/utils';
+import { createInAppNotification } from './notifications';
 
 const broadcastFilterSchema = z.object({
   skills: z.array(z.string()).optional(),
@@ -32,6 +33,24 @@ export interface BroadcastPreview {
   }>;
 }
 
+function timeToMinutes(value: string): number {
+  const [hours, minutes] = value.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+function getSlotRange(start: string, end: string): { start: number; end: number } {
+  const slotStart = timeToMinutes(start);
+  let slotEnd = timeToMinutes(end);
+  if (slotEnd <= slotStart) {
+    slotEnd += 24 * 60;
+  }
+  return { start: slotStart, end: slotEnd };
+}
+
+function hasTimeOverlap(startA: number, endA: number, startB: number, endB: number): boolean {
+  return startA < endB && startB < endA;
+}
+
 /**
  * Preview which workers would receive a broadcast based on filters
  */
@@ -45,11 +64,16 @@ export async function previewBroadcast(
     const shift = await db.careShift.findUnique({
       where: { id: shiftId },
       include: {
-        bookings: { select: { workerId: true } },
+        bookings: { select: { workerId: true, status: true } },
       },
     });
 
     if (!shift) return { success: false, error: 'Shift not found' };
+
+    const confirmedCount = shift.bookings.filter((booking) => booking.status === 'CONFIRMED').length;
+    if (confirmedCount >= shift.requiredWorkers || shift.status === 'BOOKED') {
+      return { success: false, error: 'Shift is already fully staffed' };
+    }
 
     // Build dynamic filter
     const where: Record<string, unknown> = {
@@ -70,22 +94,67 @@ export async function previewBroadcast(
       where.languages = { hasSome: parsed.languages };
     }
 
+    const shiftStart = timeToMinutes(shift.startTime);
+    const shiftEnd = timeToMinutes(shift.endTime);
+    const shiftDayOfWeek = new Date(shift.date).getDay();
+
     const workers = await db.worker.findMany({
       where,
-      include: { user: { select: { firstName: true, lastName: true, phone: true } } },
+      include: {
+        user: { select: { firstName: true, lastName: true, phone: true } },
+        availabilities: {
+          where: {
+            dayOfWeek: shiftDayOfWeek,
+            isAvailable: true,
+          },
+        },
+        shiftBookings: {
+          where: {
+            status: { in: ['CONFIRMED', 'ACCEPTED'] },
+            shift: { date: shift.date },
+          },
+          include: {
+            shift: {
+              select: {
+                startTime: true,
+                endTime: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const availableWorkers = workers.filter((worker) => {
+      const coversShiftWindow = worker.availabilities.some((slot) => {
+        const { start: slotStart, end: slotEnd } = getSlotRange(slot.startTime, slot.endTime);
+        return slotStart <= shiftStart && slotEnd >= shiftEnd;
+      });
+
+      if (!coversShiftWindow) {
+        return false;
+      }
+
+      const hasConflict = worker.shiftBookings.some((booking) => {
+        const bookingStart = timeToMinutes(booking.shift.startTime);
+        const bookingEnd = timeToMinutes(booking.shift.endTime);
+        return hasTimeOverlap(shiftStart, shiftEnd, bookingStart, bookingEnd);
+      });
+
+      return !hasConflict;
     });
 
     // If minRating specified, filter by average review rating
-    let filtered = workers;
+    let filtered = availableWorkers;
     if (parsed.minRating) {
-      const workerIds = workers.map((w) => w.id);
+      const workerIds = availableWorkers.map((w) => w.id);
       const ratings = await db.shiftReview.groupBy({
         by: ['workerId'],
         _avg: { rating: true },
         where: { workerId: { in: workerIds } },
       });
       const ratingMap = new Map(ratings.map((r) => [r.workerId, r._avg.rating || 0]));
-      filtered = workers.filter((w) => (ratingMap.get(w.id) || 0) >= parsed.minRating!);
+      filtered = availableWorkers.filter((w) => (ratingMap.get(w.id) || 0) >= parsed.minRating!);
     }
 
     return {
@@ -128,11 +197,16 @@ export async function sendTargetedBroadcast(
       where: { id: shiftId },
       include: {
         client: { include: { user: true } },
-        bookings: { select: { workerId: true } },
+        bookings: { select: { workerId: true, status: true } },
       },
     });
 
     if (!shift) return { success: false, sent: 0, failed: 0, error: 'Shift not found' };
+
+    const confirmedCount = shift.bookings.filter((booking) => booking.status === 'CONFIRMED').length;
+    if (confirmedCount >= shift.requiredWorkers || shift.status === 'BOOKED') {
+      return { success: false, sent: 0, failed: 0, error: 'Shift is already fully staffed' };
+    }
 
     // Build filter (same as preview)
     const where: Record<string, unknown> = {
@@ -145,12 +219,57 @@ export async function sendTargetedBroadcast(
     if (parsed.cities?.length) where.city = { in: parsed.cities };
     if (parsed.languages?.length) where.languages = { hasSome: parsed.languages };
 
+    const shiftStart = timeToMinutes(shift.startTime);
+    const shiftEnd = timeToMinutes(shift.endTime);
+    const shiftDayOfWeek = new Date(shift.date).getDay();
+
     const workers = await db.worker.findMany({
       where,
-      include: { user: true },
+      include: {
+        user: true,
+        availabilities: {
+          where: {
+            dayOfWeek: shiftDayOfWeek,
+            isAvailable: true,
+          },
+        },
+        shiftBookings: {
+          where: {
+            status: { in: ['CONFIRMED', 'ACCEPTED'] },
+            shift: { date: shift.date },
+          },
+          include: {
+            shift: {
+              select: {
+                startTime: true,
+                endTime: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    const workersWithPhone = workers.filter((w) => w.user.phone);
+    const availableWorkers = workers.filter((worker) => {
+      const coversShiftWindow = worker.availabilities.some((slot) => {
+        const { start: slotStart, end: slotEnd } = getSlotRange(slot.startTime, slot.endTime);
+        return slotStart <= shiftStart && slotEnd >= shiftEnd;
+      });
+
+      if (!coversShiftWindow) {
+        return false;
+      }
+
+      const hasConflict = worker.shiftBookings.some((booking) => {
+        const bookingStart = timeToMinutes(booking.shift.startTime);
+        const bookingEnd = timeToMinutes(booking.shift.endTime);
+        return hasTimeOverlap(shiftStart, shiftEnd, bookingStart, bookingEnd);
+      });
+
+      return !hasConflict;
+    });
+
+    const workersWithPhone = availableWorkers.filter((w) => w.user.phone);
 
     // Send messages
     let sent = 0;
@@ -181,6 +300,22 @@ export async function sendTargetedBroadcast(
       // Rate limiting
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
+
+    await Promise.allSettled(
+      availableWorkers.map((worker) =>
+        createInAppNotification({
+          userId: worker.userId,
+          type: 'SHIFT_AVAILABLE',
+          title: 'New shift opportunity',
+          body: `${notificationData.date} ${notificationData.startTime}-${notificationData.endTime} in ${notificationData.address}`,
+          data: {
+            shiftId: shift.id,
+            clientId: shift.clientId,
+            serviceType: shift.serviceType,
+          },
+        })
+      )
+    );
 
     // Update shift with broadcast info
     await db.careShift.update({

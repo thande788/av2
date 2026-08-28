@@ -362,9 +362,8 @@ export function DataTable<T extends { id: string }>({
       )}
 
       {/* Desktop Table View */}
-      <div className="hidden md:block overflow-hidden rounded-xl border border-border/50">
-        <div className="w-full overflow-x-auto">
-          <table className="w-full min-w-[56rem] text-sm">
+      <div className="hidden md:block rounded-xl border border-border/50 overflow-hidden overflow-x-auto">
+        <table className="w-full min-w-[56rem] text-sm">
             <thead className="bg-muted/30">
               <tr className="border-b border-border/50">
                 {selectable && (
@@ -439,8 +438,7 @@ export function DataTable<T extends { id: string }>({
                 ))
               )}
             </tbody>
-          </table>
-        </div>
+        </table>
       </div>
 
       {/* Mobile Card View */}

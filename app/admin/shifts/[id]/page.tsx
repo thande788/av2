@@ -47,6 +47,7 @@ export default async function ShiftDetailPage({ params }: ShiftDetailPageProps) 
   }
 
   // Get available workers for assignment
+  const shiftDayOfWeek = new Date(shift.date).getDay();
   const availableWorkers = await db.worker.findMany({
     where: {
       user: {
@@ -56,6 +57,26 @@ export default async function ShiftDetailPage({ params }: ShiftDetailPageProps) 
     },
     include: {
       user: true,
+      availabilities: {
+        where: {
+          dayOfWeek: shiftDayOfWeek,
+          isAvailable: true,
+        },
+      },
+      shiftBookings: {
+        where: {
+          status: { in: ['CONFIRMED', 'ACCEPTED'] },
+          shift: { date: shift.date },
+        },
+        include: {
+          shift: {
+            select: {
+              startTime: true,
+              endTime: true,
+            },
+          },
+        },
+      },
     },
     take: 20,
   });

@@ -26,6 +26,17 @@ export default async function CreateShiftPage() {
           lastName: true,
         },
       },
+      careRecipients: {
+        select: {
+          id: true,
+          fullName: true,
+          isPrimary: true,
+        },
+        orderBy: [
+          { isPrimary: 'desc' },
+          { fullName: 'asc' },
+        ],
+      },
     },
     orderBy: {
       user: {
@@ -37,6 +48,7 @@ export default async function CreateShiftPage() {
   const serializedClients = serialize(clients).map((client) => ({
     id: client.id,
     careRecipientName: client.careRecipientName,
+    careRecipients: client.careRecipients,
     billingRate: Number(client.billingRate),
     serviceLevel: client.serviceLevel,
     city: client.city,

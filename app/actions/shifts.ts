@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { ShiftStatus } from '@prisma/client';
 import { z } from 'zod';
 import { sendShiftConfirmation, sendShiftCancellation } from './sms-notifications';
+import { createInAppNotification } from './notifications';
 
 const recurrenceSchema = z
   .object({
@@ -44,9 +45,11 @@ const recurrenceSchema = z
 // Validation schema for shift creation
 const createShiftSchema = z.object({
   clientId: z.string().min(1, 'Client is required'),
+  careRecipientId: z.string().optional(),
   date: z.string().min(1, 'Date is required'),
   startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
   endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format'),
+  requiredWorkers: z.number().int().min(1).max(12).default(1),
   serviceTypeId: z.string().min(1, 'Service type is required'),
   notes: z.string().optional(),
   clientRate: z.number().positive('Client rate must be positive'),
@@ -224,6 +227,20 @@ export async function createShift(
       return { success: false, error: 'Client not found' };
     }
 
+    if (validated.careRecipientId) {
+      const careRecipient = await db.careRecipient.findFirst({
+        where: {
+          id: validated.careRecipientId,
+          clientId: validated.clientId,
+        },
+        select: { id: true },
+      });
+
+      if (!careRecipient) {
+        return { success: false, error: 'Selected care recipient does not belong to this client' };
+      }
+    }
+
     const serviceTypeConfig = await db.serviceTypeConfig.findUnique({
       where: { id: validated.serviceTypeId },
       select: { label: true, skills: { select: { label: true } } },
@@ -258,12 +275,14 @@ export async function createShift(
       const shift = await db.careShift.create({
         data: {
           clientId: validated.clientId,
+          careRecipientId: validated.careRecipientId,
           date: shiftDates[0],
           startTime: validated.startTime,
           endTime: validated.endTime,
           duration,
           serviceType: serviceTypeConfig.label,
           skillsRequired: serviceTypeConfig.skills.map((skill) => skill.label),
+          requiredWorkers: validated.requiredWorkers,
           notes: validated.notes,
           clientRate: validated.clientRate,
           workerRate,
@@ -277,12 +296,14 @@ export async function createShift(
       await db.careShift.createMany({
         data: shiftDates.map((date) => ({
           clientId: validated.clientId,
+          careRecipientId: validated.careRecipientId,
           date,
           startTime: validated.startTime,
           endTime: validated.endTime,
           duration,
           serviceType: serviceTypeConfig.label,
           skillsRequired: serviceTypeConfig.skills.map((skill) => skill.label),
+          requiredWorkers: validated.requiredWorkers,
           notes: validated.notes,
           clientRate: validated.clientRate,
           workerRate,
@@ -591,6 +612,12 @@ export async function sendBookingRequest(
   try {
     const shift = await db.careShift.findUnique({
       where: { id: shiftId },
+      include: {
+        bookings: {
+          where: { status: 'CONFIRMED' },
+          select: { id: true },
+        },
+      },
     });
 
     if (!shift) {
@@ -599,6 +626,10 @@ export async function sendBookingRequest(
 
     if (shift.status !== 'OPEN' && shift.status !== 'PENDING_BOOK') {
       return { success: false, error: 'Shift is not available for booking' };
+    }
+
+    if (shift.bookings.length >= shift.requiredWorkers) {
+      return { success: false, error: 'Shift is already fully staffed' };
     }
 
     // Check if worker already has a booking for this shift
@@ -611,6 +642,15 @@ export async function sendBookingRequest(
 
     if (existingBooking) {
       return { success: false, error: 'Worker already has a booking request for this shift' };
+    }
+
+    const worker = await db.worker.findUnique({
+      where: { id: workerId },
+      select: { userId: true },
+    });
+
+    if (!worker) {
+      return { success: false, error: 'Worker not found' };
     }
 
     // Create booking request
@@ -628,9 +668,25 @@ export async function sendBookingRequest(
       data: { status: 'PENDING_BOOK' },
     });
 
+    await createInAppNotification({
+      userId: worker.userId,
+      type: 'SHIFT_AVAILABLE',
+      title: 'New shift request',
+      body: `${shift.serviceType} shift on ${new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }).format(shift.date)} from ${shift.startTime} to ${shift.endTime}.`,
+      data: {
+        shiftId,
+        clientId: shift.clientId,
+      },
+    });
+
     revalidatePath('/admin/shifts');
     revalidatePath(`/admin/shifts/${shiftId}`);
     revalidatePath(`/admin/clients/${shift.clientId}`);
+    revalidatePath('/employee');
+    revalidatePath('/employee/shifts');
 
     return { success: true };
   } catch (error) {
@@ -648,11 +704,27 @@ export async function confirmBooking(
   try {
     const booking = await db.shiftBooking.findUnique({
       where: { id: bookingId },
-      include: { shift: true },
+      include: {
+        shift: {
+          include: {
+            bookings: {
+              where: {
+                status: 'CONFIRMED',
+              },
+              select: { id: true },
+            },
+          },
+        },
+      },
     });
 
     if (!booking) {
       return { success: false, error: 'Booking not found' };
+    }
+
+    const confirmedCount = booking.shift.bookings.length;
+    if (confirmedCount >= booking.shift.requiredWorkers) {
+      return { success: false, error: 'This shift has reached its staffing limit' };
     }
 
     // Update booking status
@@ -664,24 +736,27 @@ export async function confirmBooking(
       },
     });
 
-    // Update shift status to BOOKED
+    const nextConfirmedCount = confirmedCount + 1;
+    const isNowFullyStaffed = nextConfirmedCount >= booking.shift.requiredWorkers;
+
     await db.careShift.update({
       where: { id: booking.shiftId },
-      data: { status: 'BOOKED' },
+      data: { status: isNowFullyStaffed ? 'BOOKED' : 'PENDING_BOOK' },
     });
 
-    // Decline other pending bookings for this shift
-    await db.shiftBooking.updateMany({
-      where: {
-        shiftId: booking.shiftId,
-        id: { not: bookingId },
-        status: 'PENDING',
-      },
-      data: {
-        status: 'DECLINED',
-        respondedAt: new Date(),
-      },
-    });
+    if (isNowFullyStaffed) {
+      await db.shiftBooking.updateMany({
+        where: {
+          shiftId: booking.shiftId,
+          id: { not: bookingId },
+          status: 'PENDING',
+        },
+        data: {
+          status: 'DECLINED',
+          respondedAt: new Date(),
+        },
+      });
+    }
 
     revalidatePath('/admin/shifts');
     revalidatePath(`/admin/shifts/${booking.shiftId}`);

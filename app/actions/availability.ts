@@ -163,14 +163,32 @@ export async function checkAvailabilityConflicts(workerId: string) {
     reason: string;
   }> = [];
 
+  const toMinutes = (value: string) => {
+    const [hours, minutes] = value.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const getSlotRange = (start: string, end: string) => {
+    const slotStart = toMinutes(start);
+    let slotEnd = toMinutes(end);
+    if (slotEnd <= slotStart) {
+      slotEnd += 24 * 60;
+    }
+    return { start: slotStart, end: slotEnd };
+  };
+
   for (const booking of worker.shiftBookings) {
     const shiftDay = new Date(booking.shift.date).getUTCDay();
+    const shiftStart = toMinutes(booking.shift.startTime);
+    const shiftEnd = toMinutes(booking.shift.endTime);
     const hasAvailability = worker.availabilities.some(
-      (a) =>
-        a.dayOfWeek === shiftDay &&
-        a.isAvailable &&
-        a.startTime <= booking.shift.startTime &&
-        a.endTime >= booking.shift.endTime
+      (a) => {
+        if (a.dayOfWeek !== shiftDay || !a.isAvailable) {
+          return false;
+        }
+        const { start, end } = getSlotRange(a.startTime, a.endTime);
+        return start <= shiftStart && end >= shiftEnd;
+      }
     );
 
     if (!hasAvailability) {

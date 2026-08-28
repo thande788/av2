@@ -91,9 +91,15 @@ export default async function EmployeeDashboardPage() {
   );
 
   // Calculate stats
-  const completedShifts = worker.shiftBookings.filter(
-    (b) => b.status === 'COMPLETED'
-  );
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  const completedShifts = worker.shiftBookings.filter((b) => {
+    if (b.status !== 'COMPLETED') return false;
+    const shiftDate = new Date(b.shift.date);
+    return shiftDate >= monthStart && shiftDate < nextMonthStart;
+  });
 
   const totalHours = completedShifts.reduce(
     (acc, b) => acc + Number(b.shift.duration),
@@ -126,7 +132,7 @@ export default async function EmployeeDashboardPage() {
         />
 
         <EmployeeStatCard
-          title="Pending Requests"
+          title="Available Shifts"
           value={pendingRequests.length.toString()}
           icon={IconAlertCircle}
           variant="warning"

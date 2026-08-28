@@ -515,6 +515,7 @@ model CareRecipient {
   relationship String?
   isPrimary   Boolean   @default(false)
   notes       String?   @db.Text
+   shifts      CareShift[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -573,6 +574,8 @@ model CareShift {
   id              String          @id @default(cuid())
   client          Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId        String
+  careRecipient   CareRecipient?  @relation(fields: [careRecipientId], references: [id], onDelete: SetNull)
+  careRecipientId String?
   
   // Schedule
   date            DateTime        @db.Date
@@ -583,6 +586,7 @@ model CareShift {
   // Requirements
   serviceType     String
   skillsRequired  String[]
+  requiredWorkers Int             @default(1)
   notes           String?         @db.Text
   
   // Status
@@ -612,6 +616,7 @@ model CareShift {
   updatedAt       DateTime        @updatedAt
 
   @@index([clientId])
+  @@index([careRecipientId])
   @@index([date])
   @@index([status])
   @@index([recurringId])

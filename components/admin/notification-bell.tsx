@@ -101,7 +101,7 @@ export function NotificationBell() {
             className="fixed inset-0 z-40"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute left-0 top-full z-50 mt-2 w-80 rounded-xl border border-border bg-background shadow-lg">
+          <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-border bg-background shadow-lg">
             {/* Header */}
             <div className="flex items-center justify-between border-b px-4 py-3">
               <h3 className="font-semibold text-sm">Notifications</h3>
