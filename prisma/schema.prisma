@@ -57,7 +57,9 @@ model Application {
   email             String
   emailHash         String?
   phone             String
+  phoneHash         String?
   street            String?
+  streetHash        String?
   city              String?
   state             String?
   zip               String?
@@ -93,6 +95,8 @@ model Application {
   @@index([jobId])
   @@index([status])
   @@index([emailHash])
+  @@index([phoneHash])
+  @@index([streetHash])
   @@index([email])
   @@index([submittedAt])
 }
@@ -146,6 +150,7 @@ model ContactSubmission {
   email       String
   emailHash   String?
   phone       String?
+  phoneHash   String?
   service     String?  // Service of interest
   urgency     String?  // Urgency level
   preferredContact String? // email or phone
@@ -158,6 +163,7 @@ model ContactSubmission {
   
   @@index([isRead])
   @@index([emailHash])
+  @@index([phoneHash])
   @@index([submittedAt])
   @@index([preferredCaregiverId])
 }
@@ -222,6 +228,7 @@ model ServiceInquiry {
   email        String
   emailHash    String?
   phone        String
+  phoneHash    String?
   serviceType  String   // Which service they're interested in
   careRecipient String? // Who needs care
   startDate    DateTime?
@@ -232,6 +239,7 @@ model ServiceInquiry {
   
   @@index([status])
   @@index([emailHash])
+  @@index([phoneHash])
   @@index([submittedAt])
 }
 

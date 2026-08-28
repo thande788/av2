@@ -7,11 +7,67 @@
  */
 
 import { config } from 'dotenv';
+import ws from 'ws';
+import { neonConfig } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import { PrismaClient } from '@prisma/client';
+import {
+  transformPrismaResult,
+  transformPrismaWhereArgs,
+  transformPrismaWriteArgs,
+} from '../lib/pii';
 
 config({ path: '.env' });
 config({ path: '.env.local', override: true });
 
-let db: Awaited<typeof import('../lib/db')>['default'];
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set. Load .env/.env.local before running backfill.');
+}
+
+neonConfig.webSocketConstructor = ws;
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
+
+const baseClient = new PrismaClient({
+  adapter,
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+});
+
+const db = baseClient.$extends({
+  query: {
+    $allModels: {
+      async $allOperations({ args, operation, query }) {
+        if (
+          operation === 'findUnique' ||
+          operation === 'findUniqueOrThrow' ||
+          operation === 'findFirst' ||
+          operation === 'findFirstOrThrow' ||
+          operation === 'findMany' ||
+          operation === 'update' ||
+          operation === 'updateMany' ||
+          operation === 'upsert' ||
+          operation === 'delete' ||
+          operation === 'deleteMany'
+        ) {
+          transformPrismaWhereArgs(args);
+        }
+
+        if (
+          operation === 'create' ||
+          operation === 'createMany' ||
+          operation === 'update' ||
+          operation === 'updateMany' ||
+          operation === 'upsert'
+        ) {
+          transformPrismaWriteArgs(args);
+        }
+
+        const result = await query(args);
+        transformPrismaResult(result);
+        return result;
+      },
+    },
+  },
+});
 
 const dryRun = process.argv.includes('--dry-run');
 
@@ -37,12 +93,6 @@ async function backfillById<T extends { id: string }>(
 }
 
 async function main() {
-  ({ default: db } = await import('../lib/db'));
-
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL is not set. Load .env/.env.local before running backfill.');
-  }
-
   const steps: Step[] = [
     {
       name: 'PortalUser (email/phone)',
