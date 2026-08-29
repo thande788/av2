@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { serialize } from '@/lib/utils';
+import { maybeSignBlobReadUrl } from '@/lib/azure-blob';
 import { CaregiverProfiles } from './caregiver-profiles';
 
 export const metadata = {
@@ -21,7 +22,14 @@ export default async function CaregiverProfilesPage() {
     },
   });
 
-  const serialized = serialize(workers);
+  const workersWithSignedPhotos = await Promise.all(
+    workers.map(async (worker) => ({
+      ...worker,
+      marketingPhotoUrl: await maybeSignBlobReadUrl(worker.marketingPhotoUrl),
+    })),
+  );
+
+  const serialized = serialize(workersWithSignedPhotos);
 
   const pending = serialized.filter((w) => w.profileStatus === 'PENDING_REVIEW').length;
   const approved = serialized.filter((w) => w.profileStatus === 'APPROVED').length;

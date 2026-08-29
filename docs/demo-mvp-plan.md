@@ -944,7 +944,7 @@ function calculateMatchScore(worker: Worker, client: Client, shift: Shift): Matc
 |---------|------------|------|
 | Twilio | 1-2 hrs | ~$1/month (dev) |
 | Clerk (existing) | 0 | Included |
-| Vercel Blob | 30 min | ~$0 (dev) |
+| Azure Blob Storage | 30 min | ~$0 (dev) |
 | Stripe (optional) | 2-3 hrs | 2.9% + 30¢/tx |
 
 ---

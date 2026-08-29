@@ -222,7 +222,7 @@ model ComplianceDoc {
   
   type          DocType
   name          String          // Display name
-  fileUrl       String          // Vercel Blob URL
+  fileUrl       String          // Azure Blob URL
   fileName      String          // Original filename
   
   // Validity
@@ -1497,7 +1497,7 @@ app/
 |---------|---------|----------|--------|
 | **Twilio** | SMS notifications | Must-have | 8 hrs |
 | **Resend** | Email notifications | Must-have | 4 hrs |
-| **Vercel Blob** | Document storage | Must-have | 2 hrs |
+| **Azure Blob Storage** | Document storage | Must-have | 2 hrs |
 | **Stripe** | Invoice payments | Should-have | 12 hrs |
 | **Google Maps API** | Address geocoding, distance | Should-have | 6 hrs |
 | **Google Calendar** | Shift sync | Nice-to-have | 8 hrs |
@@ -1760,7 +1760,7 @@ export async function checkAccess(
 | Clerk | Pro | $25 |
 | Twilio SMS | Pay-as-you-go | ~$50 |
 | Resend | Pro | $20 |
-| Vercel Blob | Standard | ~$10 |
+| Azure Blob Storage | Hot tier | ~$10 |
 | **Total** | | **~$144/month** |
 
 ### Optional Add-ons

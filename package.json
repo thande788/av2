@@ -20,6 +20,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset",
     "db:backfill:pii": "tsx scripts/backfill-pii.ts",
+    "storage:migrate:vercel-to-azure": "tsx scripts/migrate-vercel-blob-to-azure.ts",
     "security:keys:pii": "tsx scripts/generate-pii-keys.ts"
   },
   "prisma": {
@@ -28,6 +29,8 @@
   "dependencies": {
     "@assistant-ui/react": "^0.12.1",
     "@assistant-ui/react-markdown": "^0.12.0",
+    "@azure/identity": "^4.13.2",
+    "@azure/storage-blob": "^12.33.0",
     "@base-ui/react": "^1.1.0",
     "@clerk/nextjs": "^6.36.10",
     "@clerk/themes": "^2.4.50",
@@ -39,7 +42,6 @@
     "@tabler/icons-react": "^3.36.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
-    "@vercel/blob": "^2.0.1",
     "clamscan": "^2.4.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

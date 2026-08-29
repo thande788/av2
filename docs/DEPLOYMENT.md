@@ -65,12 +65,12 @@ In Clerk Dashboard → Paths:
    - Auth Token → `TWILIO_AUTH_TOKEN`
    - Phone Number → `TWILIO_PHONE_NUMBER`
 
-## Step 5: Vercel Blob Storage
+## Step 5: Azure Blob Storage
 
-1. In Vercel Dashboard, go to your project
-2. Navigate to **Storage** → **Create Database** → **Blob**
-3. Connect to your project
-4. The `BLOB_READ_WRITE_TOKEN` will be automatically added
+1. Create an Azure Storage account and blob container(s)
+2. Assign the app managed identity `Storage Blob Data Contributor` on the storage account
+3. Set `AZURE_STORAGE_ACCOUNT_NAME` (or `AZURE_STORAGE_CONNECTION_STRING` for fallback)
+4. Optionally set `AZURE_STORAGE_CONTAINER` and per-feature container overrides
 
 ## Step 6: Deploy to Vercel
 
@@ -115,7 +115,8 @@ TWILIO_ACCOUNT_SID=ACxxxxx
 TWILIO_AUTH_TOKEN=xxxxx
 TWILIO_PHONE_NUMBER=+1xxxxxxxxxx
 
-BLOB_READ_WRITE_TOKEN=vercel_blob_xxxxx
+AZURE_STORAGE_ACCOUNT_NAME=angeltouchstorage
+AZURE_STORAGE_CONTAINER=uploads
 
 NEXT_PUBLIC_APP_URL=https://angeltouchhomecare.com
 NEXT_PUBLIC_SITE_URL=https://angeltouch.services
@@ -236,7 +237,7 @@ Add these records:
 - [ ] Verify Clerk webhook is receiving events (check Clerk Dashboard logs)
 - [ ] Test contact form submission (check email delivery)
 - [ ] Test SMS notifications (if enabled)
-- [ ] Verify file uploads work (Vercel Blob)
+- [ ] Verify file uploads work (Azure Blob)
 - [ ] Check admin portal access
 - [ ] Verify database connectivity
 - [ ] Verify PWA installability (manifest, service worker, icons)
@@ -323,5 +324,5 @@ Ensure `DIRECT_URL` is set in Vercel — migrations require a non-pooled connect
 
 ### File Upload Fails
 
-- Ensure `BLOB_READ_WRITE_TOKEN` is set
-- Check Vercel Blob storage is connected to the project
+- Ensure Azure storage env vars are set (`AZURE_STORAGE_ACCOUNT_NAME` or `AZURE_STORAGE_CONNECTION_STRING`)
+- Ensure container app managed identity has `Storage Blob Data Contributor`

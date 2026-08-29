@@ -152,7 +152,8 @@ All development variables plus:
 - `CLERK_WEBHOOK_SECRET`
 - `RESEND_API_KEY`
 - `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`
-- `BLOB_READ_WRITE_TOKEN`
+- `AZURE_STORAGE_ACCOUNT_NAME` (or `AZURE_STORAGE_CONNECTION_STRING`)
+- `AZURE_STORAGE_CONTAINER` (or specific upload/marketing/compliance containers)
 
 ## Database Schema
 

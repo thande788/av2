@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { serialize } from '@/lib/utils';
+import { maybeSignBlobReadUrl } from '@/lib/azure-blob';
 import { notFound } from 'next/navigation';
 import { WorkerDetail } from './worker-detail';
 
@@ -55,6 +56,14 @@ export default async function WorkerDetailPage({ params }: Props) {
   if (!worker) {
     notFound();
   }
+
+  worker.marketingPhotoUrl = await maybeSignBlobReadUrl(worker.marketingPhotoUrl);
+  worker.complianceDocs = await Promise.all(
+    worker.complianceDocs.map(async (doc) => ({
+      ...doc,
+      fileUrl: (await maybeSignBlobReadUrl(doc.fileUrl)) || doc.fileUrl,
+    })),
+  );
 
   return <WorkerDetail worker={serialize(worker)} />;
 }

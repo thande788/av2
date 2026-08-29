@@ -116,7 +116,15 @@ function loadKeyring(): ManagedKeyring {
   };
 }
 
-const KEYRING = loadKeyring();
+let cachedKeyring: ManagedKeyring | null = null;
+
+function getKeyring(): ManagedKeyring {
+  if (!cachedKeyring) {
+    cachedKeyring = loadKeyring();
+  }
+
+  return cachedKeyring;
+}
 
 function normalizeForHash(fieldName: string, value: string): string {
   if (fieldName.toLowerCase().includes('email')) {
@@ -135,8 +143,9 @@ function normalizeForHash(fieldName: string, value: string): string {
 }
 
 function computeHash(fieldName: string, value: string): string {
+  const keyring = getKeyring();
   const normalized = normalizeForHash(fieldName, value);
-  return createHmac('sha256', KEYRING.hashKey)
+  return createHmac('sha256', keyring.hashKey)
     .update(`${fieldName}:${normalized}`)
     .digest('hex');
 }
@@ -146,9 +155,10 @@ function isEncryptedValue(value: string): boolean {
 }
 
 function encryptString(fieldName: string, plaintext: string): string {
+  const keyring = getKeyring();
   const iv = randomBytes(12);
-  const keyId = KEYRING.activeKeyId;
-  const key = KEYRING.keys[keyId];
+  const keyId = keyring.activeKeyId;
+  const key = keyring.keys[keyId];
   const cipher = createCipheriv(ALGORITHM, key, iv);
   cipher.setAAD(Buffer.from(fieldName));
   const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
@@ -168,7 +178,8 @@ function decryptString(fieldName: string, value: string): string {
   }
 
   const [, , keyId, ivB64, encryptedB64, tagB64] = parts;
-  const key = KEYRING.keys[keyId];
+  const keyring = getKeyring();
+  const key = keyring.keys[keyId];
   if (!key) {
     throw new Error(`Unknown key id '${keyId}' for ${fieldName}`);
   }

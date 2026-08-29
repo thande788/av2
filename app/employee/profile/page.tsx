@@ -8,6 +8,7 @@ import {
 import Link from 'next/link';
 import { formatDateUS } from '@/lib/utils';
 import { getCurrentWorkerWithProfile } from '@/lib/auth';
+import { maybeSignBlobReadUrl } from '@/lib/azure-blob';
 import { MarketingProfileForm } from '@/components/employee/marketing-profile-form';
 import { EditableProfileSection } from '@/components/employee/editable-profile-section';
 
@@ -23,6 +24,8 @@ export default async function EmployeeProfilePage() {
   if (!worker) {
     redirect('/employee/complete-profile');
   }
+
+  const signedMarketingPhotoUrl = await maybeSignBlobReadUrl(worker.marketingPhotoUrl);
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -136,7 +139,7 @@ export default async function EmployeeProfilePage() {
       <MarketingProfileForm
         initialData={{
           marketingBio: worker.marketingBio,
-          marketingPhotoUrl: worker.marketingPhotoUrl,
+          marketingPhotoUrl: signedMarketingPhotoUrl,
           marketingSpecialties: worker.marketingSpecialties,
           marketingLanguages: worker.marketingLanguages,
           marketingCertifications: worker.marketingCertifications,

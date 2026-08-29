@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { maybeSignBlobReadUrl } from '@/lib/azure-blob';
 import { notFound } from 'next/navigation';
 import { ApplicationDetail } from './application-detail';
 
@@ -35,6 +36,9 @@ export default async function ApplicationDetailPage({ params }: Props) {
   if (!application) {
     notFound();
   }
+
+  application.resumeUrl = await maybeSignBlobReadUrl(application.resumeUrl);
+  application.coverLetterUrl = await maybeSignBlobReadUrl(application.coverLetterUrl);
 
   return <ApplicationDetail application={application} />;
 }

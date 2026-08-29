@@ -2,13 +2,18 @@
  * File Upload API Route
  * 
  * Handles file uploads for job applications (resumes, cover letters).
- * Uses Vercel Blob for storage.
+ * Uses Azure Blob Storage for storage.
  */
 
-import { put, del } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { validateFile } from "@/lib/file-scanner";
+import {
+  deleteAzureBlobByUrl,
+  getStorageContainer,
+  isAzureBlobConfigured,
+  uploadBufferToAzureBlob,
+} from "@/lib/azure-blob";
 
 // Allowed file types
 const ALLOWED_TYPES: Record<string, string> = {
@@ -44,9 +49,8 @@ function checkRateLimit(ip: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check for Blob token
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.error("[Upload] BLOB_READ_WRITE_TOKEN not configured");
+    if (!isAzureBlobConfigured()) {
+      console.error("[Upload] Azure Blob Storage is not configured");
       return NextResponse.json(
         { error: "File upload is not configured" },
         { status: 503 }
@@ -115,11 +119,12 @@ export async function POST(request: NextRequest) {
     const folder = type === "cover-letter" ? "cover-letters" : "resumes";
     const filename = `${folder}/${timestamp}-${safeBaseName}-${randomSuffix}${extension}`;
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, buffer, {
-      access: "public",
+    const container = getStorageContainer("AZURE_STORAGE_UPLOADS_CONTAINER", "uploads");
+    const blob = await uploadBufferToAzureBlob({
+      container,
+      blobName: filename,
+      data: buffer,
       contentType: file.type,
-      addRandomSuffix: false, // We already added our own suffix
     });
 
     console.log(`[Upload] File uploaded: ${blob.url}`);
@@ -144,7 +149,7 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    if (!isAzureBlobConfigured()) {
       return NextResponse.json(
         { error: "File upload is not configured" },
         { status: 503 }
@@ -161,15 +166,14 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Verify the URL is from our blob storage
-    if (!url.includes("vercel-storage.com") && !url.includes("blob.vercel-storage.com")) {
+    try {
+      await deleteAzureBlobByUrl(url);
+    } catch {
       return NextResponse.json(
         { error: "Invalid file URL" },
         { status: 400 }
       );
     }
-
-    await del(url);
 
     return NextResponse.json({ success: true });
   } catch (error) {

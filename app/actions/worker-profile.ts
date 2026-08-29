@@ -3,12 +3,17 @@
 import { z } from 'zod';
 import sharp from 'sharp';
 import { db } from '@/lib/db';
-import { put, del } from '@vercel/blob';
 import { revalidatePath } from 'next/cache';
 import { getCurrentWorker } from '@/lib/auth';
 import { validateFile } from '@/lib/file-scanner';
 import { marketingProfileSchema, type MarketingProfileData } from '@/lib/validation/worker-profile';
 import { ProfileStatus } from '@prisma/client';
+import {
+  deleteAzureBlobByUrl,
+  getStorageContainer,
+  maybeSignBlobReadUrl,
+  uploadBufferToAzureBlob,
+} from '@/lib/azure-blob';
 
 // --- Personal profile editing ---
 
@@ -148,7 +153,7 @@ export async function saveMarketingProfileDraft(
  *
  * Accepts a FormData with a single "file" field (JPEG or PNG, max 5 MB).
  * The image is validated (size, MIME, magic-bytes) and scanned for malware
- * via ClamAV before being persisted to Vercel Blob.
+ * via ClamAV before being persisted to Azure Blob Storage.
  */
 
 const PHOTO_ALLOWED_TYPES = ['image/jpeg', 'image/png'];
@@ -212,24 +217,20 @@ export async function uploadMarketingPhoto(
     const ext = file.type === 'image/png' ? 'png' : 'jpg';
     const filename = `marketing-photos/${worker.id}/${timestamp}-${randomSuffix}.${ext}`;
 
-    // Delete previous photo if it exists on our blob storage
-    if (
-      worker.marketingPhotoUrl &&
-      (worker.marketingPhotoUrl.includes('vercel-storage.com') ||
-        worker.marketingPhotoUrl.includes('blob.vercel-storage.com'))
-    ) {
+    if (worker.marketingPhotoUrl) {
       try {
-        await del(worker.marketingPhotoUrl);
+        await deleteAzureBlobByUrl(worker.marketingPhotoUrl);
       } catch {
-        // Non-critical — old blob may already be gone
+        // Non-critical.
       }
     }
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, buffer, {
-      access: 'public',
+    const container = getStorageContainer('AZURE_STORAGE_MARKETING_CONTAINER', 'uploads');
+    const blob = await uploadBufferToAzureBlob({
+      container,
+      blobName: filename,
+      data: buffer,
       contentType: file.type,
-      addRandomSuffix: false,
     });
 
     // Persist URL
@@ -242,7 +243,8 @@ export async function uploadMarketingPhoto(
     revalidatePath('/admin/caregivers');
     revalidatePath('/caregivers');
 
-    return { success: true, url: blob.url };
+    const signedUrl = await maybeSignBlobReadUrl(blob.url);
+    return { success: true, url: signedUrl ?? blob.url };
   } catch (error) {
     console.error('Failed to upload marketing photo:', error);
     return { success: false, error: 'Failed to upload photo' };

@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/card";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { caregivers as staticCaregivers } from "@/data/caregivers";
 import { db } from "@/lib/db";
+import { maybeSignBlobReadUrl } from "@/lib/azure-blob";
 import { computeCaregiverRatingsBatch } from "@/lib/ratings";
 import { getCanonicalAlternates } from "@/lib/seo";
 import type { Caregiver } from "@/types";
@@ -43,12 +44,13 @@ async function getCaregiver(id: string): Promise<Caregiver | null> {
 		});
 
 		if (worker) {
+			const signedPhotoUrl = await maybeSignBlobReadUrl(worker.marketingPhotoUrl);
 			const ratings = await computeCaregiverRatingsBatch([worker.id]);
 			const ratingData = ratings.get(worker.id);
 			return {
 				id: worker.id,
 				fullName: `${worker.user.firstName} ${worker.user.lastName}`,
-				photoUrl: worker.marketingPhotoUrl || undefined,
+				photoUrl: signedPhotoUrl || undefined,
 				bio: worker.marketingBio || "",
 				yearsExperience: worker.yearsExperience ?? 0,
 				rating: ratingData?.average ?? 5,

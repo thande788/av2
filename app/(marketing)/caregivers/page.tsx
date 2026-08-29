@@ -10,6 +10,7 @@ import { CaregiverCardGrid } from "@/components/caregivers/caregiver-card";
 import { caregivers as staticCaregivers } from "@/data/caregivers";
 import { getCanonicalAlternates } from "@/lib/seo";
 import { db } from "@/lib/db";
+import { maybeSignBlobReadUrl } from "@/lib/azure-blob";
 import { computeCaregiverRatingsBatch } from "@/lib/ratings";
 import type { Caregiver } from "@/types";
 
@@ -55,10 +56,14 @@ async function getCaregivers(): Promise<Caregiver[]> {
 		const workerIds = workers.map((w) => w.id);
 		const ratings = await computeCaregiverRatingsBatch(workerIds);
 
-		return workers.map((w) => ({
+		const withSignedPhotos = await Promise.all(
+			workers.map(async (w) => maybeSignBlobReadUrl(w.marketingPhotoUrl))
+		);
+
+		return workers.map((w, idx) => ({
 			id: w.id,
 			fullName: `${w.user.firstName} ${w.user.lastName}`,
-			photoUrl: w.marketingPhotoUrl || undefined,
+			photoUrl: withSignedPhotos[idx] || undefined,
 			bio: w.marketingBio || "",
 			yearsExperience: w.yearsExperience ?? 0,
 			rating: ratings.get(w.id)?.average ?? 5,

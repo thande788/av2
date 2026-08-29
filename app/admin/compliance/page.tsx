@@ -8,6 +8,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { db } from '@/lib/db';
 import { serialize } from '@/lib/utils';
+import { maybeSignBlobReadUrl } from '@/lib/azure-blob';
 import { DocStatus } from '@prisma/client';
 import { ComplianceReviewQueue } from './compliance-review-queue';
 import { ExpiringDocumentsAlert } from './expiring-documents-alert';
@@ -123,6 +124,15 @@ async function getRecentlyReviewed() {
   });
 }
 
+async function signDocUrls<T extends { fileUrl: string }>(docs: T[]): Promise<T[]> {
+  return Promise.all(
+    docs.map(async (doc) => ({
+      ...doc,
+      fileUrl: (await maybeSignBlobReadUrl(doc.fileUrl)) || doc.fileUrl,
+    })),
+  );
+}
+
 function CompliancePageSkeleton() {
   return (
     <div className="space-y-6">
@@ -146,11 +156,18 @@ async function ComplianceContent({ initialTab }: { initialTab: ComplianceTab }) 
     getRecentlyReviewed(),
   ]);
 
+  const [pendingSigned, expiringSigned, expiredSigned, recentSigned] = await Promise.all([
+    signDocUrls(pendingDocs),
+    signDocUrls(expiringDocs),
+    signDocUrls(expiredDocs),
+    signDocUrls(recentDocs),
+  ]);
+
   // Serialize Prisma objects to plain objects for client components
-  const serializedPending = serialize(pendingDocs);
-  const serializedExpiring = serialize(expiringDocs);
-  const serializedExpired = serialize(expiredDocs);
-  const serializedRecent = serialize(recentDocs);
+  const serializedPending = serialize(pendingSigned);
+  const serializedExpiring = serialize(expiringSigned);
+  const serializedExpired = serialize(expiredSigned);
+  const serializedRecent = serialize(recentSigned);
 
   const complianceRate =
     stats.totalWorkers > 0

@@ -68,7 +68,7 @@ This plan outlines the implementation of backend functionality for the Angel Tou
 ┌─────────────────────────────────────────────────────────────────┐
 │                        SERVICES                                  │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │  PostgreSQL  │  │    Resend    │  │  Vercel Blob │          │
+│  │  PostgreSQL  │  │    Resend    │  │  Azure Blob  │          │
 │  │    (Neon)    │  │   (Email)    │  │   (Files)    │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
 └─────────────────────────────────────────────────────────────────┘
@@ -81,7 +81,7 @@ This plan outlines the implementation of backend functionality for the Angel Tou
 | Database | PostgreSQL (Neon) | Primary data store |
 | ORM | Prisma | Type-safe database access |
 | Email | Resend | Transactional emails |
-| File Storage | Vercel Blob | Resume/document uploads |
+| File Storage | Azure Blob Storage | Resume/document uploads |
 | Auth | Clerk | Admin authentication |
 | Hosting | Vercel | Serverless deployment |
 | Monitoring | Vercel Analytics | Performance & usage |
@@ -452,20 +452,20 @@ ADMIN_EMAIL="admin@angeltouch.services"
 
 | ID | Task | Status |
 |----|------|--------|
-| 4.1 | Set up Vercel Blob storage | ✅ |
+| 4.1 | Set up Azure Blob storage | ✅ |
 | 4.2 | Create upload API route | ✅ |
 | 4.3 | Implement client-side file selection | ✅ |
 | 4.4 | Add file type/size validation | ✅ |
 | 4.5 | Update job application form | ✅ |
 | 4.6 | Store file URLs in database | ✅ |
 | 4.7 | Add file download for admin | ⏳ (admin dashboard) |
-| 4.8 | Test upload flow end-to-end | ⏳ (needs BLOB_READ_WRITE_TOKEN) |
+| 4.8 | Test upload flow end-to-end | ✅ |
 
 ### Upload API Route
 
 ```typescript
 // app/api/upload/route.ts
-import { put } from '@vercel/blob';
+import { uploadBufferToAzureBlob } from '@/lib/azure-blob';
 import { NextRequest, NextResponse } from 'next/server';
 
 const ALLOWED_TYPES = [
@@ -505,10 +505,12 @@ export async function POST(request: NextRequest) {
     const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const filename = `resumes/${timestamp}-${safeName}`;
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, file, {
-      access: 'public',
-      addRandomSuffix: true,
+    // Upload to Azure Blob
+    const blob = await uploadBufferToAzureBlob({
+      container: 'uploads',
+      blobName: filename,
+      data: Buffer.from(await file.arrayBuffer()),
+      contentType: file.type,
     });
 
     return NextResponse.json({ url: blob.url });
@@ -526,12 +528,13 @@ export async function POST(request: NextRequest) {
 
 ```bash
 # .env.local
-BLOB_READ_WRITE_TOKEN="vercel_blob_xxxxxxxxxxxxxxxx"
+AZURE_STORAGE_ACCOUNT_NAME="angeltouchstorage"
+AZURE_STORAGE_CONTAINER="uploads"
 ```
 
 ### Acceptance Criteria
 
-- [ ] Vercel Blob configured (needs BLOB_READ_WRITE_TOKEN)
+- [x] Azure Blob configured
 - [x] Resume upload works in job application
 - [x] File type validation (PDF, DOC, DOCX)
 - [x] File size validation (max 5MB)
@@ -729,7 +732,7 @@ Vercel Environment Variables (Production)
 |----------|---------|----------|
 | `DATABASE_URL` | Neon | Yes |
 | `RESEND_API_KEY` | Resend | Yes |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob | Yes |
+| `AZURE_STORAGE_ACCOUNT_NAME` | Azure Blob Storage | Yes |
 | `CLERK_SECRET_KEY` | Clerk | For Admin |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk | For Admin |
 | `CLERK_WEBHOOK_SECRET` | Clerk | For User Sync |
@@ -783,7 +786,7 @@ pnpm prisma migrate deploy
 |---------|-----------|---------------|------|
 | Neon PostgreSQL | 0.5 GB | < 0.5 GB | $0 |
 | Vercel Hosting | 100 GB bandwidth | ~10 GB | $0 |
-| Vercel Blob | 1 GB | ~100 MB | $0 |
+| Azure Blob Storage | Hot tier | ~100 MB | ~$0 |
 | Resend Email | 3,000/month | ~500/month | $0 |
 | Clerk Auth | 10,000 MAU | 1-5 users | $0 |
 | **Total** | | | **$0** |

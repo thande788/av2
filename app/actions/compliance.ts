@@ -8,10 +8,14 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { put, del } from '@vercel/blob';
 import { db } from '@/lib/db';
 import { DocType, DocStatus, ComplianceStatus } from '@prisma/client';
 import { validateFile } from '@/lib/file-scanner';
+import {
+  deleteAzureBlobByUrl,
+  getStorageContainer,
+  uploadBufferToAzureBlob,
+} from '@/lib/azure-blob';
 
 // Allowed document types
 const ALLOWED_TYPES = [
@@ -92,11 +96,12 @@ export async function uploadComplianceDocument(
       .substring(0, 50);
     const filename = `compliance/${workerId}/${timestamp}-${safeBaseName}-${randomSuffix}.${extension}`;
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, buffer, {
-      access: 'public',
+    const container = getStorageContainer('AZURE_STORAGE_COMPLIANCE_CONTAINER', 'uploads');
+    const blob = await uploadBufferToAzureBlob({
+      container,
+      blobName: filename,
+      data: buffer,
       contentType: file.type,
-      addRandomSuffix: false,
     });
 
     // Create ComplianceDoc record
@@ -161,7 +166,7 @@ export async function deleteComplianceDocument(
 
     // Delete from blob storage
     try {
-      await del(doc.fileUrl);
+      await deleteAzureBlobByUrl(doc.fileUrl);
     } catch (e) {
       console.warn('[Compliance] Failed to delete blob:', e);
       // Continue with DB deletion even if blob delete fails

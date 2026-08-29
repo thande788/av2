@@ -9,6 +9,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { serialize } from '@/lib/utils';
 import { getCurrentWorkerWithCompliance } from '@/lib/auth';
+import { maybeSignBlobReadUrl } from '@/lib/azure-blob';
 import { ComplianceDocumentsList } from './compliance-documents-list';
 import { UploadDocumentDialog } from './upload-document-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -45,8 +46,14 @@ async function ComplianceContent() {
     redirect('/employee/complete-profile');
   }
 
-  // Serialize Prisma objects to plain objects for client components
-  const serializedDocs = serialize(worker.complianceDocs);
+  const docsWithSignedUrls = await Promise.all(
+    worker.complianceDocs.map(async (doc) => ({
+      ...doc,
+      fileUrl: (await maybeSignBlobReadUrl(doc.fileUrl)) || doc.fileUrl,
+    })),
+  );
+
+  const serializedDocs = serialize(docsWithSignedUrls);
 
   return (
     <div className="space-y-6">

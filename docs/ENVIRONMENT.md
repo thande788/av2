@@ -98,15 +98,22 @@ cp .env.example .env.local
 
 ---
 
-### File Storage (Vercel Blob)
+### File Storage (Azure Blob)
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
-| `BLOB_READ_WRITE_TOKEN` | Prod | Vercel Blob access token | `vercel_blob_xxx` |
+| `AZURE_STORAGE_ACCOUNT_NAME` | Prod* | Storage account name for managed identity auth | `angeltouchstorage` |
+| `AZURE_STORAGE_BLOB_ENDPOINT` | No | Custom blob endpoint override | `https://angeltouchstorage.blob.core.windows.net` |
+| `AZURE_STORAGE_CONNECTION_STRING` | Optional | Connection string fallback for local/dev | `DefaultEndpointsProtocol=...` |
+| `AZURE_STORAGE_CONTAINER` | No | Default uploads container | `uploads` |
+| `AZURE_STORAGE_UPLOADS_CONTAINER` | No | Container for resumes/cover letters | `uploads` |
+| `AZURE_STORAGE_MARKETING_CONTAINER` | No | Container for worker marketing photos | `uploads` |
+| `AZURE_STORAGE_COMPLIANCE_CONTAINER` | No | Container for compliance docs | `uploads` |
 
 **Notes:**
-- Auto-configured when connecting Vercel Blob to your project
-- Required for file uploads (resumes, compliance documents)
+- Use Managed Identity in Azure with `Storage Blob Data Contributor` role on the storage account
+- Set `AZURE_STORAGE_CONNECTION_STRING` only as a fallback where managed identity is unavailable
+- Required for file uploads (resumes, compliance documents, worker photos)
 
 ---
 
@@ -231,8 +238,13 @@ TWILIO_ACCOUNT_SID="ACxxx"
 TWILIO_AUTH_TOKEN="xxx"
 TWILIO_PHONE_NUMBER="+1xxxxxxxxxx"
 
-# Storage
-BLOB_READ_WRITE_TOKEN="vercel_blob_xxx"
+# Storage (Managed Identity preferred)
+AZURE_STORAGE_ACCOUNT_NAME="angeltouchstorage"
+AZURE_STORAGE_BLOB_ENDPOINT="https://angeltouchstorage.blob.core.windows.net"
+AZURE_STORAGE_CONTAINER="uploads"
+AZURE_STORAGE_UPLOADS_CONTAINER="uploads"
+AZURE_STORAGE_MARKETING_CONTAINER="uploads"
+AZURE_STORAGE_COMPLIANCE_CONTAINER="uploads"
 
 # URLs
 NEXT_PUBLIC_APP_URL="https://angeltouchhomecare.com"
