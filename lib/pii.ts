@@ -184,15 +184,24 @@ function decryptString(fieldName: string, value: string): string {
     throw new Error(`Unknown key id '${keyId}' for ${fieldName}`);
   }
 
-  const decipher = createDecipheriv(ALGORITHM, key, Buffer.from(ivB64, 'base64'));
-  decipher.setAAD(Buffer.from(fieldName));
-  decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
-  const plaintext = Buffer.concat([
-    decipher.update(Buffer.from(encryptedB64, 'base64')),
-    decipher.final(),
-  ]);
+  try {
+    const decipher = createDecipheriv(ALGORITHM, key, Buffer.from(ivB64, 'base64'));
+    decipher.setAAD(Buffer.from(fieldName));
+    decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
+    const plaintext = Buffer.concat([
+      decipher.update(Buffer.from(encryptedB64, 'base64')),
+      decipher.final(),
+    ]);
 
-  return plaintext.toString('utf8');
+    return plaintext.toString('utf8');
+  } catch (error) {
+    if (process.env.PII_ALLOW_DECRYPT_FAILURE === 'true') {
+      console.warn(`[PII] Decrypt failed for ${fieldName}; returning encrypted payload`);
+      return value;
+    }
+
+    throw error;
+  }
 }
 
 function asDateString(value: unknown): string | null {

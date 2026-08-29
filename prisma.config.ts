@@ -2,9 +2,16 @@ import path from 'node:path';
 import { defineConfig } from 'prisma/config';
 import { config } from 'dotenv';
 
-// Load .env first, then allow .env.local to override for local development.
-config({ path: '.env' });
-config({ path: '.env.local', override: true });
+const prismaEnvFile = process.env.PRISMA_ENV_FILE;
+
+if (prismaEnvFile) {
+  // Explicit env file for Prisma commands, e.g. PRISMA_ENV_FILE=.env.production
+  config({ path: prismaEnvFile, override: true });
+} else {
+  // Default local behavior: load .env, then allow .env.local overrides.
+  config({ path: '.env' });
+  config({ path: '.env.local', override: true });
+}
 
 export default defineConfig({
   schema: path.join(__dirname, 'prisma', 'schema.prisma'),

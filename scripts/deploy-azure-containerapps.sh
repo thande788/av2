@@ -4,20 +4,18 @@ set -euo pipefail
 # Usage:
 #   bash scripts/deploy-azure-containerapps.sh
 #
-# Requires .env/.env.local to contain runtime secrets.
+# Requires .env.production to contain runtime secrets.
 
 SCRIPT_DIR="$(dirname "$0")"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-if [[ -f "$ROOT_DIR/.env" ]]; then
-  # shellcheck disable=SC1091
-  source "$ROOT_DIR/.env"
+if [[ ! -f "$ROOT_DIR/.env.production" ]]; then
+  echo "Missing required env file: $ROOT_DIR/.env.production" >&2
+  exit 1
 fi
 
-if [[ -f "$ROOT_DIR/.env.local" ]]; then
-  # shellcheck disable=SC1091
-  source "$ROOT_DIR/.env.local"
-fi
+# shellcheck disable=SC1091
+source "$ROOT_DIR/.env.production"
 
 required_vars=(
   DATABASE_URL
@@ -51,6 +49,10 @@ IMAGE_REPO="angeltouch-web"
 IMAGE_TAG="$(date +%Y%m%d%H%M%S)"
 IMAGE="$ACR_NAME.azurecr.io/$IMAGE_REPO:$IMAGE_TAG"
 
+# Azure ACR build step command parsing can treat '&' in build-arg values as shell operators.
+# Escape them for DATABASE_URL so Neon URLs with channel_binding parameters remain valid.
+DATABASE_URL_BUILD_ARG="${DATABASE_URL//&/\\&}"
+
 echo "Building image: $IMAGE"
 az acr build \
   --registry "$ACR_NAME" \
@@ -62,7 +64,7 @@ az acr build \
   --build-arg NEXT_PUBLIC_CLERK_SIGN_UP_URL="${NEXT_PUBLIC_CLERK_SIGN_UP_URL:-/sign-up}" \
   --build-arg NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://angeltouch.services}" \
   --build-arg NEXT_PUBLIC_DEMO_MODE="${NEXT_PUBLIC_DEMO_MODE:-false}" \
-  --build-arg DATABASE_URL="$DATABASE_URL" \
+  --build-arg DATABASE_URL="$DATABASE_URL_BUILD_ARG" \
   "$ROOT_DIR"
 
 echo "Ensuring managed identity exists"
@@ -177,6 +179,7 @@ app_env_vars=(
   "PII_ACTIVE_KEY_ID=secretref:pii-active-key-id"
   "PII_KEYRING_JSON=secretref:pii-keyring-json"
   "PII_HASH_KEY=secretref:pii-hash-key"
+  "PII_ALLOW_DECRYPT_FAILURE=${PII_ALLOW_DECRYPT_FAILURE:-false}"
 )
 
 if [[ -n "${RESEND_API_KEY:-}" ]]; then
