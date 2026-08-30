@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 import { db } from "@/lib/db";
 import { sendWhatsAppTemplateToUser } from "@/app/actions/whatsapp";
+import { type WhatsAppTemplateComponent } from "@/lib/whatsapp";
 
 type SendTemplateRequestBody = {
   portalUserId?: string;
@@ -10,6 +11,10 @@ type SendTemplateRequestBody = {
   languageCode?: string;
   components?: Array<Record<string, unknown>>;
 };
+
+function isTemplateComponent(value: Record<string, unknown>): value is WhatsAppTemplateComponent {
+  return typeof value.type === "string";
+}
 
 export async function POST(request: NextRequest) {
   const { userId } = await auth();
@@ -34,11 +39,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const components = body.components?.filter(isTemplateComponent);
+
   const result = await sendWhatsAppTemplateToUser({
     portalUserId: body.portalUserId,
     templateName: body.templateName,
     languageCode: body.languageCode,
-    components: body.components,
+    components,
   });
 
   if (!result.success) {

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import { NextRequest, NextResponse } from "next/server";
+import { type Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
 import { normalizePhoneToE164, verifyMetaWebhookSignature } from "@/lib/whatsapp";
@@ -57,6 +58,10 @@ function toDate(timestamp: string | undefined): Date {
   }
 
   return new Date(parsed * 1000);
+}
+
+function toPrismaJson(value: unknown): Prisma.InputJsonValue {
+  return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 }
 
 function mapStatus(status: string | undefined):
@@ -179,7 +184,7 @@ async function processInboundMessages(
       toPhone: contact.phone,
       fromPhone: normalizePhoneToE164(message.from),
       body: message.text?.body || null,
-      payload: message,
+      payload: toPrismaJson(message),
       sentAt: toDate(message.timestamp),
     };
 
@@ -232,7 +237,7 @@ async function processStatuses(
         where: { id: existingMessage.id },
         data: {
           status: mappedStatus,
-          payload: statusItem,
+          payload: toPrismaJson(statusItem),
           errorMessage,
           sentAt: mappedStatus === "SENT" ? eventTime : existingMessage.sentAt,
           deliveredAt: mappedStatus === "DELIVERED" ? eventTime : existingMessage.deliveredAt,
@@ -257,7 +262,7 @@ async function processStatuses(
         messageType: "template",
         metaMessageId: statusItem.id,
         toPhone: contact.phone,
-        payload: statusItem,
+        payload: toPrismaJson(statusItem),
         errorMessage,
         sentAt: mappedStatus === "SENT" ? eventTime : null,
         deliveredAt: mappedStatus === "DELIVERED" ? eventTime : null,
@@ -315,7 +320,7 @@ export async function POST(request: NextRequest) {
     data: {
       dedupeKey,
       eventType: payload.object || "whatsapp_webhook",
-      payload,
+      payload: toPrismaJson(payload),
       status: "RECEIVED",
     },
   });

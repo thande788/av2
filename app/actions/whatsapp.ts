@@ -7,6 +7,7 @@ import {
   sendWhatsAppTemplateMessage,
   type WhatsAppTemplateComponent,
 } from "@/lib/whatsapp";
+import { type Prisma } from "@prisma/client";
 
 export type SendWhatsAppTemplateActionInput = {
   portalUserId: string;
@@ -20,6 +21,10 @@ export type SendWhatsAppTemplateActionResult = {
   messageId?: string;
   error?: string;
 };
+
+function toPrismaJson(value: unknown): Prisma.InputJsonValue {
+  return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
+}
 
 function getLast10Digits(phoneNumber: string): string | null {
   const digits = phoneNumber.replace(/\D/g, "");
@@ -122,10 +127,10 @@ export async function sendWhatsAppTemplateToUser(
       templateName: input.templateName,
       metaMessageId: sendResult.messageId,
       toPhone: normalizedPhone,
-      payload: {
+      payload: toPrismaJson({
         languageCode: input.languageCode || "en_US",
         components: input.components || [],
-      },
+      }),
       errorMessage: sendResult.error,
       sentAt: sendResult.success ? new Date() : null,
       failedAt: sendResult.success ? null : new Date(),
