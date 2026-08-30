@@ -212,6 +212,7 @@ export default async function HomePage() {
 							className="object-cover"
 							priority
 							sizes="100vw"
+							unoptimized
 						/>
 						{/* Light mode: minimal overlay to preserve image brightness */}
 						{/* Dark mode: stronger overlay for text contrast */}

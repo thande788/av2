@@ -141,6 +141,7 @@ export function DetailSheet({
             fill
             className="object-cover"
             sizes="(min-width: 768px) 32rem, 100vw"
+            unoptimized={headerImage.startsWith("http")}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/90" />
         </div>

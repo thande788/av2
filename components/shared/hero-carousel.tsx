@@ -151,6 +151,7 @@ export function HeroCarousel({
                     className="object-cover"
                     priority={slides.indexOf(slide) === 0}
                     sizes="100vw"
+                    unoptimized={slide.image.startsWith("http")}
                   />
                 )}
 

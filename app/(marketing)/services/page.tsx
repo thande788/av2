@@ -128,6 +128,7 @@ export default async function ServicesPage() {
               className="object-cover"
               priority
               sizes="100vw"
+              unoptimized
             />
             {/* <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/55 to-black/35" /> */}
             <div className="absolute inset-0 bg-black/30" />

@@ -147,6 +147,7 @@ export default async function TestimonialsPage() {
               className="object-cover"
               priority
               sizes="100vw"
+              unoptimized
             />
             <div className="absolute inset-0 bg-black/30" />
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
