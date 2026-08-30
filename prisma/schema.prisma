@@ -275,6 +275,8 @@ model PortalUser {
   worker          Worker?
   client          Client?
   testimonials    Testimonial[]
+  whatsappContact WhatsappContact?
+  whatsappMessages WhatsappMessage[]
   
   // Timestamps
   createdAt       DateTime   @default(now())
@@ -952,8 +954,91 @@ model Notification {
 enum NotificationChannel {
   EMAIL
   SMS
+  WHATSAPP
   PUSH
   IN_APP
+}
+
+enum WhatsappMessageDirection {
+  INBOUND
+  OUTBOUND_TEMPLATE
+  OUTBOUND_SESSION
+}
+
+enum WhatsappMessageStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  RECEIVED
+}
+
+enum WhatsappWebhookStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+model WhatsappContact {
+  id          String    @id @default(cuid())
+  portalUserId String?  @unique
+  portalUser  PortalUser? @relation(fields: [portalUserId], references: [id], onDelete: SetNull)
+  phone       String    @unique
+  waId        String?   @unique
+  displayName String?
+  optedIn     Boolean   @default(false)
+  optedInAt   DateTime?
+  optedOutAt  DateTime?
+  messages    WhatsappMessage[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([phone])
+  @@index([waId])
+}
+
+model WhatsappMessage {
+  id           String                  @id @default(cuid())
+  contactId    String?
+  contact      WhatsappContact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  portalUserId String?
+  portalUser   PortalUser?             @relation(fields: [portalUserId], references: [id], onDelete: SetNull)
+  direction    WhatsappMessageDirection
+  status       WhatsappMessageStatus   @default(QUEUED)
+  messageType  String
+  templateName String?
+  metaMessageId String?                @unique
+  toPhone      String
+  fromPhone    String?
+  body         String?                 @db.Text
+  payload      Json?
+  errorMessage String?
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  readAt       DateTime?
+  failedAt     DateTime?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+
+  @@index([contactId])
+  @@index([portalUserId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model WhatsappWebhookEvent {
+  id          String               @id @default(cuid())
+  dedupeKey   String               @unique
+  eventType   String
+  payload     Json
+  status      WhatsappWebhookStatus @default(RECEIVED)
+  errorMessage String?
+  processedAt DateTime?
+  receivedAt  DateTime             @default(now())
+
+  @@index([status])
+  @@index([receivedAt])
 }
 
 enum NotificationType {

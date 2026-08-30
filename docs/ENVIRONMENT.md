@@ -69,6 +69,20 @@ cp .env.example .env.local
 
 ---
 
+### WhatsApp (Meta Cloud API)
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `WHATSAPP_ACCESS_TOKEN` | Prod (if WhatsApp enabled) | Meta system user token for Graph API | `EAAG...` |
+| `WHATSAPP_PHONE_NUMBER_ID` | Prod (if WhatsApp enabled) | WhatsApp sender phone number ID | `123456789012345` |
+| `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | Prod (if WhatsApp enabled) | Token used for webhook verification challenge | Random string |
+| `WHATSAPP_APP_SECRET` | Prod (if WhatsApp enabled) | Meta app secret used for webhook signature validation | `abc123...` |
+| `WHATSAPP_API_VERSION` | No | Graph API version | `v21.0` |
+
+**Get from:** [Meta for Developers](https://developers.facebook.com)
+
+---
+
 ### Payments (Stripe)
 
 | Variable | Required | Description | Example |
@@ -237,6 +251,13 @@ ADMIN_EMAIL="admin@angeltouch.services"
 TWILIO_ACCOUNT_SID="ACxxx"
 TWILIO_AUTH_TOKEN="xxx"
 TWILIO_PHONE_NUMBER="+1xxxxxxxxxx"
+
+# WhatsApp
+WHATSAPP_ACCESS_TOKEN="EAAG..."
+WHATSAPP_PHONE_NUMBER_ID="123456789012345"
+WHATSAPP_WEBHOOK_VERIFY_TOKEN="replace-with-random-token"
+WHATSAPP_APP_SECRET="replace-with-meta-app-secret"
+WHATSAPP_API_VERSION="v21.0"
 
 # Storage (Managed Identity preferred)
 AZURE_STORAGE_ACCOUNT_NAME="angeltouchstorage"

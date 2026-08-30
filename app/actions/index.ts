@@ -107,6 +107,13 @@ export {
   type NotificationResult,
 } from "./sms-notifications";
 
+// WhatsApp actions
+export {
+  sendWhatsAppTemplateToUser,
+  type SendWhatsAppTemplateActionInput,
+  type SendWhatsAppTemplateActionResult,
+} from "./whatsapp";
+
 // Shift booking actions (from SMS links)
 export {
   bookShiftFromLink,
