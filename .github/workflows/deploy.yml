@@ -1,0 +1,165 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - trunk
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || 'angeltouch' }}
+      AZURE_CONTAINERAPP_NAME: ${{ vars.AZURE_CONTAINERAPP_NAME || 'ca-angeltouch-web' }}
+      AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME || 'acrangeltouch7698' }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://angeltouch.services' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create .env.production for deployment script
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          CLERK_WEBHOOK_SECRET: ${{ secrets.CLERK_WEBHOOK_SECRET }}
+          NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${{ vars.NEXT_PUBLIC_CLERK_SIGN_IN_URL || '/sign-in' }}
+          NEXT_PUBLIC_CLERK_SIGN_UP_URL: ${{ vars.NEXT_PUBLIC_CLERK_SIGN_UP_URL || '/sign-up' }}
+          NEXT_PUBLIC_DEMO_MODE: ${{ vars.NEXT_PUBLIC_DEMO_MODE || 'false' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DAY_BEFORE_UTC_HOUR: ${{ vars.DAY_BEFORE_UTC_HOUR || '18' }}
+          PII_ACTIVE_KEY_ID: ${{ secrets.PII_ACTIVE_KEY_ID }}
+          PII_KEYRING_JSON: ${{ secrets.PII_KEYRING_JSON }}
+          PII_HASH_KEY: ${{ secrets.PII_HASH_KEY }}
+          PII_ALLOW_DECRYPT_FAILURE: ${{ vars.PII_ALLOW_DECRYPT_FAILURE || 'false' }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL || 'admin@angeltouch.services' }}
+          FROM_EMAIL: ${{ vars.FROM_EMAIL || 'Angel Touch Homecare <noreply@angeltouch.services>' }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_WORKLOAD_CLIENT_ID || secrets.AZURE_CLIENT_ID }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_STORAGE_BLOB_ENDPOINT: ${{ secrets.AZURE_STORAGE_BLOB_ENDPOINT }}
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
+          AZURE_STORAGE_CONTAINER: ${{ vars.AZURE_STORAGE_CONTAINER || 'uploads' }}
+          AZURE_STORAGE_UPLOADS_CONTAINER: ${{ vars.AZURE_STORAGE_UPLOADS_CONTAINER || 'uploads' }}
+          AZURE_STORAGE_MARKETING_CONTAINER: ${{ vars.AZURE_STORAGE_MARKETING_CONTAINER || 'uploads' }}
+          AZURE_STORAGE_COMPLIANCE_CONTAINER: ${{ vars.AZURE_STORAGE_COMPLIANCE_CONTAINER || 'uploads' }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
+          OFFICE_PHONE_NUMBER: ${{ vars.OFFICE_PHONE_NUMBER || '+19788569358' }}
+          WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+          WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+          WHATSAPP_WEBHOOK_VERIFY_TOKEN: ${{ secrets.WHATSAPP_WEBHOOK_VERIFY_TOKEN }}
+          WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET }}
+          WHATSAPP_API_VERSION: ${{ vars.WHATSAPP_API_VERSION || 'v21.0' }}
+          NEXT_PUBLIC_SITE_URL: ${{ env.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          cat > .env.production <<EOF
+          DATABASE_URL="$DATABASE_URL"
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+          CLERK_SECRET_KEY="$CLERK_SECRET_KEY"
+          CLERK_WEBHOOK_SECRET="$CLERK_WEBHOOK_SECRET"
+          NEXT_PUBLIC_CLERK_SIGN_IN_URL="$NEXT_PUBLIC_CLERK_SIGN_IN_URL"
+          NEXT_PUBLIC_CLERK_SIGN_UP_URL="$NEXT_PUBLIC_CLERK_SIGN_UP_URL"
+          NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL"
+          NEXT_PUBLIC_DEMO_MODE="$NEXT_PUBLIC_DEMO_MODE"
+          CRON_SECRET="$CRON_SECRET"
+          DAY_BEFORE_UTC_HOUR="$DAY_BEFORE_UTC_HOUR"
+          PII_ACTIVE_KEY_ID="$PII_ACTIVE_KEY_ID"
+          PII_KEYRING_JSON='$PII_KEYRING_JSON'
+          PII_HASH_KEY="$PII_HASH_KEY"
+          PII_ALLOW_DECRYPT_FAILURE="$PII_ALLOW_DECRYPT_FAILURE"
+          RESEND_API_KEY="$RESEND_API_KEY"
+          ADMIN_EMAIL="$ADMIN_EMAIL"
+          FROM_EMAIL="$FROM_EMAIL"
+          AZURE_CLIENT_ID="$AZURE_CLIENT_ID"
+          AZURE_STORAGE_ACCOUNT_NAME="$AZURE_STORAGE_ACCOUNT_NAME"
+          AZURE_STORAGE_BLOB_ENDPOINT="$AZURE_STORAGE_BLOB_ENDPOINT"
+          AZURE_STORAGE_CONNECTION_STRING="$AZURE_STORAGE_CONNECTION_STRING"
+          AZURE_STORAGE_ACCOUNT_KEY="$AZURE_STORAGE_ACCOUNT_KEY"
+          AZURE_STORAGE_CONTAINER="$AZURE_STORAGE_CONTAINER"
+          AZURE_STORAGE_UPLOADS_CONTAINER="$AZURE_STORAGE_UPLOADS_CONTAINER"
+          AZURE_STORAGE_MARKETING_CONTAINER="$AZURE_STORAGE_MARKETING_CONTAINER"
+          AZURE_STORAGE_COMPLIANCE_CONTAINER="$AZURE_STORAGE_COMPLIANCE_CONTAINER"
+          STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY"
+          STRIPE_WEBHOOK_SECRET="$STRIPE_WEBHOOK_SECRET"
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
+          TWILIO_ACCOUNT_SID="$TWILIO_ACCOUNT_SID"
+          TWILIO_AUTH_TOKEN="$TWILIO_AUTH_TOKEN"
+          TWILIO_PHONE_NUMBER="$TWILIO_PHONE_NUMBER"
+          OFFICE_PHONE_NUMBER="$OFFICE_PHONE_NUMBER"
+          WHATSAPP_ACCESS_TOKEN="$WHATSAPP_ACCESS_TOKEN"
+          WHATSAPP_PHONE_NUMBER_ID="$WHATSAPP_PHONE_NUMBER_ID"
+          WHATSAPP_WEBHOOK_VERIFY_TOKEN="$WHATSAPP_WEBHOOK_VERIFY_TOKEN"
+          WHATSAPP_APP_SECRET="$WHATSAPP_APP_SECRET"
+          WHATSAPP_API_VERSION="$WHATSAPP_API_VERSION"
+          EOF
+
+      - name: Deploy to Azure Container Apps
+        run: bash scripts/deploy-azure-containerapps.sh
+
+      - name: Deployment summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_JSON=$(az containerapp show --name "$AZURE_CONTAINERAPP_NAME" --resource-group "$AZURE_RESOURCE_GROUP" -o json)
+          FQDN=$(echo "$APP_JSON" | jq -r '.properties.configuration.ingress.fqdn')
+          REVISION=$(echo "$APP_JSON" | jq -r '.properties.latestRevisionName')
+          IMAGE=$(echo "$APP_JSON" | jq -r '.properties.template.containers[0].image')
+
+          IMAGE_TAG="${IMAGE##*:}"
+          IMAGE_REPO_PATH="${IMAGE#*.azurecr.io/}"
+          IMAGE_REPO="${IMAGE_REPO_PATH%%:*}"
+          IMAGE_SIZE_BYTES=$(az acr manifest list-metadata --registry "$AZURE_ACR_NAME" --name "$IMAGE_REPO" --query "[?contains(tags, '$IMAGE_TAG')].imageSize | [0]" -o tsv 2>/dev/null || true)
+
+          if [[ -n "$IMAGE_SIZE_BYTES" && "$IMAGE_SIZE_BYTES" != "null" ]]; then
+            IMAGE_SIZE_HUMAN=$(numfmt --to=iec-i --suffix=B "$IMAGE_SIZE_BYTES")
+          else
+            IMAGE_SIZE_BYTES="n/a"
+            IMAGE_SIZE_HUMAN="n/a"
+          fi
+
+          {
+            echo "## Deploy Summary"
+            echo "- FQDN: https://$FQDN"
+            echo "- Revision: $REVISION"
+            echo "- Image: $IMAGE"
+            echo "- Image Size: $IMAGE_SIZE_HUMAN ($IMAGE_SIZE_BYTES)"
+          } >> "$GITHUB_STEP_SUMMARY"
