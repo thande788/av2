@@ -21,6 +21,7 @@
     "db:reset": "prisma migrate reset",
     "db:backfill:pii": "tsx scripts/backfill-pii.ts",
     "storage:migrate:vercel-to-azure": "tsx scripts/migrate-vercel-blob-to-azure.ts",
+    "storage:migrate:marketing-heroes": "tsx scripts/migrate-marketing-hero-images-to-azure.ts",
     "security:keys:pii": "tsx scripts/generate-pii-keys.ts"
   },
   "prisma": {

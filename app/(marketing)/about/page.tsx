@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { marketingImageUrls } from "@/data/marketing-image-urls";
 import { getCanonicalAlternates } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -80,7 +81,7 @@ export default function AboutPage() {
 				<div className="relative rounded-3xl overflow-hidden">
 					<div className="absolute inset-0">
 						<Image
-							src="https://images.pexels.com/photos/4342498/pexels-photo-4342498.jpeg?auto=compress&cs=tinysrgb&w=1600"
+							src={marketingImageUrls.aboutHero}
 							alt="Angel Touch Homecare"
 							fill
 							className="object-cover"

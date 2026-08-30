@@ -17,6 +17,7 @@ import {
   serviceCategories as staticCategories,
   type ServiceCategory,
 } from "@/data/services";
+import { marketingImageUrls } from "@/data/marketing-image-urls";
 
 /**
  * Feature flag: Enable/disable carousel autoplay for service categories
@@ -28,9 +29,9 @@ const SERVICE_CAROUSEL_AUTOPLAY = 0; // 0 = off, or set ms (e.g., 5000)
  * Category image mapping
  */
 const categoryImages: Record<string, string> = {
-  "personal-care": "7551617",
-  "household-services": "4057758",
-  "companionship": "7551442",
+  "personal-care": marketingImageUrls.servicesCategoryPersonalCare,
+  "household-services": marketingImageUrls.servicesCategoryHouseholdServices,
+  "companionship": marketingImageUrls.servicesCategoryCompanionship,
 };
 
 /**
@@ -38,12 +39,12 @@ const categoryImages: Record<string, string> = {
  */
 function getServiceCategorySlides(categories: ServiceCategory[]): FeatureSlide[] {
   return categories.map((category) => {
-    const imageId = categoryImages[category.id] || "7551442";
+    const imageUrl = categoryImages[category.id] || marketingImageUrls.servicesCategoryCompanionship;
     return {
       id: category.id,
       title: category.name,
       description: category.description,
-      image: `https://images.pexels.com/photos/${imageId}/pexels-photo-${imageId}.jpeg?auto=compress&cs=tinysrgb&w=1600`,
+      image: imageUrl,
       imageAlt: `${category.name} services`,
       align: "left" as const,
       overlay: "bg-gradient-to-t from-black/85 via-black/55 to-black/35",
@@ -186,7 +187,7 @@ export function ServiceCategoriesSection({ categories }: { categories?: ServiceC
           title={selectedCategory.name}
           description={selectedCategory.description}
           icon={getServiceIcon(selectedCategory.icon, "size-7")}
-          headerImage={`https://images.pexels.com/photos/${categoryImages[selectedCategory.id] || "7551442"}/pexels-photo-${categoryImages[selectedCategory.id] || "7551442"}.jpeg?auto=compress&cs=tinysrgb&w=800`}
+          headerImage={categoryImages[selectedCategory.id] || marketingImageUrls.servicesCategoryCompanionship}
           headerImageAlt={`${selectedCategory.name} services`}
           footerPrompt={`Ready to get started with ${selectedCategory.name.toLowerCase()}?`}
           ctaText="Contact Us Today"

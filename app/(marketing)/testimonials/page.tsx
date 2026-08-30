@@ -7,6 +7,7 @@ import { cn, formatDateUS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TestimonialCardGrid } from "@/components/testimonials/testimonial-card";
+import { marketingImageUrls } from "@/data/marketing-image-urls";
 import { testimonials as staticTestimonials } from "@/data/testimonials";
 import { JsonLdGraph } from "@/components/seo";
 import {
@@ -141,7 +142,7 @@ export default async function TestimonialsPage() {
         <div className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="https://images.pexels.com/photos/5493781/pexels-photo-5493781.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              src={marketingImageUrls.testimonialsHero}
               alt="Care and trust between families and caregivers"
               fill
               className="object-cover"

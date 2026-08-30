@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CaregiverCardGrid } from "@/components/caregivers/caregiver-card";
 import { caregivers as staticCaregivers } from "@/data/caregivers";
+import { marketingImageUrls } from "@/data/marketing-image-urls";
 import { getCanonicalAlternates } from "@/lib/seo";
 import { db } from "@/lib/db";
 import { maybeSignBlobReadUrl } from "@/lib/azure-blob";
@@ -93,7 +94,7 @@ export default async function CaregiversPage() {
 				<div className="relative rounded-3xl overflow-hidden">
 					<div className="absolute inset-0">
 						<Image
-							src="https://images.pexels.com/photos/5452228/pexels-photo-5452228.jpeg?auto=compress&cs=tinysrgb&w=1600"
+							src={marketingImageUrls.caregiversHero}
 							alt="Our compassionate caregivers"
 							fill
 							className="object-cover"

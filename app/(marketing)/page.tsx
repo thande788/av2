@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TestimonialCard } from "@/components/testimonials/testimonial-card";
 import { featuredTestimonials } from "@/data/testimonials";
+import { marketingImageUrls } from "@/data/marketing-image-urls";
 import { db } from "@/lib/db";
 import type { Testimonial } from "@/types/cards";
 import {
@@ -115,8 +116,7 @@ const whyChooseUsSlides: FeatureSlide[] = [
 		title: "Custom Care Plans",
 		description:
 			"No cookie-cutter approach here. We develop individualized care plans based on a thorough assessment of your needs, lifestyle, and personal preferences.",
-		image:
-			"https://images.pexels.com/photos/3768131/pexels-photo-3768131.jpeg?auto=compress&cs=tinysrgb&w=1600",
+		image: marketingImageUrls.whyChooseUsPersonalizedCare,
 		imageAlt: "Caregiver creating personalized care plan with client",
 		ctaText: "Our Services",
 		ctaHref: "/services",
@@ -127,8 +127,7 @@ const whyChooseUsSlides: FeatureSlide[] = [
 		title: "Familiar Faces You Trust",
 		description:
 			"We match you with caregivers who fit your personality and needs—and keep them consistent so real relationships can form.",
-		image:
-			"https://images.pexels.com/photos/3823039/pexels-photo-3823039.jpeg?auto=compress&cs=tinysrgb&w=1600",
+		image: marketingImageUrls.whyChooseUsConsistentCaregivers,
 		imageAlt: "Trusted caregiver with senior client",
 		ctaText: "Meet Our Team",
 		ctaHref: "/caregivers",
@@ -139,8 +138,7 @@ const whyChooseUsSlides: FeatureSlide[] = [
 		title: "Deep Local Roots",
 		description:
 			"Based in Lowell, we proudly serve Dracut, Chelmsford, Tewksbury, and Billerica. We're your neighbors—invested in the same community you call home.",
-		image:
-			"https://images.pexels.com/photos/7551664/pexels-photo-7551664.jpeg?auto=compress&cs=tinysrgb&w=1600",
+		image: marketingImageUrls.whyChooseUsLocalRoots,
 		imageAlt: "Local community care",
 		ctaText: "About Us",
 		ctaHref: "/about",
@@ -151,8 +149,7 @@ const whyChooseUsSlides: FeatureSlide[] = [
 		title: "Honest, Upfront Pricing",
 		description:
 			"No surprises on your bill. We provide clear quotes and flexible payment options so you can plan with confidence.",
-		image:
-			"https://images.pexels.com/photos/7176325/pexels-photo-7176325.jpeg?auto=compress&cs=tinysrgb&w=1600",
+		image: marketingImageUrls.whyChooseUsClearPricing,
 		imageAlt: "Family consultation about care options",
 		ctaText: "Get a Quote",
 		ctaHref: "/contact",
@@ -206,7 +203,7 @@ export default async function HomePage() {
 				<div className="relative rounded-3xl overflow-hidden">
 					<div className="absolute inset-0">
 						<Image
-							src="https://images.pexels.com/photos/7345465/pexels-photo-7345465.jpeg?auto=compress&cs=tinysrgb&w=1600"
+							src={marketingImageUrls.homeHero}
 							alt="Compassionate caregiver with senior client"
 							fill
 							className="object-cover"

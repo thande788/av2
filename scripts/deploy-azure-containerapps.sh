@@ -48,6 +48,7 @@ IDENTITY_NAME="uai-angeltouch-workload"
 IMAGE_REPO="angeltouch-web"
 IMAGE_TAG="$(date +%Y%m%d%H%M%S)"
 IMAGE="$ACR_NAME.azurecr.io/$IMAGE_REPO:$IMAGE_TAG"
+DEPLOY_START_EPOCH="$(date +%s)"
 
 # Azure ACR build step command parsing can treat '&' in build-arg values as shell operators.
 # Escape them for DATABASE_URL so Neon URLs with channel_binding parameters remain valid.
@@ -266,6 +267,31 @@ az containerapp job update \
   CRON_SECRET=secretref:cron-secret \
   DAY_BEFORE_UTC_HOUR=18 >/dev/null
 
+REVISION_NAME="$(az containerapp show --name "$APP_NAME" --resource-group "$RG" --query properties.latestRevisionName -o tsv)"
+IMAGE_SIZE_BYTES="$(az acr manifest list-metadata --registry "$ACR_NAME" --name "$IMAGE_REPO" --query "[?contains(tags, '$IMAGE_TAG')].imageSize | [0]" -o tsv 2>/dev/null || true)"
+
+if [[ -n "$IMAGE_SIZE_BYTES" && "$IMAGE_SIZE_BYTES" != "null" ]]; then
+  if command -v numfmt >/dev/null 2>&1; then
+    IMAGE_SIZE_HUMAN="$(numfmt --to=iec-i --suffix=B "$IMAGE_SIZE_BYTES")"
+  else
+    IMAGE_SIZE_HUMAN="${IMAGE_SIZE_BYTES} bytes"
+  fi
+else
+  IMAGE_SIZE_BYTES="n/a"
+  IMAGE_SIZE_HUMAN="n/a"
+fi
+
+DEPLOY_END_EPOCH="$(date +%s)"
+DEPLOY_DURATION_SECONDS="$((DEPLOY_END_EPOCH - DEPLOY_START_EPOCH))"
+DEPLOY_DURATION_MINUTES="$((DEPLOY_DURATION_SECONDS / 60))"
+DEPLOY_DURATION_REMAINDER_SECONDS="$((DEPLOY_DURATION_SECONDS % 60))"
+
 echo "Deployment complete"
-echo "App URL: $APP_BASE_URL"
-echo "Job: $JOB_NAME (hourly; runs day-before reminders at 18:00 UTC)"
+echo "Summary:"
+echo "  App URL: $APP_BASE_URL"
+echo "  FQDN: $APP_FQDN"
+echo "  Revision: $REVISION_NAME"
+echo "  Image: $IMAGE"
+echo "  Image Size: $IMAGE_SIZE_HUMAN ($IMAGE_SIZE_BYTES)"
+echo "  Deploy Time: ${DEPLOY_DURATION_MINUTES}m ${DEPLOY_DURATION_REMAINDER_SECONDS}s (${DEPLOY_DURATION_SECONDS}s total)"
+echo "  Job: $JOB_NAME (hourly; runs day-before reminders at 18:00 UTC)"

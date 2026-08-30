@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { PricingCardGrid } from "@/components/services/pricing-card";
 import { ServiceCategoriesSection } from "@/components/services/service-categories-section";
 import { CareInquiryForm } from "@/components/services/care-inquiry-form";
+import { marketingImageUrls } from "@/data/marketing-image-urls";
 import { serviceStats, serviceCategories as staticCategories, type ServiceCategory } from "@/data/services";
 import { getActivePricingTiers, type PricingTier } from "@/data/pricing";
 import { JsonLdGraph } from "@/components/seo";
@@ -122,7 +123,7 @@ export default async function ServicesPage() {
         <div className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="https://images.pexels.com/photos/4021775/pexels-photo-4021775.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              src={marketingImageUrls.servicesHero}
               alt="Professional homecare services"
               fill
               className="object-cover"

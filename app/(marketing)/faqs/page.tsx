@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FAQSection } from "@/components/faqs";
+import { marketingImageUrls } from "@/data/marketing-image-urls";
 import { faqs as staticFaqs } from "@/data/faqs";
 import { JsonLd } from "@/components/seo";
 import { createFAQPageSchema, getCanonicalAlternates } from "@/lib/seo";
@@ -72,7 +73,7 @@ export default async function FAQsPage() {
         <div className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="https://images.pexels.com/photos/7551615/pexels-photo-7551615.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              src={marketingImageUrls.faqsHero}
               alt="Frequently asked questions"
               fill
               className="object-cover"
